@@ -128,7 +128,8 @@ Poniżej krok po kroku (nazwy ustawień różnią się nieco między producentam
    **Więcej szczegółów → Zainstaluj mimo to**. Ostrzeżenie pojawia się dlatego, że aplikacji nie ma w Google Play
    i jest podpisana kluczem autora – nie oznacza samo w sobie, że plik jest groźny (patrz niżej, jak sprawdzić
    jego autentyczność).
-5. **Cofnij zgodę z kroku 2**, gdy aplikacja jest już zainstalowana (na ścianie nie ma potrzeby jej zostawiać).
+5. **Wyłącz zgodę z kroku 2**, gdy Domik jest już zainstalowany – do jego działania nie jest potrzebna. Włączysz ją
+   ponownie dopiero przy następnej aktualizacji z pliku APK.
 6. **Uruchom Domika** – pierwsze uruchomienie i konfigurację tabletu opisuje
    **[instrukcja](android/INSTRUKCJA.md)** (§3 – połączenie ze sterownikiem, §4 – tablet jako panel ścienny).
    Na początek warto wybrać **Wypróbuj tryb demo**.
