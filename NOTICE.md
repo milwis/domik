@@ -5,18 +5,18 @@ zmieniają tekstu licencji, a pomagają ją właściwie rozumieć.
 
 ## Charakter projektu
 
-Domik to **projekt edukacyjny i hobbystyczny**, dla osób rozwijających zainteresowania smart home na sterownikach
-Deimic 1. generacji. Jest **nieoficjalny i niezależny**. **Nie jest alternatywą ani zamiennikiem** oficjalnej
+Domik to **projekt edukacyjny i hobbystyczny**, dla osób rozwijających zainteresowania smart home – na razie na
+sterownikach Deimic 1. generacji (kolejne systemy mają być dodawane w przyszłości). Jest **nieoficjalny i niezależny**. **Nie jest alternatywą ani zamiennikiem** oficjalnej
 aplikacji producenta sterowników i nie powinien być używany jako jedyny sposób obsługi instalacji ani do funkcji
 krytycznych dla bezpieczeństwa. Oprogramowanie jest udostępniane „tak jak jest”, bez gwarancji – zgodnie
 z licencją MIT. Pełne [zastrzeżenia](README.md#zastrzeżenia) znajdziesz w pliku `README.md`.
 
 ## Znaki towarowe i brak związku z producentem
 
-„Deimic”, „Deimic Master” i inne oznaczenia producenta sterowników są znakami (lub nazwami) należącymi do ich
-właścicieli. Występują w tym projekcie wyłącznie opisowo – aby wskazać, z jakimi sterownikami Domik jest zgodny.
-Projekt nie ma żadnego związku z producentem sterowników: nie jest przez niego tworzony, autoryzowany, sponsorowany,
-zatwierdzony ani wspierany. Licencja MIT dotyczy wyłącznie kodu i materiałów tego projektu i **nie przyznaje żadnych
+„Deimic”, „Deimic Master”, „Gree” i inne oznaczenia producentów sterowników i urządzeń są znakami (lub nazwami)
+należącymi do ich właścicieli. Występują w tym projekcie wyłącznie opisowo – aby wskazać, z jakimi sterownikami
+Domik jest (lub ma być) zgodny. Projekt nie ma żadnego związku z tymi producentami: nie jest przez nich tworzony,
+autoryzowany, sponsorowany, zatwierdzony ani wspierany. Licencja MIT dotyczy wyłącznie kodu i materiałów tego projektu i **nie przyznaje żadnych
 praw do znaków towarowych**, w tym do nazwy „Domik” i nazw osób trzecich.
 
 „Android”, „Google Play” i „Jetpack Compose” są znakami towarowymi Google LLC. „Kotlin” jest znakiem towarowym

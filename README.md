@@ -2,10 +2,14 @@
 
 # 🏠 Domik
 
-**Panel ścienny na tablet z Androidem do sterowników Deimic 1. generacji**
+**Panel ścienny na tablet z Androidem do sterowania domem inteligentnym – na początek dla sterowników Deimic 1. generacji**
 
 Światła, rolety, ogrzewanie, kalendarz i pogoda na jednym, spokojnym pulpicie –
 bez chmury, bez kont, bez zbierania danych. Sterowanie w całości w Twojej sieci domowej.
+
+Domik **nie powstaje pod jednego producenta**. To system do sterowania różnymi sterownikami i systemami
+inteligentnego domu. **Deimic 1. generacji jest pierwszym obsługiwanym systemem**, a kolejne będą dodawane jako
+osobne moduły – w miarę jak autor uzyska dostęp do danego sterownika.
 
 [**⬇️ Pobierz wersję 0.1.0 (APK)**](https://github.com/milwis/domik/releases/latest) ·
 [**📲 Jak zainstalować**](#instalacja-apk) ·
@@ -15,8 +19,9 @@ bez chmury, bez kont, bez zbierania danych. Sterowanie w całości w Twojej siec
 
 > [!IMPORTANT]
 > **Projekt edukacyjny i hobbystyczny – nieoficjalny.** Domik jest niezależnym projektem dla osób, które rozwijają
-> swoje zainteresowania smart home na sterownikach Deimic. **Nie jest związany z producentem sterowników Deimic,
-> nie jest przez niego wspierany ani zatwierdzony.**
+> swoje zainteresowania smart home, na razie na sterownikach Deimic. **Nie jest związany z producentem sterowników
+> Deimic (ani z producentami innych systemów, które mogą być obsługiwane w przyszłości), nie jest przez nich wspierany
+> ani zatwierdzony.**
 >
 > - **To nie jest alternatywa ani zamiennik oficjalnej aplikacji.** Do codziennej, niezawodnej obsługi domu używaj
 >   oficjalnej aplikacji producenta oraz przycisków i wyłączników w instalacji.
@@ -203,6 +208,8 @@ W toku i planowane:
 - [ ] Auto-wyłączanie (np. garderoba gaśnie po 30 min) – silnik (moduł `automation`) jest napisany i przetestowany,
   ale nie jest jeszcze połączony z aplikacją, więc nie ma ustawień
 - [ ] Regulacja jasności i koloru (ściemnianie, RGB) – na razie LED-y i ściemniacze działają tylko jako włącz/wyłącz
+- [ ] **Klimatyzacja Gree** – integracja z klimatyzatorami Gree: gdy temperatura odbiega od zadanej o ustawioną
+  liczbę stopni w górę lub w dół, Domik włączy klimatyzator – odpowiednio w trybie grzania albo chłodzenia
 - [ ] **Termostaty pokojowe** – dodanie termostatów pokojowych do pulpitu
 - [ ] **Wiadomości na żywo (RSS)** – kafelek z nagłówkami z wybranych kanałów RSS, odświeżany na bieżąco
   *(nowe połączenia z zewnętrznymi serwisami – patrz uwaga niżej)*
@@ -211,6 +218,8 @@ W toku i planowane:
 
 W dalszej przyszłości (pomysły):
 
+- [ ] **Kolejne sterowniki i systemy smart home** – nowe moduły obsługi, rozwijane w miarę dostępu autora do
+  danego sprzętu (Deimic 1. generacji jest pierwszy, Gree jest następny w kolejce)
 - [ ] **Sterowanie głosem** przez Gemini – w wersji 0.1.0 jeszcze go nie ma
 - [ ] **Sterowniki TECH przez eModul** – obsługa także sterowników TECH, przez usługę eModul (wymaga konta
   i połączenia z chmurą tego producenta, w odróżnieniu od obecnej pracy wyłącznie w sieci lokalnej)
@@ -263,7 +272,8 @@ Przeczytaj, zanim zainstalujesz.
 
 ## Dla programistów
 
-Kotlin + Jetpack Compose, czysta architektura modułowa:
+Kotlin + Jetpack Compose, modułowa architektura. Obsługa sterownika Deimic mieści się w osobnych modułach
+(`deimic-*`); obsługa kolejnych systemów ma być dodawana jako kolejne moduły:
 
 | Moduł | Zawartość |
 |---|---|
@@ -293,8 +303,11 @@ w [`NOTICE.md`](NOTICE.md).
 
 ## English summary
 
-**Domik** is an **unofficial, educational/hobby** Android app that turns a tablet into a wall panel for
-**1st-generation Deimic controllers** (lights, shutters, heating, calendar, weather). It talks directly to the
+**Domik** is an **unofficial, educational/hobby** Android app that turns a tablet into a wall panel for smart-home
+controllers. It is **not tied to a single vendor**: **1st-generation Deimic controllers are the first supported system**
+(lights, shutters, heating, calendar, weather), and support for other controllers and systems is planned as separate
+modules, as the author gets access to the hardware (next on the list: Gree air conditioners – switching an AC unit to
+heating or cooling when the temperature deviates from the setpoint by a configurable number of degrees). It talks directly to the
 controller on your local network – no vendor cloud, no accounts, no telemetry – and has a demo mode that needs no
 controller. The only Internet traffic is the optional weather forecast from Open-Meteo (the town search text and the
 chosen town's coordinates rounded to 2 decimal places; no device location). All screenshots above come from the demo mode.
@@ -302,7 +315,7 @@ chosen town's coordinates rounded to 2 decimal places; no device location). All 
 > [!IMPORTANT]
 > This is an **educational, unofficial** project. It is **not affiliated with, endorsed by or supported by** the
 > manufacturer of Deimic controllers, and it is **not an alternative to or a replacement for the official app**.
-> “Deimic” and “Deimic Master” are trademarks of their respective owners, used here only to describe compatibility.
+> “Deimic”, “Deimic Master” and “Gree” are trademarks of their respective owners, used here only to describe compatibility.
 > The software is provided **“as is”, without warranty of any kind** (MIT licence); use it **at your own risk**, only
 > with your own controller on your own network. It controls physical installations – do not rely on it for
 > safety-critical functions, and try the demo mode first. If a rights holder wants something changed or removed,
