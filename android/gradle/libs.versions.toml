@@ -1,0 +1,40 @@
+# Katalog wersji – zależności wyłącznie od Google / JetBrains (+ JUnit).
+# Wybór wersji (2026-10-10): patrz komentarze przy poszczególnych pozycjach.
+[versions]
+# AGP 9.4.1 (stabilna): wymaga Gradle >= 9.6.0, JDK >= 17, build-tools 36.0.0.
+agp = "9.4.1"
+# Kotlin 2.4.21 (stabilna); Gradle 9.8.1 testowany z Kotlin do 2.4.20+.
+kotlin = "2.4.21"
+# Compose BOM 2026.09.00 (Compose UI 1.12.1, Material3 1.4.0) – najnowszy stabilny; wymaga compileSdk 37.
+composeBom = "2026.09.00"
+# core-ktx 1.19.1 (stabilna) – minCompileSdk 37.
+coreKtx = "1.19.1"
+# activity-compose 1.13.0 – najnowsza stabilna (1.14.0 tylko alpha).
+activityCompose = "1.13.0"
+# kotlinx-coroutines 1.11.0 (stabilna) – :deimic-client.
+coroutines = "1.11.0"
+# lifecycle 2.10.0 – ta sama wersja, którą activity-compose 1.13.0 i tak wnosi tranzytywnie (ViewModel, Lifecycle).
+lifecycle = "2.10.0"
+junit = "6.1.3"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

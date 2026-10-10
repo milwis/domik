@@ -1,0 +1,22 @@
+# Build / Gradle
+build/
+.gradle/
+.kotlin/
+dist/
+
+# Lokalna konfiguracja i klucze podpisu (nigdy do repo)
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# IDE / system
+.idea/
+*.iml
+.DS_Store
+
+# Znacznik lokalnego eksportu
+.domik-export-marker
+
+# Konfiguracja narzędzia tools-probe (zawiera dane z własnego domu)
+domik-probe.local.json

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#2E6B4F</color>
+    <!-- Tło okna przed uruchomieniem Compose (dół gradientu tła). -->
+    <color name="window_background">#D6E5FB</color>
+</resources>

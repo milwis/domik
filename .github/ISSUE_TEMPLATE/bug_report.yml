@@ -1,0 +1,79 @@
+name: Zgłoszenie błędu
+description: Coś w Domiku nie działa tak, jak powinno.
+title: "[Błąd] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dziękuję za zgłoszenie!
+
+        ## UWAGA – prywatność. Przeczytaj, zanim cokolwiek wkleisz
+        To zgłoszenie jest **publiczne**. **NIE wklejaj**: numeru seryjnego sterownika, adresu IP, adresu MAC,
+        nazw pomieszczeń, świateł i stref z własnego domu ani logów bez zamaskowania danych.
+        Zrzuty ekranu rób w **trybie demo** albo zamaż dane. Luki bezpieczeństwa zgłaszaj prywatnie
+        (zakładka Security → Report a vulnerability), nie tutaj.
+  - type: input
+    id: domik_version
+    attributes:
+      label: Wersja Domika
+      description: Ustawienia Androida → Aplikacje → Domik (numer wersji) albo nazwa pliku APK.
+      placeholder: "np. 0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Model tabletu i wersja Androida
+      placeholder: "np. Samsung Galaxy Tab A11+, Android 16 (One UI 8)"
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Tryb pracy aplikacji
+      description: Czy błąd występuje w trybie demo, czy przy połączeniu z prawdziwym sterownikiem?
+      options:
+        - Tryb demo
+        - Prawdziwy sterownik Deimic 1. generacji
+        - Występuje w obu trybach
+        - Nie dotyczy (np. instalacja, uruchamianie)
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroki prowadzące do błędu
+      placeholder: |
+        1. Otwórz …
+        2. Naciśnij …
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Oczekiwane zachowanie
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Rzeczywiste zachowanie
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logi lub komunikaty błędów (opcjonalnie)
+      description: Wklej wyłącznie po zamaskowaniu numeru seryjnego, adresów IP i MAC oraz nazw z własnego domu.
+      render: text
+    validations:
+      required: false
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Potwierdzenie prywatności
+      options:
+        - label: Zgłoszenie nie zawiera numeru seryjnego sterownika, adresu IP, adresu MAC ani nazw z mojego domu, a dołączone zrzuty ekranu pochodzą z trybu demo lub mają zamazane dane.
+          required: true

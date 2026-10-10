@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Domik</string>
+    <string name="app_subtitle">Nieoficjalna aplikacja dla sterowników Deimic 1. generacji</string>
+
+    <!-- Stan kafelka (czytniki ekranu) -->
+    <string name="state_on">włączone</string>
+    <string name="state_off">wyłączone</string>
+    <string name="state_turning_on">włączanie</string>
+    <string name="state_turning_off">wyłączanie</string>
+
+    <!-- Ogrzewanie -->
+    <string name="heating_profile_off">Wyłączone</string>
+    <string name="heating_profile_eco">Eko</string>
+    <string name="heating_profile_comfort">Komfort</string>
+    <string name="heating_profile_max">Maks.</string>
+    <string name="heating_target">→ %1$s</string>
+    <string name="heating_target_profile">→ %1$s · %2$s</string>
+    <string name="heating_is_heating">Grzeje</string>
+    <string name="heating_decrease">Zmniejsz temperaturę zadaną</string>
+    <string name="heating_increase">Zwiększ temperaturę zadaną</string>
+    <string name="heating_switch_on">Włącz ogrzewanie</string>
+    <string name="heating_previous_profile">Poprzedni profil</string>
+    <string name="heating_next_profile">Następny profil</string>
+    <string name="heating_summary">%1$s, %2$s. Temperatura %3$s, zadana %4$s, profil %5$s</string>
+    <string name="heating_summary_heating">%1$s, grzeje</string>
+    <string name="heating_open_settings">Ustaw temperaturę i profil</string>
+    <string name="heating_dialog_title">Ogrzewanie: %1$s</string>
+    <string name="heating_dialog_default_name">Strefa ogrzewania</string>
+    <string name="heating_dialog_current">Temperatura aktualna</string>
+    <string name="heating_dialog_target">Temperatura zadana</string>
+    <string name="heating_dialog_target_description">Temperatura zadana %1$s</string>
+    <string name="heating_dialog_profile">Profil</string>
+    <string name="heating_dialog_close">Zamknij</string>
+    <string name="heating_dialog_saving">Zapisuję zmianę…</string>
+    <string name="heating_dialog_offline">Brak połączenia ze sterownikiem. Zmiany są niedostępne.</string>
+    <string name="heating_dialog_no_reading">Czekam na odczyt strefy ze sterownika…</string>
+    <string name="heating_dialog_gone">Tej strefy nie ma już w konfiguracji sterownika.</string>
+
+    <!-- Rolety -->
+    <string name="shutter_state_unknown">stan nieznany</string>
+    <string name="shutter_state_moving_up">jedzie w górę</string>
+    <string name="shutter_state_moving_down">jedzie w dół</string>
+    <string name="shutter_state_stopped">zatrzymana</string>
+    <string name="shutter_state_open">otwarta</string>
+    <string name="shutter_state_closed">zamknięta</string>
+    <string name="shutter_up">Roleta %1$s: w górę</string>
+    <string name="shutter_stop">Roleta %1$s: stop</string>
+    <string name="shutter_down">Roleta %1$s: w dół</string>
+
+    <!-- Pogoda -->
+    <string name="weather_clear">Słonecznie</string>
+    <string name="weather_clear_night">Bezchmurnie</string>
+    <string name="weather_mostly_clear">Przeważnie słonecznie</string>
+    <string name="weather_mostly_clear_night">Przeważnie bezchmurnie</string>
+    <string name="weather_partly_cloudy">Częściowo pochmurno</string>
+    <string name="weather_cloudy">Pochmurno</string>
+    <string name="weather_fog">Mgła</string>
+    <string name="weather_drizzle">Mżawka</string>
+    <string name="weather_freezing_drizzle">Marznąca mżawka</string>
+    <string name="weather_rain">Deszcz</string>
+    <string name="weather_heavy_rain">Silny deszcz</string>
+    <string name="weather_freezing_rain">Marznący deszcz</string>
+    <string name="weather_rain_showers">Przelotny deszcz</string>
+    <string name="weather_heavy_rain_showers">Ulewa</string>
+    <string name="weather_snow">Śnieg</string>
+    <string name="weather_heavy_snow">Silny śnieg</string>
+    <string name="weather_snow_grains">Krupa śnieżna</string>
+    <string name="weather_snow_showers">Przelotny śnieg</string>
+    <string name="weather_thunderstorm">Burza</string>
+    <string name="weather_thunderstorm_hail">Burza z gradem</string>
+    <string name="weather_unknown">Brak opisu</string>
+    <string name="weather_min_max">min %1$s · maks. %2$s</string>
+    <string name="weather_min_max_short">%1$s / %2$s</string>
+    <string name="weather_summary">%1$s, %2$s, %3$s</string>
+    <string name="weather_feels_like">Odczuwalna %1$s</string>
+    <string name="weather_wind">Wiatr %1$d km/h</string>
+    <string name="weather_stale">Nieaktualne · %1$s</string>
+    <string name="weather_wind_gusts">Wiatr %1$d km/h, porywy %2$d</string>
+    <string name="weather_humidity">Wilgotność %1$d%%</string>
+    <string name="weather_uv">Indeks UV %1$d</string>
+    <string name="weather_sun">Wschód %1$s, zachód %2$s</string>
+    <string name="weather_precip_sum">Opady %1$s mm</string>
+    <string name="weather_precip_chance_today">Szansa opadów %1$d%%</string>
+    <string name="weather_precip_percent">%1$d%%</string>
+    <string name="weather_hourly_description">Prognoza godzinowa</string>
+    <string name="weather_daily_description">Prognoza na kolejne dni</string>
+    <string name="weather_hour_item_description">%1$s, %2$s, %3$s</string>
+    <string name="weather_day_item_description">%1$s, %2$s, najwyżej %3$s, najniżej %4$s</string>
+    <string name="weather_precip_item_description">szansa opadów %1$d%%</string>
+    <!-- Dzień tygodnia na liście prognozy (poniedziałek = pierwszy) -->
+    <string-array name="weather_weekdays">
+        <item>pon.</item>
+        <item>wt.</item>
+        <item>śr.</item>
+        <item>czw.</item>
+        <item>pt.</item>
+        <item>sob.</item>
+        <item>niedz.</item>
+    </string-array>
+    <!-- Okno „Pogoda – co pokazywać” -->
+    <string name="weather_options_title">Pogoda – co pokazywać</string>
+    <string name="weather_options_hint">Kafelek pokazuje wybrane elementy tak, jak pozwala na to jego rozmiar: im większy kafelek, tym więcej się zmieści. Zmiany działają od razu.</string>
+    <string name="weather_options_group_forecast">Prognoza</string>
+    <string name="weather_options_group_details">Szczegóły bieżącej pogody</string>
+    <string name="weather_option_hourly">Prognoza godzinowa</string>
+    <string name="weather_option_daily">Prognoza dzienna</string>
+    <string name="weather_option_precip_chance">Szansa opadów</string>
+    <string name="weather_option_precip_sum">Suma opadów</string>
+    <string name="weather_option_feels_like">Temperatura odczuwalna</string>
+    <string name="weather_option_wind">Wiatr i porywy</string>
+    <string name="weather_option_humidity">Wilgotność</string>
+    <string name="weather_option_uv">Indeks UV</string>
+    <string name="weather_option_sun">Wschód i zachód słońca</string>
+    <string name="weather_options_reset">Przywróć domyślne</string>
+    <string name="weather_options_done">Gotowe</string>
+    <string name="weather_choose_place">Wybierz miejscowość</string>
+    <string name="weather_choose_place_hint">Pokaż pogodę dla swojego miasta</string>
+    <string name="weather_loading">Wczytuję pogodę…</string>
+    <string name="weather_failed">Brak pogody</string>
+    <string name="weather_failed_hint">Nie udało się pobrać pogody. Dotknij, aby spróbować ponownie.</string>
+    <!-- Miejscowość pogody przykładowej (tryb demo). -->
+    <string name="weather_demo_city">Warszawa</string>
+    <!-- Kod języka (ISO 639-1) nazw miejscowości w wyszukiwarce pogody: zgodny z językiem aplikacji. -->
+    <string name="weather_search_language">pl</string>
+
+    <!-- Kalendarz (harmonogram) -->
+    <string name="agenda_today">Dziś</string>
+    <string name="agenda_tomorrow">Jutro</string>
+    <string name="agenda_yesterday">Wczoraj</string>
+    <string name="agenda_now">teraz</string>
+    <string name="agenda_no_events">Brak wydarzeń</string>
+    <string name="agenda_back_to_today_description">Wróć do dzisiaj</string>
+    <string name="agenda_untitled">(bez tytułu)</string>
+    <!-- %1$s dzień tygodnia, %2$d dzień miesiąca, %3$d miesiąc -->
+    <string name="agenda_day_format">%1$s %2$d.%3$02d</string>
+    <string-array name="weekdays_short">
+        <item>pn</item>
+        <item>wt</item>
+        <item>śr</item>
+        <item>cz</item>
+        <item>pt</item>
+        <item>sb</item>
+        <item>nd</item>
+    </string-array>
+
+    <!-- Kalendarz z urządzenia (kafelek, tryb sterownika) -->
+    <string name="calendar_access_message">Pokaż tu najbliższe wydarzenia z kalendarza tego tabletu. Kalendarz jest tylko odczytywany i zostaje na urządzeniu.</string>
+    <string name="calendar_access_blocked">Dostęp do kalendarza jest wyłączony. Włącz go w ustawieniach aplikacji (Uprawnienia → Kalendarz).</string>
+    <string name="calendar_show_mine">Pokaż mój kalendarz</string>
+    <string name="calendar_open_settings">Otwórz ustawienia</string>
+    <string name="calendar_loading">Wczytuję kalendarz…</string>
+    <string name="calendar_unavailable">Nie udało się odczytać kalendarza na tym urządzeniu.</string>
+    <string name="calendar_no_app">Brak aplikacji kalendarza, która otworzy to wydarzenie</string>
+
+    <!-- Połączenie -->
+    <string name="connection_lost">Brak połączenia ze sterownikiem – ponawiam…</string>
+
+    <!-- Nagłówek pulpitu -->
+    <string name="header_demo">Demo</string>
+    <string name="header_menu">Menu i ustawienia</string>
+
+    <!-- Wygląd -->
+    <string name="appearance_title">Wygląd</string>
+    <string name="appearance_theme">Motyw</string>
+    <string name="theme_mode_system">Systemowy</string>
+    <string name="theme_mode_light">Jasny</string>
+    <string name="theme_mode_dark">Ciemny</string>
+    <string name="theme_mode_scheduled">Wg godzin</string>
+    <string name="appearance_dark_from">Ciemny od</string>
+    <string name="appearance_dark_until">Ciemny do</string>
+    <string name="appearance_time_earlier">Wcześniej o 30 minut</string>
+    <string name="appearance_time_later">Później o 30 minut</string>
+    <string name="appearance_color">Kolor</string>
+    <string name="appearance_preview">Podgląd</string>
+    <string name="appearance_selected">wybrany</string>
+    <string name="palette_green">Zieleń</string>
+    <string name="palette_mint">Mięta</string>
+    <string name="palette_blue">Błękit</string>
+    <string name="palette_indigo">Indygo</string>
+    <string name="palette_violet">Fiolet</string>
+    <string name="palette_pink">Róż</string>
+    <string name="palette_coral">Koral</string>
+    <string name="palette_amber">Bursztyn</string>
+    <string name="palette_graphite">Grafit</string>
+    <string name="palette_dynamic">Kolory z tapety</string>
+
+    <!-- Regulamin -->
+    <!-- Tekst ekranu akceptacji = streszczenie Regulaminu (legal/regulamin.md) (zmiana dokumentów wymagająca ponownej akceptacji → podnieść TERMS_VERSION). Klucz terms_placeholder_notice (nazwa historyczna) to zdanie wprowadzające. -->
+    <string name="terms_title">Zanim zaczniesz</string>
+    <string name="terms_placeholder_notice">Domik to darmowy, nieoficjalny projekt edukacyjny o otwartym kodzie (licencja MIT) do sterowania sterownikiem Deimic 1. generacji w Twojej sieci domowej.</string>
+    <string name="terms_body">• To nie jest oficjalna aplikacja Deimic ani jej zamiennik. Producent nie ma z nią związku, nie zatwierdza jej i jej nie wspiera.\n\n• Twoje dane zostają u Ciebie. Autor nie dostaje żadnych danych. Sterownikiem aplikacja steruje bez chmury, w Twojej sieci. Do serwisu pogodowego Open-Meteo trafia tylko wpisana nazwa miejscowości i jej przybliżone położenie.\n\n• Korzystasz na własne ryzyko, bez gwarancji. Mogą zdarzyć się błędy, a stan na ekranie może różnić się od rzeczywistego.\n\n• Nie polegaj na niej w sprawach bezpieczeństwa. Ochrona przed zamarzaniem, pompy, ogrzewanie i rolety muszą działać także bez aplikacji. Polecenie może nie dotrzeć do sterownika, np. bez sieci albo gdy tablet się wyłączy. Zachowaj przyciski i dotychczasowe sterowanie.\n\n• Steruj tylko swoją instalacją – albo cudzą za zgodą właściciela.\n\n• Numer seryjny to klucz do domu. Kto go zna i jest w Twojej sieci, może sterować instalacją. Nikomu go nie podawaj – także w zgłoszeniach na GitHubie.\n\n• Pobieraj aplikację tylko z oficjalnego źródła: github.com/milwis/domik/releases.\n\nTo streszczenie. Obowiązują Regulamin i Polityka prywatności: github.com/milwis/domik/tree/main/legal. Twoje ustawowe prawa konsumenta pozostają bez zmian. Kontakt z autorem: github.com/milwis/domik/issues.\n\nRegulamin w wersji 1.0 z 10 października 2026. Jeśli go nie akceptujesz, nie korzystaj z aplikacji.</string>
+    <string name="terms_open_terms">Otwórz pełny regulamin</string>
+    <string name="terms_open_privacy">Otwórz politykę prywatności</string>
+    <string name="terms_accept">Akceptuję Regulamin</string>
+
+    <!-- Ekran powitalny -->
+    <string name="welcome_title">Witaj w Domiku</string>
+    <string name="welcome_connect">Połącz ze swoim sterownikiem</string>
+    <string name="welcome_connect_hint">Potrzebujesz adresu sterownika w sieci Wi-Fi i jego numeru seryjnego.</string>
+    <string name="welcome_demo">Wypróbuj tryb demo</string>
+    <string name="welcome_demo_hint">Symulowany dom – aplikacja nie łączy się wtedy z żadnym sterownikiem.</string>
+
+    <!-- Połączenie ze sterownikiem (ustawienia) -->
+    <string name="connection_title">Połączenie ze sterownikiem</string>
+    <string name="connection_intro">Tablet i sterownik muszą być w tej samej sieci Wi-Fi. Numer seryjny jest przechowywany tylko na tym urządzeniu, w postaci zaszyfrowanej.</string>
+    <string name="connection_name">Nazwa domu (opcjonalnie)</string>
+    <string name="connection_host">Adres sterownika</string>
+    <string name="connection_host_hint" translatable="false">192.168.1.50</string>
+    <string name="connection_host_supporting">Adres IP albo nazwa w sieci lokalnej</string>
+    <string name="connection_port">Port</string>
+    <string name="connection_port_hint" translatable="false">60110</string>
+    <string name="connection_port_supporting">Zostaw puste, aby użyć 60110</string>
+    <string name="connection_serial">Numer seryjny</string>
+    <string name="connection_serial_supporting">Do 8 znaków: cyfry 0–9 i litery A–F</string>
+    <string name="connection_serial_stored">Zapisany – zostaw puste, aby go zachować</string>
+    <string name="connection_test">Testuj połączenie</string>
+    <string name="connection_testing">Sprawdzam…</string>
+    <string name="connection_test_ok">Połączono ze sterownikiem.</string>
+    <string name="connection_test_ok_version">Połączono ze sterownikiem (wersja %1$s).</string>
+    <string name="connection_test_host_unreachable">Nie znaleziono urządzenia pod tym adresem. Sprawdź adres i to, czy tablet jest w tej samej sieci Wi-Fi co sterownik.</string>
+    <string name="connection_test_refused">Urządzenie odpowiada, ale nic nie nasłuchuje na tym porcie. Sprawdź port (zwykle 60110).</string>
+    <string name="connection_test_timeout">Brak odpowiedzi w wymaganym czasie. Sprawdź adres i sieć Wi-Fi.</string>
+    <string name="connection_test_certificate">To urządzenie przedstawiło inny certyfikat niż sterownik Deimic 1. generacji. Sprawdź, czy adres jest poprawny.</string>
+    <string name="connection_test_tls">Nie udało się nawiązać bezpiecznego połączenia (TLS) z tym urządzeniem.</string>
+    <string name="connection_test_no_response">Połączono, ale sterownik nie odpowiada na polecenia. Najczęściej oznacza to błędny numer seryjny.</string>
+    <string name="connection_test_lost">Połączenie zostało zerwane w trakcie testu. Spróbuj ponownie.</string>
+    <string name="connection_test_other">Test nie powiódł się z nieznanego powodu.</string>
+    <string name="connection_save">Zapisz i połącz</string>
+    <string name="connection_cancel">Anuluj</string>
+    <string name="connection_forget">Usuń zapisany sterownik</string>
+    <string name="connection_forget_title">Usunąć zapisany sterownik?</string>
+    <string name="connection_forget_message">Adres, numer seryjny i pobrana konfiguracja zostaną usunięte z tego urządzenia.</string>
+    <string name="connection_forget_confirm">Usuń</string>
+    <string name="connection_storage_failed">Nie udało się bezpiecznie zapisać numeru seryjnego na tym urządzeniu. Spróbuj ponownie.</string>
+    <string name="field_host_empty">Wpisz adres sterownika</string>
+    <string name="field_host_invalid">To nie wygląda na adres IP ani nazwę w sieci</string>
+    <string name="field_port_invalid">Port to liczba od 1 do 65535</string>
+    <string name="field_serial_empty">Wpisz numer seryjny</string>
+    <string name="field_serial_invalid_character">Dozwolone są tylko cyfry 0–9 i litery A–F</string>
+    <string name="field_serial_too_long">Numer seryjny ma najwyżej 8 znaków</string>
+
+    <!-- Menu -->
+    <string name="menu_title">Menu</string>
+    <string name="menu_connection">Połączenie</string>
+    <string name="menu_mode_demo">Tryb demo – symulowany dom</string>
+    <string name="menu_mode_controller">Sterownik: %1$s</string>
+    <string name="menu_connect_controller">Połącz ze swoim sterownikiem</string>
+    <string name="menu_leave_demo">Wyjdź z trybu demo</string>
+    <string name="menu_connection_settings">Ustawienia połączenia</string>
+    <string name="menu_switch_to_demo">Przełącz na tryb demo</string>
+    <string name="menu_calendar">Kalendarz</string>
+    <string name="menu_calendar_hint">Wybierz kalendarze z tego urządzenia, z których wydarzenia pokazuje pulpit.</string>
+    <string name="menu_calendar_no_access">Aby wybrać kalendarze, zezwól aplikacji na odczyt kalendarza.</string>
+    <string name="menu_calendar_empty">Na tym urządzeniu nie ma widocznych kalendarzy. Dodaj konto (np. Google) w ustawieniach systemu.</string>
+    <string name="menu_calendar_unavailable">Nie udało się odczytać listy kalendarzy.</string>
+    <string name="menu_weather">Pogoda</string>
+    <string name="menu_weather_hint">Wpisz miejscowość, dla której pulpit pokazuje pogodę. Do serwisu pogodowego trafia tylko wpisywana nazwa i przybliżone współrzędne wybranej miejscowości.</string>
+    <string name="menu_weather_none">Nie wybrano miejscowości – kafelek pogody czeka na wybór.</string>
+    <string name="menu_weather_current">Wybrano: %1$s</string>
+    <string name="menu_weather_search_label">Miejscowość</string>
+    <string name="menu_weather_search_placeholder">np. Gdańsk</string>
+    <string name="menu_weather_searching">Szukam…</string>
+    <string name="menu_weather_no_results">Nie znaleziono takiej miejscowości.</string>
+    <string name="menu_weather_search_failed">Nie udało się wyszukać – sprawdź połączenie z internetem.</string>
+    <string name="menu_weather_clear">Usuń miejscowość</string>
+    <string name="menu_weather_clear_query">Wyczyść pole wyszukiwania</string>
+    <string name="menu_weather_pick">Wybierz: %1$s, %2$s</string>
+    <string name="menu_weather_attribution">Dane pogodowe: Open-Meteo.com</string>
+    <string name="menu_weather_options">Co pokazywać na kafelku…</string>
+    <string name="menu_weather_demo_hint">W trybie demo pogoda jest przykładowa. Możesz jednak wybrać, co ma pokazywać kafelek.</string>
+
+    <!-- Pulpit -->
+    <string name="home_default_name">Mój dom</string>
+    <string name="home_demo_name">Dom demonstracyjny</string>
+    <string name="dashboard_loading">Wczytuję konfigurację sterownika…</string>
+    <string name="dashboard_config_no_connection">Nie udało się pobrać konfiguracji – brak połączenia ze sterownikiem.</string>
+    <string name="dashboard_config_unreadable">Sterownik przysłał konfigurację, której aplikacja nie potrafi odczytać.</string>
+    <string name="dashboard_config_other">Nie udało się pobrać konfiguracji.</string>
+    <string name="dashboard_waiting_for_controller">Czekam na połączenie ze sterownikiem. Sprawdź, czy tablet jest w tej samej sieci Wi-Fi, albo popraw adres w ustawieniach.</string>
+    <string name="dashboard_retry">Spróbuj ponownie</string>
+    <string name="dashboard_empty">Sterownik nie ma jeszcze urządzeń, które aplikacja potrafi pokazać (światła, gniazdka, ogrzewanie).</string>
+
+    <!-- Edycja pulpitu -->
+    <string name="header_edit">Edytuj pulpit</string>
+    <string name="edit_title">Edycja pulpitu</string>
+    <string name="edit_add">Dodaj</string>
+    <string name="edit_reset">Przywróć układ domyślny</string>
+    <string name="edit_done">Gotowe</string>
+    <string name="edit_reset_title">Przywrócić układ domyślny?</string>
+    <string name="edit_reset_message">Obecny układ pulpitu zostanie zastąpiony układem domyślnym, a ukryte kafelki wrócą na pulpit.</string>
+    <string name="edit_reset_confirm">Przywróć</string>
+    <string name="edit_cancel">Anuluj</string>
+    <string name="edit_drag_handle">Przeciągnij, aby zmienić kolejność: %1$s</string>
+    <string name="edit_resize">Zmień rozmiar</string>
+    <string name="edit_size_state">Rozmiar %1$d × %2$d</string>
+    <string name="edit_size_value">%1$d × %2$d</string>
+    <string name="edit_hide">Ukryj z pulpitu</string>
+    <string name="edit_move_earlier">Przesuń wcześniej</string>
+    <string name="edit_move_later">Przesuń później</string>
+    <string name="edit_resize_description">Zmień rozmiar: %1$s</string>
+    <string name="edit_hide_description">Ukryj z pulpitu: %1$s</string>
+    <string name="edit_empty">Pulpit jest pusty. Dotknij „Dodaj”, aby wybrać kafelki.</string>
+    <string name="dashboard_all_hidden">Pulpit jest pusty. Dotknij ołówka u góry i wybierz „Dodaj”.</string>
+    <string name="add_title">Dodaj kafelek</string>
+    <string name="add_group_heating">Ogrzewanie</string>
+    <string name="add_group_lights">Światła</string>
+    <string name="add_group_shutters">Rolety</string>
+    <string name="add_group_other">Inne</string>
+    <string name="add_nothing">Wszystkie kafelki są już na pulpicie.</string>
+    <string name="add_tile_description">Dodaj do pulpitu: %1$s, %2$s</string>
+    <string name="tile_weather">Pogoda</string>
+    <string name="tile_agenda">Kalendarz</string>
+
+    <!-- Ikony kafelków i wyjścia alarmowe -->
+    <string name="edit_configure">Ustawienia kafelka</string>
+    <string name="edit_icon">Zmień ikonę</string>
+    <string name="icon_picker_title">Ikona: %1$s</string>
+    <string name="icon_auto">Automatycznie</string>
+    <string name="icon_auto_now">Teraz: %1$s</string>
+    <string name="icon_description">%1$s</string>
+    <string name="icon_selected_description">%1$s, wybrana</string>
+    <string name="icon_auto_description">%1$s, %2$s</string>
+    <string name="icon_auto_selected_description">%1$s, %2$s, wybrana</string>
+    <string name="icon_bulb">Żarówka</string>
+    <string name="icon_sconce">Kinkiet</string>
+    <string name="icon_pendant">Żyrandol</string>
+    <string name="icon_floor">Lampa stojąca</string>
+    <string name="icon_spot">Oczko</string>
+    <string name="icon_led">Taśma LED</string>
+    <string name="icon_outdoor">Lampa zewnętrzna</string>
+    <string name="icon_socket">Gniazdko</string>
+    <string name="icon_fan">Wentylator</string>
+    <string name="icon_pump">Pompa</string>
+    <string name="icon_alarm">Alarm</string>
+    <string name="icon_switch">Włącznik</string>
+    <string name="add_group_alarm">Alarm</string>
+    <string name="alarm_confirm_title">Na pewno?</string>
+    <string name="alarm_confirm_message">To wyjście steruje alarmem.</string>
+    <string name="alarm_confirm_on">Włącz</string>
+    <string name="alarm_confirm_off">Wyłącz</string>
+
+    <!-- Pasek połączenia -->
+    <string name="connection_gave_up">Nie można połączyć się ze sterownikiem</string>
+    <string name="connection_wrong_device">To urządzenie nie jest sterownikiem Deimic 1. generacji – sprawdź adres w ustawieniach</string>
+    <string name="connection_wrong_serial">Sterownik nie odpowiada – sprawdź numer seryjny w ustawieniach</string>
+    <string name="connection_retry">Ponów</string>
+
+    <!-- Komunikaty o poleceniach -->
+    <string name="event_not_connected">Brak połączenia – nie wysłano polecenia: %1$s</string>
+    <string name="event_no_response">Sterownik nie odpowiedział: %1$s</string>
+    <string name="event_not_confirmed">Sterownik nie potwierdził zmiany: %1$s</string>
+    <string name="event_rejected">Sterownik odrzucił polecenie: %1$s</string>
+    <string name="event_cannot_switch_on">%1$s nie może być włączone z aplikacji</string>
+
+    <!-- Podgląd w arkuszu Wygląd -->
+    <string name="appearance_preview_name">Lampa</string>
+    <string name="appearance_preview_room">Salon</string>
+
+    <!-- Tablet ścienny (menu) -->
+    <string name="kiosk_title">Tablet ścienny</string>
+    <string name="kiosk_keep_on">Ekran zawsze włączony przy zasilaniu</string>
+    <string name="kiosk_keep_on_hint">Ekran nie przygasa, dopóki tablet stoi na ładowarce, a Domik jest na wierzchu.</string>
+    <string name="kiosk_fullscreen">Pełny ekran</string>
+    <string name="kiosk_fullscreen_hint">Ukrywa paski systemowe. Przesuń od krawędzi ekranu, aby pokazać je na chwilę.</string>
+    <string name="kiosk_home">Domik jako ekran główny</string>
+    <string name="kiosk_home_hint_off">Po włączeniu Domik uruchomi się sam po restarcie tabletu i po stuknięciu „Ekran główny”.</string>
+    <string name="kiosk_home_hint_active">Domik jest teraz ekranem głównym tabletu i uruchamia się sam po restarcie.</string>
+    <string name="kiosk_home_hint_choose">Wybierz Domik jako aplikację ekranu głównego w ustawieniach systemu.</string>
+    <string name="kiosk_home_open_settings">Otwórz ustawienia ekranu głównego</string>
+    <string name="kiosk_pin">Przypnij Domika</string>
+    <string name="kiosk_unpin">Odepnij Domika</string>
+    <string name="kiosk_pin_hint">Blokuje przełączanie na inne aplikacje. Wymaga włączonego przypinania w ustawieniach systemu (wyszukaj „przypn”).</string>
+    <string name="kiosk_unpin_hint">Domik jest przypięty. Odpiąć można też gestem: przesuń od dołu ekranu i przytrzymaj.</string>
+    <string name="kiosk_notice_pinning_disabled">Przypinanie jest wyłączone w systemie. Włącz je: Ustawienia → wyszukaj „przypn” (np. „Przypinanie okien”), potem stuknij „Przypnij Domika” jeszcze raz.</string>
+    <string name="kiosk_notice_unpin_failed">Nie udało się odpiąć z poziomu aplikacji. Przesuń od dołu ekranu i przytrzymaj (albo przytrzymaj Wstecz i Ostatnie).</string>
+    <string name="kiosk_notice_home_settings">Nie udało się otworzyć ustawień ekranu głównego. Otwórz je ręcznie: Ustawienia → wyszukaj „ekran główny”.</string>
+
+    <!-- O aplikacji (menu → okno). Adresy: ProjectLinks.kt. Tekst o prywatności i nieoficjalności = streszczenie Regulaminu i Polityki prywatności (legal/). -->
+    <string name="about_title">O aplikacji</string>
+    <string name="about_open">Wersja, licencje i dokumenty</string>
+    <string name="about_close">Zamknij</string>
+    <string name="about_version">Wersja %1$s (%2$d)</string>
+    <string name="about_unofficial">Projekt edukacyjny i hobbystyczny – nie jest alternatywą ani zamiennikiem oficjalnej aplikacji producenta, nie jest z nim związany. Używasz na własną odpowiedzialność.</string>
+    <string name="about_trademark">„Deimic” i inne oznaczenia producenta mogą być znakami towarowymi ich właścicieli. Używamy ich wyłącznie opisowo – aby wskazać, z jakimi sterownikami aplikacja współpracuje.</string>
+    <string name="about_privacy_title">Prywatność</string>
+    <string name="about_privacy">Autor nie zbiera żadnych danych. Sterownik jest obsługiwany wyłącznie w Twojej sieci lokalnej; do serwisu pogodowego trafiają tylko wpisana nazwa i przybliżone współrzędne wybranej miejscowości.</string>
+    <string name="about_code_title">Kod źródłowy i licencja</string>
+    <string name="about_mit">Domik to oprogramowanie o otwartym kodzie: kod źródłowy jest publiczny, a aplikacja jest udostępniana na licencji MIT – „tak jak jest”, bez gwarancji.</string>
+    <string name="about_link_source">Kod źródłowy</string>
+    <string name="about_link_license">Licencja MIT – pełny tekst</string>
+    <string name="about_link_releases">Wydania – oficjalne źródło aplikacji</string>
+    <string name="about_documents_title">Dokumenty</string>
+    <string name="about_link_terms">Regulamin</string>
+    <string name="about_link_privacy">Polityka prywatności</string>
+    <string name="about_contact_title">Kontakt</string>
+    <string name="about_contact_hint">Pytania, błędy i uwagi zgłaszaj w repozytorium projektu. Zgłoszenia są publiczne – nie wpisuj w nich numeru seryjnego sterownika. Luki bezpieczeństwa zgłaszaj poufnie.</string>
+    <string name="about_link_issues">Zgłoś problem</string>
+    <string name="about_link_security">Zgłoś lukę bezpieczeństwa (poufnie)</string>
+    <string name="about_open_in_browser">Otwórz w przeglądarce</string>
+    <string name="about_footer">© 2026 milwis. Android jest znakiem towarowym Google LLC.</string>
+    <string name="link_open_failed">Nie udało się otworzyć przeglądarki. Jeśli Domik jest przypięty, odepnij go. Adres: %1$s</string>
+
+    <!-- O aplikacji: licencje open source (lista = OpenSourceLicenses.kt, NOTICE.md) -->
+    <string name="about_oss_title">Licencje open source</string>
+    <string name="about_oss_intro">Domik korzysta z poniższych składników oraz z ich zależności (również na licencji Apache-2.0). Każdy składnik zachowuje własną licencję i prawa autorskie swoich twórców.</string>
+    <string name="about_oss_meta">%1$s · licencja %2$s</string>
+    <string name="about_oss_meta_license_only">Licencja %1$s</string>
+    <string name="oss_name_kotlin">Kotlin (biblioteka standardowa)</string>
+    <string name="oss_name_coroutines" translatable="false">kotlinx.coroutines</string>
+    <string name="oss_name_androidx" translatable="false">AndroidX</string>
+    <string name="oss_name_compose" translatable="false">Jetpack Compose</string>
+    <string name="oss_name_material3">Material 3 dla Compose</string>
+    <string name="oss_name_icons">Ikony: Material Icons</string>
+    <string name="oss_author_jetbrains" translatable="false">JetBrains</string>
+    <string name="oss_author_google" translatable="false">Google</string>
+    <string name="license_name_apache2" translatable="false">Apache-2.0</string>
+    <string name="license_name_cc_by_4" translatable="false">CC BY 4.0</string>
+    <string name="about_notice_show">Pokaż informację o licencji ikon i pełny tekst Apache-2.0</string>
+    <string name="about_notice_hide">Ukryj informację o licencji</string>
+    <string name="about_notice_unavailable">Nie udało się wczytać informacji o licencji.</string>
+    <string name="about_apache_title">Licencja Apache-2.0 – skrót</string>
+    <string name="about_apache_summary">Licencja Apache-2.0 pozwala używać, kopiować, zmieniać i rozpowszechniać oprogramowanie – także w zmienionej postaci – pod warunkiem dołączenia tekstu licencji i zachowania informacji o prawach autorskich. Oprogramowanie jest udostępniane „tak jak jest”, bez gwarancji. To tylko skrót – obowiązuje pełny tekst licencji.</string>
+    <string name="about_link_apache">Pełny tekst licencji Apache-2.0</string>
+    <string name="about_link_cc_by">Licencja CC BY 4.0 (dane pogodowe)</string>
+</resources>

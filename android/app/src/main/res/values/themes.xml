@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Motyw okna (przed uruchomieniem Compose); właściwy motyw – DomikTheme w Compose. -->
+    <style name="Theme.Domik" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>

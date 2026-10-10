@@ -1,0 +1,7 @@
+## Skopiuj do local.properties (plik jest w .gitignore) i uzupełnij.
+## Ścieżka do Android SDK (Android Studio uzupełnia ją samo).
+sdk.dir=/path/to/Android/sdk
+
+## Opcjonalnie: własny identyfikator aplikacji (np. przy budowaniu własnej, podpisanej kopii).
+## Domyślnie: app.domik
+# domik.applicationId=com.example.domik

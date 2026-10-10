@@ -1,0 +1,59 @@
+# CI Domika: testy jednostkowe i budowa APK debug dla każdego Pull Requestu oraz dla pushy do `main`.
+#
+# UWAGA: ten workflow NIE został uruchomiony lokalnie ani na GitHubie (repozytorium jeszcze nie istnieje).
+# Pierwszy przebieg może wymagać poprawek. Dopiero PO pierwszym zielonym przebiegu wolno go uczynić wymaganym
+# w regułach gałęzi (tools/setup_github_repo.sh --require-ci; nazwa checka = id joba `build`).
+#
+# Bezpieczeństwo (publiczne repo przyjmuje PR-y od obcych):
+#  - tylko zdarzenia `pull_request` i `push`; NIGDY `pull_request_target`
+#    (PR z forka dostaje token tylko do odczytu i żadnych sekretów);
+#  - uprawnienia GITHUB_TOKEN: tylko odczyt zawartości;
+#  - akcje przypięte do pełnych SHA commitów (obok komentarz z tagiem wersji, wszystkie starsze niż 2 tygodnie);
+#  - cache Gradle: dostawca `basic` (otwarty, MIT); zapisuje go tylko `main`, PR-y tylko czytają;
+#  - setup-gradle domyślnie sprawdza sumy kontrolne gradle-wrapper.jar (ochrona przed podmianą wrappera w PR).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  # PR: nowy commit przerywa poprzedni przebieg. Push do main: przebiegi dochodzą do końca.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Pobranie kodu
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: JDK 17 (Temurin)
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Gradle (cache, kontrola wrappera)
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          cache-provider: basic
+
+      # Akceptacja licencji Android SDK, żeby AGP mógł dociągnąć brakujące komponenty (platforma, build-tools).
+      # `< <(yes)` zamiast `yes |`: działa też z `set -o pipefail` (yes kończy się wtedy sygnałem SIGPIPE).
+      - name: Akceptacja licencji Android SDK
+        run: |
+          SDKMANAGER="$(command -v sdkmanager || echo "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager")"
+          "${SDKMANAGER}" --licenses < <(yes) > /dev/null
+
+      - name: Testy i budowa (debug)
+        working-directory: android
+        run: ./gradlew test :app:testDebugUnitTest :app:assembleDebug --stacktrace

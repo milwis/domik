@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pierwszy plan ikony adaptacyjnej: prosty domek (108x108 dp, bezpieczna strefa 66 dp w środku). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Dach -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,30 L80,52 L75,52 L54,34.5 L33,52 L28,52 Z" />
+    <!-- Ściany z drzwiami -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M36,50 L54,35 L72,50 L72,78 L36,78 Z M49,78 L49,63 L59,63 L59,78 Z" />
+    <!-- Komin -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,34 L69,34 L69,42.5 L64,38.3 Z" />
+</vector>

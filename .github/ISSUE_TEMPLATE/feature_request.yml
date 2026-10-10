@@ -1,0 +1,76 @@
+name: Propozycja funkcji
+description: Pomysł na nową funkcję lub ulepszenie Domika.
+title: "[Pomysł] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dziękuję za pomysł! Domik jest projektem hobbystycznym i nieoficjalnym, więc odpowiedź może chwilę potrwać.
+
+        ## UWAGA – prywatność. Przeczytaj, zanim cokolwiek wkleisz
+        To zgłoszenie jest **publiczne**. **NIE wklejaj**: numeru seryjnego sterownika, adresu IP, adresu MAC,
+        nazw pomieszczeń, świateł i stref z własnego domu ani logów bez zamaskowania danych.
+        Zrzuty ekranu i makiety rób w **trybie demo** albo zamaż dane.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Jaki problem chcesz rozwiązać?
+      description: Opisz sytuację, w której czegoś brakuje. Samo „chcę funkcji X” wystarczy mniej niż „robię Y i nie mogę”.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proponowane rozwiązanie
+      description: Jak funkcja miałaby działać z punktu widzenia osoby przy tablecie?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Rozważane alternatywy (opcjonalnie)
+    validations:
+      required: false
+  - type: input
+    id: domik_version
+    attributes:
+      label: Wersja Domika (opcjonalnie)
+      placeholder: "np. 0.1.0"
+    validations:
+      required: false
+  - type: input
+    id: device
+    attributes:
+      label: Model tabletu i wersja Androida (opcjonalnie)
+      placeholder: "np. Samsung Galaxy Tab A11+, Android 16"
+    validations:
+      required: false
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Czego dotyczy pomysł
+      options:
+        - Działa tak samo w trybie demo i z prawdziwym sterownikiem
+        - Dotyczy tylko pracy z prawdziwym sterownikiem Deimic 1. generacji
+        - Dotyczy tylko trybu demo
+    validations:
+      required: true
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Czy chcesz sam(a) przygotować tę zmianę?
+      description: Poprawki przyjmuję przez Pull Request – zobacz CONTRIBUTING.md.
+      options:
+        - Nie, zgłaszam tylko pomysł
+        - Tak, przygotuję Pull Request
+        - Może, chętnie porozmawiam o szczegółach
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Potwierdzenie prywatności
+      options:
+        - label: Zgłoszenie nie zawiera numeru seryjnego sterownika, adresu IP, adresu MAC ani nazw z mojego domu, a dołączone zrzuty ekranu pochodzą z trybu demo lub mają zamazane dane.
+          required: true

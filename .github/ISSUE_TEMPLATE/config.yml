@@ -1,0 +1,7 @@
+# Formularze zgłoszeń są obowiązkowe (puste Issue wyłączone), żeby każde zgłoszenie
+# zawierało wersję, urządzenie i tryb pracy oraz przypomnienie o prywatności.
+blank_issues_enabled: false
+contact_links:
+  - name: Luka bezpieczeństwa
+    url: https://github.com/milwis/domik/security/advisories/new
+    about: Lukę zgłoś prywatnie (zakładka Security → Report a vulnerability). Nie opisuj jej w publicznym Issue.

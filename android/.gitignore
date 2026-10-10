@@ -1,0 +1,6 @@
+# Uzupełnienie głównego .gitignore (tam: .gradle/, build/, .kotlin/, local.properties, keystore.properties, *.jks, .idea/, *.iml)
+.externalNativeBuild/
+.cxx/
+/app/release/
+*.apk
+*.aab

@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_subtitle">Unofficial app for 1st-generation Deimic controllers</string>
+
+    <!-- Tile state (screen readers) -->
+    <string name="state_on">on</string>
+    <string name="state_off">off</string>
+    <string name="state_turning_on">turning on</string>
+    <string name="state_turning_off">turning off</string>
+
+    <!-- Heating -->
+    <string name="heating_profile_off">Off</string>
+    <string name="heating_profile_eco">Eco</string>
+    <string name="heating_profile_comfort">Comfort</string>
+    <string name="heating_profile_max">Max</string>
+    <string name="heating_target">→ %1$s</string>
+    <string name="heating_target_profile">→ %1$s · %2$s</string>
+    <string name="heating_is_heating">Heating</string>
+    <string name="heating_decrease">Decrease target temperature</string>
+    <string name="heating_increase">Increase target temperature</string>
+    <string name="heating_switch_on">Turn heating on</string>
+    <string name="heating_previous_profile">Previous profile</string>
+    <string name="heating_next_profile">Next profile</string>
+    <string name="heating_summary">%1$s, %2$s. Temperature %3$s, target %4$s, profile %5$s</string>
+    <string name="heating_summary_heating">%1$s, heating</string>
+    <string name="heating_open_settings">Set temperature and profile</string>
+    <string name="heating_dialog_title">Heating: %1$s</string>
+    <string name="heating_dialog_default_name">Heating zone</string>
+    <string name="heating_dialog_current">Current temperature</string>
+    <string name="heating_dialog_target">Target temperature</string>
+    <string name="heating_dialog_target_description">Target temperature %1$s</string>
+    <string name="heating_dialog_profile">Profile</string>
+    <string name="heating_dialog_close">Close</string>
+    <string name="heating_dialog_saving">Saving…</string>
+    <string name="heating_dialog_offline">No connection to the controller. Changes are unavailable.</string>
+    <string name="heating_dialog_no_reading">Waiting for the zone reading from the controller…</string>
+    <string name="heating_dialog_gone">This zone is no longer in the controller configuration.</string>
+
+    <!-- Shutters -->
+    <string name="shutter_state_unknown">state unknown</string>
+    <string name="shutter_state_moving_up">moving up</string>
+    <string name="shutter_state_moving_down">moving down</string>
+    <string name="shutter_state_stopped">stopped</string>
+    <string name="shutter_state_open">open</string>
+    <string name="shutter_state_closed">closed</string>
+    <string name="shutter_up">Shutter %1$s: up</string>
+    <string name="shutter_stop">Shutter %1$s: stop</string>
+    <string name="shutter_down">Shutter %1$s: down</string>
+
+    <!-- Weather -->
+    <string name="weather_clear">Sunny</string>
+    <string name="weather_clear_night">Clear</string>
+    <string name="weather_mostly_clear">Mostly sunny</string>
+    <string name="weather_mostly_clear_night">Mostly clear</string>
+    <string name="weather_partly_cloudy">Partly cloudy</string>
+    <string name="weather_cloudy">Cloudy</string>
+    <string name="weather_fog">Fog</string>
+    <string name="weather_drizzle">Drizzle</string>
+    <string name="weather_freezing_drizzle">Freezing drizzle</string>
+    <string name="weather_rain">Rain</string>
+    <string name="weather_heavy_rain">Heavy rain</string>
+    <string name="weather_freezing_rain">Freezing rain</string>
+    <string name="weather_rain_showers">Rain showers</string>
+    <string name="weather_heavy_rain_showers">Heavy showers</string>
+    <string name="weather_snow">Snow</string>
+    <string name="weather_heavy_snow">Heavy snow</string>
+    <string name="weather_snow_grains">Snow grains</string>
+    <string name="weather_snow_showers">Snow showers</string>
+    <string name="weather_thunderstorm">Thunderstorm</string>
+    <string name="weather_thunderstorm_hail">Thunderstorm with hail</string>
+    <string name="weather_unknown">No description</string>
+    <string name="weather_min_max">min %1$s · max %2$s</string>
+    <string name="weather_min_max_short">%1$s / %2$s</string>
+    <string name="weather_summary">%1$s, %2$s, %3$s</string>
+    <string name="weather_feels_like">Feels like %1$s</string>
+    <string name="weather_wind">Wind %1$d km/h</string>
+    <string name="weather_stale">Outdated · %1$s</string>
+    <string name="weather_wind_gusts">Wind %1$d km/h, gusts %2$d</string>
+    <string name="weather_humidity">Humidity %1$d%%</string>
+    <string name="weather_uv">UV index %1$d</string>
+    <string name="weather_sun">Sunrise %1$s, sunset %2$s</string>
+    <string name="weather_precip_sum">Precipitation %1$s mm</string>
+    <string name="weather_precip_chance_today">Chance of precipitation %1$d%%</string>
+    <string name="weather_precip_percent">%1$d%%</string>
+    <string name="weather_hourly_description">Hourly forecast</string>
+    <string name="weather_daily_description">Forecast for the coming days</string>
+    <string name="weather_hour_item_description">%1$s, %2$s, %3$s</string>
+    <string name="weather_day_item_description">%1$s, %2$s, high %3$s, low %4$s</string>
+    <string name="weather_precip_item_description">chance of precipitation %1$d%%</string>
+    <!-- Weekday in the forecast list (Monday first) -->
+    <string-array name="weather_weekdays">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+    <!-- "Weather – what to show" dialog -->
+    <string name="weather_options_title">Weather – what to show</string>
+    <string name="weather_options_hint">The tile shows the chosen items as far as its size allows: the bigger the tile, the more fits. Changes apply immediately.</string>
+    <string name="weather_options_group_forecast">Forecast</string>
+    <string name="weather_options_group_details">Current weather details</string>
+    <string name="weather_option_hourly">Hourly forecast</string>
+    <string name="weather_option_daily">Daily forecast</string>
+    <string name="weather_option_precip_chance">Chance of precipitation</string>
+    <string name="weather_option_precip_sum">Precipitation total</string>
+    <string name="weather_option_feels_like">Feels-like temperature</string>
+    <string name="weather_option_wind">Wind and gusts</string>
+    <string name="weather_option_humidity">Humidity</string>
+    <string name="weather_option_uv">UV index</string>
+    <string name="weather_option_sun">Sunrise and sunset</string>
+    <string name="weather_options_reset">Restore defaults</string>
+    <string name="weather_options_done">Done</string>
+    <string name="weather_choose_place">Choose a location</string>
+    <string name="weather_choose_place_hint">Show the weather for your town</string>
+    <string name="weather_loading">Loading weather…</string>
+    <string name="weather_failed">No weather</string>
+    <string name="weather_failed_hint">Couldn\'t load the weather. Tap to try again.</string>
+    <string name="weather_demo_city">Warsaw</string>
+    <string name="weather_search_language">en</string>
+
+    <!-- Calendar (agenda) -->
+    <string name="agenda_today">Today</string>
+    <string name="agenda_tomorrow">Tomorrow</string>
+    <string name="agenda_yesterday">Yesterday</string>
+    <string name="agenda_now">now</string>
+    <string name="agenda_no_events">No events</string>
+    <string name="agenda_back_to_today_description">Back to today</string>
+    <string name="agenda_untitled">(no title)</string>
+    <!-- %1$s weekday, %2$d day of month, %3$d month -->
+    <string name="agenda_day_format">%1$s %3$d/%2$d</string>
+    <string-array name="weekdays_short">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+
+    <!-- Device calendar (tile, controller mode) -->
+    <string name="calendar_access_message">Show the upcoming events from this tablet\'s calendar here. The calendar is only read and stays on this device.</string>
+    <string name="calendar_access_blocked">Calendar access is turned off. Turn it on in the app settings (Permissions → Calendar).</string>
+    <string name="calendar_show_mine">Show my calendar</string>
+    <string name="calendar_open_settings">Open settings</string>
+    <string name="calendar_loading">Loading calendar…</string>
+    <string name="calendar_unavailable">Couldn\'t read the calendar on this device.</string>
+    <string name="calendar_no_app">No calendar app can open this event</string>
+
+    <!-- Connection -->
+    <string name="connection_lost">No connection to the controller – retrying…</string>
+
+    <!-- Dashboard header -->
+    <string name="header_demo">Demo</string>
+    <string name="header_menu">Menu and settings</string>
+
+    <!-- Appearance -->
+    <string name="appearance_title">Appearance</string>
+    <string name="appearance_theme">Theme</string>
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+    <string name="theme_mode_scheduled">Scheduled</string>
+    <string name="appearance_dark_from">Dark from</string>
+    <string name="appearance_dark_until">Dark until</string>
+    <string name="appearance_time_earlier">30 minutes earlier</string>
+    <string name="appearance_time_later">30 minutes later</string>
+    <string name="appearance_color">Colour</string>
+    <string name="appearance_preview">Preview</string>
+    <string name="appearance_selected">selected</string>
+    <string name="palette_green">Green</string>
+    <string name="palette_mint">Mint</string>
+    <string name="palette_blue">Blue</string>
+    <string name="palette_indigo">Indigo</string>
+    <string name="palette_violet">Violet</string>
+    <string name="palette_pink">Pink</string>
+    <string name="palette_coral">Coral</string>
+    <string name="palette_amber">Amber</string>
+    <string name="palette_graphite">Graphite</string>
+    <string name="palette_dynamic">Wallpaper colours</string>
+
+    <!-- Terms -->
+    <!-- Acceptance screen text = summary of the Terms of Use (legal/en/terms.md) (document changes requiring re-acceptance → bump TERMS_VERSION). Key terms_placeholder_notice (historical name) is the intro sentence. -->
+    <string name="terms_title">Before you start</string>
+    <string name="terms_placeholder_notice">Domik is a free, unofficial, open source educational project (MIT licence) for controlling a 1st-generation Deimic controller on your home network.</string>
+    <string name="terms_body">• This is not an official Deimic app or a replacement for it. The manufacturer is not affiliated with it, does not approve it and does not support it.\n\n• Your data stays with you. The author receives no data. The app controls your controller on your network, without any cloud. The Open-Meteo weather service receives only the place name you type and its approximate location.\n\n• Use at your own risk, without warranty. Bugs can happen, and the status on screen may differ from reality.\n\n• Don\'t rely on it for safety. Frost protection, pumps, heating and blinds must work without the app too. A command may not reach the controller, e.g. without a network or if the tablet switches off. Keep your wall switches and existing controls.\n\n• Only control your own installation – or someone else\'s with the owner\'s permission.\n\n• The serial number is the key to your home. Anyone who knows it and is on your network can control the installation. Never share it – including in reports on GitHub.\n\n• Download the app only from the official source: github.com/milwis/domik/releases.\n\nThis is a summary. The Terms of Use and Privacy Policy apply: github.com/milwis/domik/tree/main/legal. Your statutory consumer rights are not affected. Contact the author: github.com/milwis/domik/issues.\n\nTerms of Use version 1.0 of 10 October 2026. If you don\'t accept them, don\'t use the app.</string>
+    <string name="terms_open_terms">Open the full Terms of Use</string>
+    <string name="terms_open_privacy">Open the Privacy Policy</string>
+    <string name="terms_accept">I accept the Terms</string>
+
+    <!-- Welcome -->
+    <string name="welcome_title">Welcome to Domik</string>
+    <string name="welcome_connect">Connect to your controller</string>
+    <string name="welcome_connect_hint">You need the controller\'s address in your Wi-Fi network and its serial number.</string>
+    <string name="welcome_demo">Try demo mode</string>
+    <string name="welcome_demo_hint">A simulated home – the app does not connect to any controller.</string>
+
+    <!-- Controller connection (settings) -->
+    <string name="connection_title">Controller connection</string>
+    <string name="connection_intro">The tablet and the controller must be on the same Wi-Fi network. The serial number is stored only on this device, encrypted.</string>
+    <string name="connection_name">Home name (optional)</string>
+    <string name="connection_host">Controller address</string>
+    <string name="connection_host_supporting">IP address or a name in the local network</string>
+    <string name="connection_port">Port</string>
+    <string name="connection_port_supporting">Leave empty to use 60110</string>
+    <string name="connection_serial">Serial number</string>
+    <string name="connection_serial_supporting">Up to 8 characters: digits 0-9 and letters A-F</string>
+    <string name="connection_serial_stored">Saved – leave empty to keep it</string>
+    <string name="connection_test">Test connection</string>
+    <string name="connection_testing">Checking…</string>
+    <string name="connection_test_ok">Connected to the controller.</string>
+    <string name="connection_test_ok_version">Connected to the controller (version %1$s).</string>
+    <string name="connection_test_host_unreachable">No device was found at this address. Check the address and that the tablet is on the same Wi-Fi network as the controller.</string>
+    <string name="connection_test_refused">The device responds but nothing is listening on this port. Check the port (usually 60110).</string>
+    <string name="connection_test_timeout">No response in time. Check the address and the Wi-Fi network.</string>
+    <string name="connection_test_certificate">This device presented a different certificate than a 1st-generation Deimic controller. Check that the address is correct.</string>
+    <string name="connection_test_tls">A secure (TLS) connection to this device could not be established.</string>
+    <string name="connection_test_no_response">Connected, but the controller does not answer commands. This usually means a wrong serial number.</string>
+    <string name="connection_test_lost">The connection was lost during the test. Try again.</string>
+    <string name="connection_test_other">The test failed for an unknown reason.</string>
+    <string name="connection_save">Save and connect</string>
+    <string name="connection_cancel">Cancel</string>
+    <string name="connection_forget">Remove saved controller</string>
+    <string name="connection_forget_title">Remove the saved controller?</string>
+    <string name="connection_forget_message">The address, serial number and downloaded configuration will be deleted from this device.</string>
+    <string name="connection_forget_confirm">Remove</string>
+    <string name="connection_storage_failed">The serial number could not be stored securely on this device. Try again.</string>
+    <string name="field_host_empty">Enter the controller address</string>
+    <string name="field_host_invalid">This does not look like an IP address or a network name</string>
+    <string name="field_port_invalid">The port is a number from 1 to 65535</string>
+    <string name="field_serial_empty">Enter the serial number</string>
+    <string name="field_serial_invalid_character">Only digits 0-9 and letters A-F are allowed</string>
+    <string name="field_serial_too_long">The serial number has at most 8 characters</string>
+
+    <!-- Menu -->
+    <string name="menu_title">Menu</string>
+    <string name="menu_connection">Connection</string>
+    <string name="menu_mode_demo">Demo mode – a simulated home</string>
+    <string name="menu_mode_controller">Controller: %1$s</string>
+    <string name="menu_connect_controller">Connect to your controller</string>
+    <string name="menu_leave_demo">Leave demo mode</string>
+    <string name="menu_connection_settings">Connection settings</string>
+    <string name="menu_switch_to_demo">Switch to demo mode</string>
+    <string name="menu_calendar">Calendar</string>
+    <string name="menu_calendar_hint">Choose which calendars on this device the dashboard shows events from.</string>
+    <string name="menu_calendar_no_access">To choose calendars, allow the app to read the calendar.</string>
+    <string name="menu_calendar_empty">There are no visible calendars on this device. Add an account (e.g. Google) in the system settings.</string>
+    <string name="menu_calendar_unavailable">Couldn\'t read the list of calendars.</string>
+    <string name="menu_weather">Weather</string>
+    <string name="menu_weather_hint">Type the town the dashboard shows the weather for. Only the name you type and the approximate coordinates of the chosen town are sent to the weather service.</string>
+    <string name="menu_weather_none">No town chosen – the weather tile is waiting for your choice.</string>
+    <string name="menu_weather_current">Chosen: %1$s</string>
+    <string name="menu_weather_search_label">Town</string>
+    <string name="menu_weather_search_placeholder">e.g. Gdańsk</string>
+    <string name="menu_weather_searching">Searching…</string>
+    <string name="menu_weather_no_results">No such town found.</string>
+    <string name="menu_weather_search_failed">The search failed – check your internet connection.</string>
+    <string name="menu_weather_clear">Remove town</string>
+    <string name="menu_weather_clear_query">Clear the search field</string>
+    <string name="menu_weather_pick">Choose: %1$s, %2$s</string>
+    <string name="menu_weather_attribution">Weather data by Open-Meteo.com</string>
+    <string name="menu_weather_options">What to show on the tile…</string>
+    <string name="menu_weather_demo_hint">In demo mode the weather is sample data. You can still choose what the tile shows.</string>
+
+    <!-- Dashboard -->
+    <string name="home_default_name">My home</string>
+    <string name="home_demo_name">Demo home</string>
+    <string name="dashboard_loading">Loading the controller configuration…</string>
+    <string name="dashboard_config_no_connection">The configuration could not be downloaded – no connection to the controller.</string>
+    <string name="dashboard_config_unreadable">The controller sent a configuration the app cannot read.</string>
+    <string name="dashboard_config_other">The configuration could not be downloaded.</string>
+    <string name="dashboard_waiting_for_controller">Waiting for the connection to the controller. Check that the tablet is on the same Wi-Fi network, or correct the address in the settings.</string>
+    <string name="dashboard_retry">Try again</string>
+    <string name="dashboard_empty">The controller has no devices the app can show yet (lights, sockets, heating).</string>
+
+    <!-- Dashboard editing -->
+    <string name="header_edit">Edit dashboard</string>
+    <string name="edit_title">Edit dashboard</string>
+    <string name="edit_add">Add</string>
+    <string name="edit_reset">Restore default layout</string>
+    <string name="edit_done">Done</string>
+    <string name="edit_reset_title">Restore the default layout?</string>
+    <string name="edit_reset_message">The current dashboard layout will be replaced with the default one, and hidden tiles will come back.</string>
+    <string name="edit_reset_confirm">Restore</string>
+    <string name="edit_cancel">Cancel</string>
+    <string name="edit_drag_handle">Drag to reorder: %1$s</string>
+    <string name="edit_resize">Change size</string>
+    <string name="edit_size_state">Size %1$d × %2$d</string>
+    <string name="edit_size_value">%1$d × %2$d</string>
+    <string name="edit_hide">Hide from dashboard</string>
+    <string name="edit_move_earlier">Move earlier</string>
+    <string name="edit_move_later">Move later</string>
+    <string name="edit_resize_description">Change size: %1$s</string>
+    <string name="edit_hide_description">Hide from dashboard: %1$s</string>
+    <string name="edit_empty">The dashboard is empty. Tap “Add” to pick tiles.</string>
+    <string name="dashboard_all_hidden">The dashboard is empty. Tap the pencil at the top and choose “Add”.</string>
+    <string name="add_title">Add a tile</string>
+    <string name="add_group_heating">Heating</string>
+    <string name="add_group_lights">Lights</string>
+    <string name="add_group_shutters">Shutters</string>
+    <string name="add_group_other">Other</string>
+    <string name="add_nothing">All tiles are already on the dashboard.</string>
+    <string name="add_tile_description">Add to dashboard: %1$s, %2$s</string>
+    <string name="tile_weather">Weather</string>
+    <string name="tile_agenda">Calendar</string>
+
+    <!-- Tile icons and alarm outputs -->
+    <string name="edit_configure">Tile settings</string>
+    <string name="edit_icon">Change icon</string>
+    <string name="icon_picker_title">Icon: %1$s</string>
+    <string name="icon_auto">Automatic</string>
+    <string name="icon_auto_now">Now: %1$s</string>
+    <string name="icon_description">%1$s</string>
+    <string name="icon_selected_description">%1$s, selected</string>
+    <string name="icon_auto_description">%1$s, %2$s</string>
+    <string name="icon_auto_selected_description">%1$s, %2$s, selected</string>
+    <string name="icon_bulb">Bulb</string>
+    <string name="icon_sconce">Wall light</string>
+    <string name="icon_pendant">Pendant light</string>
+    <string name="icon_floor">Floor lamp</string>
+    <string name="icon_spot">Spotlight</string>
+    <string name="icon_led">LED strip</string>
+    <string name="icon_outdoor">Outdoor lamp</string>
+    <string name="icon_socket">Socket</string>
+    <string name="icon_fan">Fan</string>
+    <string name="icon_pump">Pump</string>
+    <string name="icon_alarm">Alarm</string>
+    <string name="icon_switch">Switch</string>
+    <string name="add_group_alarm">Alarm</string>
+    <string name="alarm_confirm_title">Are you sure?</string>
+    <string name="alarm_confirm_message">This output controls the alarm.</string>
+    <string name="alarm_confirm_on">Turn on</string>
+    <string name="alarm_confirm_off">Turn off</string>
+
+    <!-- Connection banner -->
+    <string name="connection_gave_up">Cannot connect to the controller</string>
+    <string name="connection_wrong_device">This device is not a 1st-generation Deimic controller – check the address in the settings</string>
+    <string name="connection_wrong_serial">The controller does not respond – check the serial number in the settings</string>
+    <string name="connection_retry">Retry</string>
+
+    <!-- Command messages -->
+    <string name="event_not_connected">No connection – command not sent: %1$s</string>
+    <string name="event_no_response">The controller did not answer: %1$s</string>
+    <string name="event_not_confirmed">The controller did not confirm the change: %1$s</string>
+    <string name="event_rejected">The controller rejected the command: %1$s</string>
+    <string name="event_cannot_switch_on">%1$s cannot be switched on from the app</string>
+
+    <!-- Preview in the Appearance sheet -->
+    <string name="appearance_preview_name">Lamp</string>
+    <string name="appearance_preview_room">Living room</string>
+
+    <!-- Wall tablet (menu) -->
+    <string name="kiosk_title">Wall tablet</string>
+    <string name="kiosk_keep_on">Keep screen on while charging</string>
+    <string name="kiosk_keep_on_hint">The screen does not dim while the tablet is on its charger and Domik is in front.</string>
+    <string name="kiosk_fullscreen">Full screen</string>
+    <string name="kiosk_fullscreen_hint">Hides the system bars. Swipe from a screen edge to show them for a moment.</string>
+    <string name="kiosk_home">Domik as the home screen</string>
+    <string name="kiosk_home_hint_off">Once on, Domik starts by itself after the tablet restarts and when you tap Home.</string>
+    <string name="kiosk_home_hint_active">Domik is now the tablet\'s home screen and starts by itself after a restart.</string>
+    <string name="kiosk_home_hint_choose">Pick Domik as the home app in the system settings.</string>
+    <string name="kiosk_home_open_settings">Open home screen settings</string>
+    <string name="kiosk_pin">Pin Domik</string>
+    <string name="kiosk_unpin">Unpin Domik</string>
+    <string name="kiosk_pin_hint">Prevents switching to other apps. Needs app pinning turned on in the system settings (search for “pin”).</string>
+    <string name="kiosk_unpin_hint">Domik is pinned. You can also unpin with a gesture: swipe up from the bottom and hold.</string>
+    <string name="kiosk_notice_pinning_disabled">Pinning is turned off in the system. Turn it on: Settings → search for “pin” (e.g. “Pin windows”), then tap “Pin Domik” again.</string>
+    <string name="kiosk_notice_unpin_failed">Couldn\'t unpin from within the app. Swipe up from the bottom and hold (or hold Back and Recent apps).</string>
+    <string name="kiosk_notice_home_settings">Couldn\'t open the home screen settings. Open them manually: Settings → search for “home screen”.</string>
+
+    <!-- About (menu → dialog). Links: ProjectLinks.kt. The unofficial and privacy texts = summary of the Terms of Use and Privacy Policy (legal/en/). -->
+    <string name="about_title">About</string>
+    <string name="about_open">Version, licences and documents</string>
+    <string name="about_close">Close</string>
+    <string name="about_version">Version %1$s (%2$d)</string>
+    <string name="about_unofficial">An educational and hobby project – not an alternative to or a replacement for the manufacturer\'s official app, and not affiliated with the manufacturer. You use it at your own risk.</string>
+    <string name="about_trademark">“Deimic” and other manufacturer marks may be trademarks of their owners. We use them only descriptively – to indicate which controllers the app works with.</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_privacy">The author collects no data. The controller is operated only on your local network; the weather service receives only the name you type and the approximate coordinates of the chosen place.</string>
+    <string name="about_code_title">Source code and licence</string>
+    <string name="about_mit">Domik is open source software: the source code is public, and the app is provided under the MIT licence – “as is”, without warranty.</string>
+    <string name="about_link_source">Source code</string>
+    <string name="about_link_license">MIT licence – full text</string>
+    <string name="about_link_releases">Releases – the official source of the app</string>
+    <string name="about_documents_title">Documents</string>
+    <string name="about_link_terms">Terms of Use</string>
+    <string name="about_link_privacy">Privacy Policy</string>
+    <string name="about_contact_title">Contact</string>
+    <string name="about_contact_hint">Report questions, bugs and comments in the project repository. Reports are public – don\'t put your controller\'s serial number in them. Report security vulnerabilities confidentially.</string>
+    <string name="about_link_issues">Report a problem</string>
+    <string name="about_link_security">Report a security vulnerability (confidentially)</string>
+    <string name="about_open_in_browser">Open in browser</string>
+    <string name="about_footer">© 2026 milwis. Android is a trademark of Google LLC.</string>
+    <string name="link_open_failed">Couldn\'t open a browser. If Domik is pinned, unpin it. Address: %1$s</string>
+
+    <!-- About: open source licences (list = OpenSourceLicenses.kt, NOTICE.md) -->
+    <string name="about_oss_title">Open source licences</string>
+    <string name="about_oss_intro">Domik uses the components below and their dependencies (also under the Apache-2.0 licence). Each component keeps its own licence and the copyright of its authors.</string>
+    <string name="about_oss_meta">%1$s · %2$s licence</string>
+    <string name="about_oss_meta_license_only">%1$s licence</string>
+    <string name="oss_name_kotlin">Kotlin (standard library)</string>
+    <string name="oss_name_material3">Material 3 for Compose</string>
+    <string name="oss_name_icons">Icons: Material Icons</string>
+    <string name="about_notice_show">Show the icons licence notice and the full Apache-2.0 text</string>
+    <string name="about_notice_hide">Hide the licence notice</string>
+    <string name="about_notice_unavailable">Couldn\'t load the licence notice.</string>
+    <string name="about_apache_title">Apache-2.0 licence – summary</string>
+    <string name="about_apache_summary">The Apache-2.0 licence lets you use, copy, modify and distribute the software – including modified versions – provided you include the licence text and keep the copyright notices. The software is provided “as is”, without warranty. This is only a summary – the full licence text applies.</string>
+    <string name="about_link_apache">Full text of the Apache-2.0 licence</string>
+    <string name="about_link_cc_by">CC BY 4.0 licence (weather data)</string>
+</resources>
