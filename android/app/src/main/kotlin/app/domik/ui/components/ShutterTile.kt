@@ -125,9 +125,15 @@ private val LARGE_CONTROL_HEIGHT = 72.dp
  * Uwaga: roleta działa jak pilot jednoprzyciskowy – dowolny kierunek wciśnięty w czasie ruchu ją zatrzymuje, więc
  * zmiana kierunku to dwa dotknięcia. Kafelek nic nie zgaduje: pokazuje wyłącznie to, co zgłosił sterownik.
  *
+ * **[compact] (1×1):** bez przycisków – ikona rolety, nazwa i podpis stanu; dotknięcie ([onClick]) otwiera okno
+ * z przyciskami ↑ ■ ↓ ([app.domik.ui.dashboard.ShutterDialog]).
+ *
  * Bezstanowy – o stanie decyduje wywołujący ([display], [pending]).
  *
  * @param pending przycisk, którego polecenie czeka na potwierdzenie sterownika (pokazuje wskaźnik; sterowanie wyszarzone)
+ * @param compact wariant 1×1 (bez przycisków)
+ * @param onClick dotknięcie kafelka w wariancie [compact]; `null` = nic (np. tryb edycji pulpitu)
+ * @param onClickLabel opis dotknięcia dla czytników ekranu (np. „Otwórz sterowanie roletą”)
  */
 @Composable
 fun ShutterTile(
@@ -138,7 +144,14 @@ fun ShutterTile(
     modifier: Modifier = Modifier,
     pending: ShutterControl? = null,
     controlHeight: Dp = 48.dp,
+    compact: Boolean = false,
+    onClick: (() -> Unit)? = null,
+    onClickLabel: String? = null,
 ) {
+    if (compact) {
+        CompactShutterTile(name, room, display, pending != null, modifier, onClick, onClickLabel)
+        return
+    }
     BoxWithConstraints(modifier) {
         val density = ShutterDensity.forHeight(maxHeight)
         val buttonHeight = if (density == ShutterDensity.Large) maxOf(controlHeight, LARGE_CONTROL_HEIGHT) else controlHeight
@@ -178,6 +191,45 @@ fun ShutterTile(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/** Kafelek 1×1: ikona rolety u góry, na dole nazwa i podpis stanu (jedna linia); cały kafelek jest przyciskiem. */
+@Composable
+private fun CompactShutterTile(
+    name: String,
+    room: String,
+    display: ShutterDisplay,
+    busy: Boolean,
+    modifier: Modifier,
+    onClick: (() -> Unit)?,
+    onClickLabel: String?,
+) {
+    val stateText = stringResource(display.labelRes)
+    val description = listOf(name, room, stateText).filter { it.isNotBlank() }.joinToString(", ")
+    BoxWithConstraints(modifier) {
+        val density = TileDensity.forHeight(maxHeight)
+        val inner = maxHeight - density.padding * 2
+        TileCard(
+            state = TileState.Neutral,
+            modifier = Modifier.fillMaxSize(),
+            onClick = onClick,
+            onClickLabel = onClickLabel,
+            role = if (onClick != null) Role.Button else null,
+            contentDescription = description,
+            contentPadding = PaddingValues(density.padding),
+        ) { tile ->
+            val lines = fitNameLines(inner, fixed = density.icon, density.nameStyle, density.roomStyle)
+            Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    DeviceIconGlow(DeviceIcon.Shutter, lit = display.isMoving, tint = tile.icon, size = density.icon)
+                    if (busy) {
+                        CircularProgressIndicator(color = tile.icon, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
+                    }
+                }
+                TileNameAndRoom(name, stateText, tile, density, lines)
             }
         }
     }
@@ -231,7 +283,7 @@ private fun ShutterHeader(
 
 /** Przycisk w kształcie pigułki; [active] = wypełniony kolorem akcentu, [pending] = wskaźnik zamiast ikony. */
 @Composable
-private fun ShutterControlButton(
+internal fun ShutterControlButton(
     control: ShutterControl,
     description: String,
     active: Boolean,

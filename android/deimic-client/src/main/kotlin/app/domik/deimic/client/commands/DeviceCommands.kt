@@ -9,6 +9,8 @@ import app.domik.deimic.protocol.ControllerMessage
 import app.domik.deimic.protocol.Frame
 import app.domik.deimic.protocol.HeaterState
 import app.domik.deimic.protocol.HeatingProfile
+import app.domik.deimic.protocol.InputCalibration
+import app.domik.deimic.protocol.InputCalibrationTable
 import app.domik.deimic.protocol.Request
 import app.domik.deimic.protocol.ShutterState
 import app.domik.deimic.protocol.StateSnapshot
@@ -29,11 +31,13 @@ data class DeviceCommandsConfig(
     val readTimeout: Duration = 3.seconds,
     /** When an output event is missing after an acknowledgement, check the output in a state snapshot. */
     val snapshotFallback: Boolean = true,
+    /** How long to wait for the controller's confirmation (0x132 echo) after writing an input calibration. */
+    val calibrationConfirmTimeout: Duration = 3.seconds,
 ) {
     init {
         require(
             outputConfirmTimeout.isPositive() && heaterConfirmTimeout.isPositive() &&
-                shutterConfirmTimeout.isPositive() && readTimeout.isPositive(),
+                shutterConfirmTimeout.isPositive() && readTimeout.isPositive() && calibrationConfirmTimeout.isPositive(),
         )
     }
 }
@@ -198,6 +202,74 @@ class DeviceCommands(
         }
     }
 
+    /**
+     * Reads the calibration records of all analog inputs of [module] (0x131; usually 12 records, input 0 first –
+     * unused inputs hold garbage, see [InputCalibrationTable]). A read only: nothing on the controller changes.
+     * Only a response with the address of [module] is accepted (seen live: the controller answers module 1 with
+     * address 1); a table of another module is ignored like any unrelated frame.
+     */
+    suspend fun readCalibrations(module: Int): CalibrationReadout {
+        invalidModule(module)?.let { return CalibrationReadout.Failure(it) }
+        return try {
+            val result = connection.request(
+                Request.inputCalibrations(connection.serial, module.toUInt()),
+                setOf(CommandCode.INPUT_CALIBRATION_GET),
+                config.readTimeout,
+            ) { it.address == module.toUInt() }
+            when (val table = ControllerMessage.decode(result.responses.first())) {
+                is InputCalibrationTable -> CalibrationReadout.Success(table.records)
+                else -> CalibrationReadout.Failure(CommandOutcome.Failed(ConnectionProblem.OTHER, "unreadable calibration table"))
+            }
+        } catch (_: RequestTimeoutException) {
+            CalibrationReadout.Failure(CommandOutcome.NoAck)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Throwable) {
+            CalibrationReadout.Failure(failed(error))
+        }
+    }
+
+    /**
+     * Writes the calibration [record] of analog input [inputNr] (0..[InputCalibration.MAX_INPUT]) of [module]
+     * (0x132). It takes effect at once (new 0x72 / 0x130 / 0x6B with the corrected temperature follow within a few
+     * seconds) and **changes the temperature the controller regulates on** – the caller decides what is sensible.
+     *
+     * Strict: [CommandOutcome.Confirmed] only when the controller answered with a 0x132 frame from [module] (address)
+     * whose payload is identical to what was sent. The echo missing (even though the request was acknowledged) is a
+     * [CommandOutcome.Failed] with [ConnectionProblem.NO_RESPONSE] – never [CommandOutcome.AckOnly]; a different
+     * payload is [CommandOutcome.Failed] with [ConnectionProblem.OTHER]. Neither is retried here: after such a
+     * result read the table back with [readCalibrations] to see what the controller holds (this class does not
+     * verify by reading automatically – the echo is the controller's own confirmation of the write, a read-back
+     * costs another round trip and is left to callers that want it, e.g. before and after a series of writes).
+     *
+     * Invalid arguments ([CommandOutcome.Invalid], nothing sent): module or input out of range, an active-point
+     * flag other than 0 / 1, or a non-finite value in an active point.
+     */
+    suspend fun writeCalibration(module: Int, inputNr: Int, record: InputCalibration): CommandOutcome {
+        invalidModule(module)?.let { return it }
+        if (inputNr !in 0..InputCalibration.MAX_INPUT) return CommandOutcome.Invalid("input number out of range: $inputNr")
+        invalidCalibration(record)?.let { return it }
+        val frame = Request.setInputCalibration(connection.serial, module.toUInt(), inputNr.toUByte(), record)
+        return guarded {
+            try {
+                val result = connection.request(frame, setOf(CommandCode.INPUT_CALIBRATION_SET), config.calibrationConfirmTimeout) {
+                    it.address == module.toUInt() && it.payload.size >= 1 && it.payload[0].toInt() == inputNr
+                }
+                if (result.responses.first().payload == frame.payload) {
+                    CommandOutcome.Confirmed
+                } else {
+                    CommandOutcome.Failed(ConnectionProblem.OTHER, "the controller confirmed a different calibration")
+                }
+            } catch (timeout: RequestTimeoutException) {
+                if (timeout.acknowledged) {
+                    CommandOutcome.Failed(ConnectionProblem.NO_RESPONSE, "acknowledged, but no calibration confirmation (0x132)")
+                } else {
+                    CommandOutcome.NoAck
+                }
+            }
+        }
+    }
+
     // Output verification
 
     /** No output event arrived: look the output up in a state snapshot (0x202 [01] -> 0x21E). */
@@ -301,6 +373,15 @@ class DeviceCommands(
                 "setpoint $celsius outside ${CommandLimits.MIN_SETPOINT_CELSIUS}..${CommandLimits.MAX_SETPOINT_CELSIUS} °C",
             )
         }
+
+    private fun invalidCalibration(record: InputCalibration): CommandOutcome.Invalid? {
+        if (record.active1 > 1u || record.active2 > 1u) return CommandOutcome.Invalid("active-point flags must be 0 or 1")
+        val values = buildList {
+            if (record.point1Active) addAll(listOf(record.measured1Tenths, record.true1Tenths))
+            if (record.point2Active) addAll(listOf(record.measured2Tenths, record.true2Tenths))
+        }
+        return if (values.all { it.isFinite() }) null else CommandOutcome.Invalid("calibration contains a non-finite value")
+    }
 
     private fun failed(error: Throwable): CommandOutcome.Failed =
         CommandOutcome.Failed(ConnectionErrors.classify(error), error.message)

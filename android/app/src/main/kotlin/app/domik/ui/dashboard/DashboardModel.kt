@@ -83,8 +83,15 @@ data class ShutterTileModel(
     val pending: ShutterControl?,
 ) : TileModel
 
+/**
+ * Kafelek eModul (tylko odczyt). [id] to [TileId.Emodul] albo [TileId.EmodulZone]; [ui] `null` = brak danych
+ * (kafelek „Ładowanie…” / „Brak danych eModul”).
+ */
+@Immutable
+data class EmodulTileModel(override val id: TileId.EmodulBase, override val size: TileSize, val ui: EmodulTileUi?) : TileModel
+
 /** Grupy w arkuszu „Dodaj” (ukryte kafelki), w kolejności wyświetlania. */
-enum class TileGroup { HEATING, LIGHTS, SHUTTERS, ALARM, OTHER }
+enum class TileGroup { HEATING, EMODUL, LIGHTS, SHUTTERS, ALARM, OTHER }
 
 /** Ukryty kafelek do ponownego dodania: nazwa i pomieszczenie z konfiguracji ([name] puste dla pogody i kalendarza). */
 @Immutable
@@ -99,26 +106,35 @@ data class DashboardModel(
     val zones: List<ZoneTileModel> get() = tiles.filterIsInstance<ZoneTileModel>()
     val switches: List<SwitchTileModel> get() = tiles.filterIsInstance<SwitchTileModel>()
     val shutters: List<ShutterTileModel> get() = tiles.filterIsInstance<ShutterTileModel>()
+    val emodul: List<EmodulTileModel> get() = tiles.filterIsInstance<EmodulTileModel>()
     val showWeather: Boolean get() = tiles.any { it is WeatherTileModel }
     val showAgenda: Boolean get() = tiles.any { it is AgendaTileModel }
 
     /** Czy konfiguracja ma urządzenia, które aplikacja potrafi pokazać (także te ukryte przez użytkownika). */
     val hasDevices: Boolean
-        get() = tiles.any { it is ZoneTileModel || it is SwitchTileModel || it is ShutterTileModel } ||
+        get() = tiles.any { it is ZoneTileModel || it is SwitchTileModel || it is ShutterTileModel || it is EmodulTileModel } ||
             hidden.any { it.group != TileGroup.OTHER }
 }
 
 /**
  * Buduje pulpit z [state] i [layout]. Nazwy i pomieszczenia pochodzą wyłącznie z konfiguracji sterownika
- * ([HomeState.config]); urządzenia, których nie ma w konfiguracji, nie mają kafelka.
+ * ([HomeState.config]); urządzenia, których nie ma w konfiguracji, nie mają kafelka. Kafelki eModul nie zależą od
+ * konfiguracji Deimic: ich zawartość to [emodul] (po id kafelka; brak wpisu = brak danych).
  */
-fun buildDashboard(state: HomeState, layout: DashboardLayout, icons: IconChoices = IconChoices.EMPTY): DashboardModel {
+fun buildDashboard(
+    state: HomeState,
+    layout: DashboardLayout,
+    icons: IconChoices = IconChoices.EMPTY,
+    thermometerTemps: Map<ZoneKey, Float> = emptyMap(),
+    emodul: Map<TileId, EmodulTileUi> = emptyMap(),
+): DashboardModel {
     val config = state.config
         ?: return DashboardModel(
             tiles = layout.tiles.mapNotNull { entry ->
-                when (entry.id) {
+                when (val id = entry.id) {
                     TileId.Weather -> WeatherTileModel(entry.size)
                     TileId.Agenda -> AgendaTileModel(entry.size)
+                    is TileId.EmodulBase -> EmodulTileModel(id, entry.size, emodul[id])
                     else -> null
                 }
             },
@@ -128,18 +144,25 @@ fun buildDashboard(state: HomeState, layout: DashboardLayout, icons: IconChoices
             TileId.Weather -> WeatherTileModel(size)
             TileId.Agenda -> AgendaTileModel(size)
             is TileId.Zone ->
-                config.heatingZone(id.module, id.outputNr)?.let { ZoneTileModel(id, size, zoneState(it, state, config)) }
+                config.heatingZone(id.module, id.outputNr)?.let {
+                    ZoneTileModel(id, size, zoneState(it, state, config, thermometerTemps[ZoneKey(id.module, id.outputNr)]))
+                }
             is TileId.Switch ->
                 config.output(id.module, id.relay)?.takeIf { it.isSupported }?.let { switchModel(id, size, it, state, config, icons[id]) }
             is TileId.Shutter ->
                 config.shutter(id.module, id.outputNr)?.let { shutterModel(id, size, it, state, config) }
+            is TileId.EmodulBase -> EmodulTileModel(id, size, emodul[id])
         }
     }
-    val hidden = layout.hidden.mapNotNull { (id, _) -> hiddenModel(id, config) }
+    val hidden = layout.hidden.mapNotNull { (id, _) -> hiddenModel(id, config, emodul) }
     return DashboardModel(tiles, hidden)
 }
 
-private fun hiddenModel(id: TileId, config: HomeConfig): HiddenTileModel? = when (id) {
+private fun hiddenModel(id: TileId, config: HomeConfig, emodul: Map<TileId, EmodulTileUi>): HiddenTileModel? = when (id) {
+    // Nazwa pusta bez danych: tekst „Kafelek eModul %d” dobiera warstwa UI z zasobów.
+    is TileId.EmodulBase -> emodul[id].let { ui ->
+        HiddenTileModel(id, name = ui?.title.orEmpty(), room = ui?.module.orEmpty(), group = TileGroup.EMODUL)
+    }
     TileId.Weather, TileId.Agenda -> HiddenTileModel(id, name = "", room = "", group = TileGroup.OTHER)
     is TileId.Zone -> config.heatingZone(id.module, id.outputNr)?.let {
         HiddenTileModel(id, it.name, placeLabel(config, it.name, it.roomId, it.levelId), TileGroup.HEATING)
@@ -153,7 +176,11 @@ private fun hiddenModel(id: TileId, config: HomeConfig): HiddenTileModel? = when
     }
 }
 
-internal fun zoneState(zone: HeatingZone, state: HomeState, config: HomeConfig): HeatingTileState {
+/**
+ * @param thermometerTemp świeży odczyt termometru pokojowego strefy (°C) – jeśli jest, kafelek pokazuje go jako
+ *   temperaturę aktualną zamiast odczytu czujnika Deimic ([HeatingTileState.fromThermometer])
+ */
+internal fun zoneState(zone: HeatingZone, state: HomeState, config: HomeConfig, thermometerTemp: Float? = null): HeatingTileState {
     val key = ZoneKey(zone.module, zone.outputNr)
     val reading = state.zones[key]
     val pendingProfile = state.pendingProfiles[key]
@@ -167,10 +194,12 @@ internal fun zoneState(zone: HeatingZone, state: HomeState, config: HomeConfig):
         pendingSetpoint != null && !switchingOn -> pendingSetpoint.target
         else -> reading.setpoint
     }?.takeIf { it.isFinite() }
+    val thermometer = thermometerTemp?.takeIf { it.isFinite() }
     return HeatingTileState(
         name = zone.name,
         room = placeLabel(config, zone.name, zone.roomId, zone.levelId),
-        currentTemp = reading?.currentTemperature?.takeIf { it.isFinite() },
+        currentTemp = thermometer ?: reading?.currentTemperature?.takeIf { it.isFinite() },
+        fromThermometer = thermometer != null,
         setpoint = setpoint,
         profile = (pendingProfile ?: reading?.profile)?.toTileProfile() ?: TileProfile.Off,
         heating = reading?.isHeating == true,
@@ -246,7 +275,7 @@ internal fun ShutterControl.toButton(): ShutterButton = when (this) {
  * Podpis pod nazwą: pomieszczenie; gdy pomieszczenie nazywa się tak samo jak urządzenie (strefa „Salon” w pokoju
  * „Salon”) albo go nie ma – piętro.
  */
-private fun placeLabel(config: HomeConfig, name: String, roomId: Int?, levelId: Int?): String {
+internal fun placeLabel(config: HomeConfig, name: String, roomId: Int?, levelId: Int?): String {
     val room = roomId?.let(config::room)?.name
     val level = (levelId ?: roomId?.let(config::room)?.levelId)?.let(config::level)?.name
     return when {

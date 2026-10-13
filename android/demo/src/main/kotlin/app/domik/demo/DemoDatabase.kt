@@ -4,8 +4,8 @@ import app.domik.deimic.protocol.Crc16Arc
 
 /**
  * The configuration database of a [DemoHome] as a controller would serve it (`/logs/database-last.db3`): a real
- * SQLite file with the controller's tables `template_levels`, `template_rooms` and `outputs` (column layout of
- * the controller's schema), filled only with the fictional house. Deterministic: the same home gives the same
+ * SQLite file with the controller's tables `template_levels`, `template_rooms`, `outputs` and `inputs` (column layout of
+ * the controller's schema; `inputs` lists the temperature sensors, `input_type` 8, each in the room it measures), filled only with the fictional house. Deterministic: the same home gives the same
  * bytes (and therefore the same checksum) every time.
  */
 class DemoDatabase private constructor(val home: DemoHome, private val bytes: ByteArray) {
@@ -36,6 +36,14 @@ class DemoDatabase private constructor(val home: DemoHome, private val bytes: By
                 "\"output_nr_in\" INTEGER DEFAULT (0), \"output_relay\" INTEGER DEFAULT -1, " +
                 "\"outputs_number\" INTEGER DEFAULT 0, \"question\" INTEGER DEFAULT 0)"
 
+        private const val INPUTS_SQL =
+            "CREATE TABLE \"inputs\" (\"id\" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL  UNIQUE , \"id_device\" INTEGER, " +
+                "\"input_nr\" INTEGER, \"id_level\" INTEGER, \"id_room\" INTEGER, \"input_type\" INTEGER, \"name\" TEXT, " +
+                "\"frame_id\" INTEGER, \"frame_num\" INTEGER)"
+
+        /** `inputs.input_type` of a temperature sensor input. */
+        private const val TEMPERATURE_INPUT = 8
+
         fun build(home: DemoHome): DemoDatabase {
             val levels = home.levels.map { SqliteFile.Row(it.id.toLong(), listOf(null, it.name, 1, 1)) }
             val rooms = home.rooms.map { SqliteFile.Row(it.id.toLong(), listOf(null, it.levelId, 1, it.name, 0)) }
@@ -59,11 +67,20 @@ class DemoDatabase private constructor(val home: DemoHome, private val bytes: By
             }
             // Row ids run through outputs, shutters and zones in one sequence (the order of the controller's table).
             val outputRows = (outputs + shutters + zones).mapIndexed { index, values -> SqliteFile.Row(index + 1L, values) }
+            // Temperature inputs: the zones' sensors (input number = DemoZone.inputNr, not the zone's output_nr), then the others.
+            val inputValues = home.zones.map { Triple(it.module, it.inputNr, it) to it.roomId } +
+                home.sensors.map { Triple(it.module, it.number, null) to it.roomId }
+            val inputs = inputValues.mapIndexed { index, (input, roomId) ->
+                val (module, inputNr, zone) = input
+                val name = "Czujnik " + (zone?.name ?: checkNotNull(home.room(roomId)).name)
+                SqliteFile.Row(index + 1L, listOf(null, module, inputNr, home.levelOf(roomId), roomId, TEMPERATURE_INPUT, name, 0, inputNr))
+            }
             val file = SqliteFile.build(
                 listOf(
                     SqliteFile.Table("template_levels", LEVELS_SQL, levels),
                     SqliteFile.Table("template_rooms", ROOMS_SQL, rooms),
                     SqliteFile.Table("outputs", OUTPUTS_SQL, outputRows),
+                    SqliteFile.Table("inputs", INPUTS_SQL, inputs),
                 ),
             )
             return DemoDatabase(home, file)

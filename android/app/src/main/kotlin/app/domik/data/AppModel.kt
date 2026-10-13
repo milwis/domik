@@ -1,7 +1,16 @@
 package app.domik.data
 
 import app.domik.deimic.config.HomeConfig
+import app.domik.deimic.client.commands.ZoneKey
 import app.domik.integrations.calendar.CalendarModel
+import app.domik.integrations.emodul.EmodulModel
+import app.domik.integrations.thermo.ScanMode
+import app.domik.integrations.thermo.ThermoAssignment
+import app.domik.integrations.thermo.ThermoLogEntry
+import app.domik.integrations.thermo.ThermoProfileSettings
+import app.domik.integrations.thermo.ThermoRuntime
+import app.domik.integrations.thermo.ThermoSessions
+import app.domik.integrations.thermo.ThermoUiState
 import app.domik.integrations.weather.WeatherModel
 import app.domik.integrations.weather.WeatherOptions
 import app.domik.ui.theme.AppearanceSettings
@@ -13,10 +22,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** Stan przycisku „Testuj połączenie”. */
 sealed interface ConnectionTestState {
@@ -72,8 +83,8 @@ data class LayoutState(
     val editing: Boolean get() = draft != null
 
     /** Układ do pokazania: robocza kopia w edycji, inaczej zapis uzgodniony z [config] (domyślny dla [columns] kolumn). */
-    fun resolve(config: HomeConfig?, columns: Int): DashboardLayout =
-        draft ?: DashboardLayout.reconcile(saved, config, columns, migrateAlarms)
+    fun resolve(config: HomeConfig?, columns: Int, emodul: EmodulCatalog? = null): DashboardLayout =
+        draft ?: DashboardLayout.reconcile(saved, config, columns, migrateAlarms, emodul)
 }
 
 /**
@@ -98,6 +109,14 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
     private val _icons = MutableStateFlow(IconChoices.EMPTY)
     private val _weatherOptions = MutableStateFlow(WeatherOptions.DEFAULT)
     private var testJob: Job? = null
+    private val thermoSettings = env.thermoSettings
+    private val _leaveWarning = MutableStateFlow(thermoSettings.leaveWarning)
+    private val _thermo = MutableStateFlow(ThermoUiState.INACTIVE.copy(previousControllerNotRestored = _leaveWarning.value))
+    private var thermoRuntime: ThermoRuntime? = null
+    private var thermoJob: Job? = null
+
+    /** Profil, którego sesja przy zamknięciu ma najpierw przywrócić kalibracje instalatora (zmiana / zapomnienie sterownika). */
+    private var restoreOnLeave: String? = null
 
     val route: StateFlow<Route> = _route.asStateFlow()
     val appearance: StateFlow<AppearanceSettings> = _appearance.asStateFlow()
@@ -116,6 +135,12 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
     /** Co pokazuje kafelek pogody (bieżąca sesja); bez zapisu obowiązują ustawienia domyślne. */
     val weatherOptions: StateFlow<WeatherOptions> = _weatherOptions.asStateFlow()
 
+    /**
+     * Termometry Xiaomi i kalibracja czujników Deimic (bieżąca sesja; [ThermoUiState.INACTIVE] bez sesji). Runtime
+     * powstaje i jest zamykany razem z sesją; skanowania BLE nie uruchamia (to robi UI: [setThermoScanMode] / usługa).
+     */
+    val thermo: StateFlow<ThermoUiState> = _thermo.asStateFlow()
+
     /** Kalendarz z urządzenia (kafelek kalendarza w trybie sterownika; tryb demo go nie używa). */
     val calendar = CalendarModel(env.calendarSource, settings, scope, env.ioDispatcher)
 
@@ -123,6 +148,15 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
     val weather = WeatherModel(
         env.weatherSource, settings, scope, env.ioDispatcher, env.weatherCache,
         searchLanguage = env.weatherSearchLanguage,
+    )
+
+    /**
+     * eModul (tylko odczyt): klucz, moduły i ich dane dla kafelków. Tryb demo przełącza się razem z sesją;
+     * odświeżanie wywołuje UI ([EmodulModel.refreshDue]), w tle nic nie jest wysyłane.
+     */
+    val emodul = EmodulModel(
+        env.emodulApi, env.emodulSettings, env.emodulStore, scope, env.ioDispatcher,
+        clock = env.wallClock, language = env.emodulLanguage, fallbacks = env.emodulFallbacks,
     )
 
     init {
@@ -215,16 +249,26 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
         }
         settings.mode = AppMode.CONTROLLER
         refreshInfo()
-        if (previous != null && previous.id != profile.id) removeCachedConfig(previous.id)
+        if (previous != null && previous.id != profile.id) {
+            restoreOnLeave = previous.id
+            removeCachedConfig(previous.id)
+            thermoSettings.clearController(previous.id)
+        }
         _form.update { it.copy(serial = "", test = ConnectionTestState.Idle) }
         showRoute(Route.DASHBOARD)
     }
 
-    /** Usuwa zapisany sterownik (adres, numer seryjny, kopię konfiguracji). */
+    /**
+     * Usuwa zapisany sterownik (adres, numer seryjny, kopię konfiguracji, ustawienia termometrów). Wcześniej sesja
+     * przywraca kalibracje instalatora zmienione przez Domik (gdy się nie da – [ThermoUiState.previousControllerNotRestored]);
+     * pliki kalibracji bazowych sterownika zostają.
+     */
     fun forgetController() {
         testJob?.cancel()
         val removed = settings.clearController() ?: return
+        restoreOnLeave = removed.id
         removeCachedConfig(removed.id)
+        thermoSettings.clearController(removed.id)
         if (settings.mode == AppMode.CONTROLLER) settings.mode = AppMode.UNSET
         refreshInfo()
         showRoute(resolveRoute(settings))
@@ -236,10 +280,10 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
     // więc nic nie ginie przy zabiciu aplikacji; „Gotowe” tylko kończy edycję.
 
     /** Wchodzi w tryb edycji; [columns] = liczba kolumn siatki (od niej zależy układ domyślny). */
-    fun startLayoutEdit(config: HomeConfig?, columns: Int) {
+    fun startLayoutEdit(config: HomeConfig?, columns: Int, emodul: EmodulCatalog? = null) {
         val state = _layout.value
         if (state.editing || _session.value == null) return
-        _layout.value = state.copy(draft = state.resolve(config, columns))
+        _layout.value = state.copy(draft = state.resolve(config, columns, emodul))
     }
 
     /** Kończy tryb edycji (zmiany są już zapisane). */
@@ -263,10 +307,10 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
     fun showTile(id: TileId) = editLayout { it.show(id) }
 
     /** Przywraca układ domyślny (kasuje zapis); w trybie edycji zostaje on włączony. */
-    fun resetLayout(config: HomeConfig?, columns: Int) {
+    fun resetLayout(config: HomeConfig?, columns: Int, emodul: EmodulCatalog? = null) {
         val session = _session.value ?: return
         settings.clearLayout(session.profileId)
-        _layout.update { LayoutState(saved = null, draft = if (it.editing) DashboardLayout.default(config, columns) else null) }
+        _layout.update { LayoutState(saved = null, draft = if (it.editing) DashboardLayout.default(config, columns, emodul) else null) }
     }
 
     /**
@@ -302,6 +346,154 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
         _layout.value = LayoutState(saved = updated, draft = updated)
     }
 
+    // Termometry (ustawienia profilu bieżącej sesji; zmiana od razu trafia do runtime'u)
+
+    /**
+     * Przypisuje termometr [mac] strefie ([module], [outputNr]). Wejście sterownika wynika z pomieszczenia strefy;
+     * [inputNr] tylko gdy pomieszczenie ma zero albo kilka wejść temperatury – i tylko jedno z dozwolonych
+     * ([ThermoRuntime.allowedInputs]: wejścia pomieszczenia, a bez nich wejścia temperatury modułu). Zwraca false dla
+     * błędnego adresu MAC, niedozwolonego wejścia albo bez sesji. Bez wczytanej konfiguracji wejście sprawdza runtime.
+     */
+    fun assignThermometer(mac: String, module: Int, outputNr: Int, inputNr: Int? = null, label: String = ""): Boolean {
+        val normalized = ThermoAssignment.normalizeMac(mac) ?: return false
+        if (inputNr != null && inputNr !in 0..MAX_INPUT_NR) return false
+        if (inputNr != null) {
+            val config = _session.value?.repository?.state?.value?.config
+            val allowed = config?.let { ThermoRuntime.allowedInputs(it, module, outputNr) }
+            if (allowed != null && inputNr !in allowed) return false
+        }
+        return editThermo { it.withAssignment(ThermoAssignment(normalized, module, outputNr, inputNr, label.trim())) }
+    }
+
+    fun unassignThermometer(zone: ZoneKey) {
+        editThermo { it.withoutAssignment(zone) }
+    }
+
+    /** Włącza / wyłącza korektę. Wyłączenie w trybie rzeczywistym przywraca kalibrację bazową wejść. */
+    fun setThermoEnabled(enabled: Boolean) {
+        editThermo { it.copy(enabled = enabled) }
+    }
+
+    /**
+     * Tryb próbny (tylko dziennik) albo rzeczywisty (zapisy 0x132). Wyłączenie trybu próbnego jest odrzucane (false),
+     * dopóki [Features.SENSOR_CALIBRATION_WRITES] jest wyłączone – poza trybem demo.
+     */
+    fun setThermoDryRun(dryRun: Boolean): Boolean {
+        val session = _session.value ?: return false
+        if (!dryRun && !env.thermoWritesEnabled && !session.isDemo) return false
+        return editThermo { it.copy(dryRun = dryRun) }
+    }
+
+    /** Próg różnicy: jeden z [ThermoProfileSettings.THRESHOLDS] (0,5 / 1,0 °C); inna wartość – false. */
+    fun setThermoThreshold(threshold: Float): Boolean {
+        if (threshold !in ThermoProfileSettings.THRESHOLDS) return false
+        return editThermo { it.copy(threshold = threshold) }
+    }
+
+    /** „To urządzenie kalibruje czujniki” (ustawienie urządzenia, nie profilu). */
+    fun setThermoHub(hub: Boolean) {
+        thermoSettings.hub = hub
+        val session = _session.value ?: return
+        thermoRuntime?.updateSettings(thermoProfile(session), hub)
+    }
+
+    /** Tryb odbiornika termometrów: [ScanMode.DISCOVERY] przy dodawaniu, [ScanMode.BACKGROUND] na stałe. */
+    fun setThermoScanMode(mode: ScanMode) {
+        thermoRuntime?.setScanMode(mode)
+    }
+
+    /** Odczytuje kalibracje wejść ze sterownika (0x131, tylko odczyt). */
+    fun refreshCalibrations() {
+        thermoRuntime?.refreshCalibrations()
+    }
+
+    /**
+     * Przywraca kalibrację bazową wejścia strefy (w trybie próbnym tylko wpis w dzienniku). W trybie rzeczywistym
+     * korekta strefy zostaje wstrzymana do [resumeCalibration] (inaczej reguła cofnęłaby przywrócenie).
+     */
+    fun restoreCalibrationBaseline(zone: ZoneKey) {
+        thermoRuntime?.restoreBaseline(zone)
+    }
+
+    /**
+     * Dziennik decyzji kalibracji bieżącej sesji, najstarsze pierwsze (pusty bez sesji). Czyta pliki profilu, więc
+     * wołać poza wątkiem UI.
+     */
+    fun thermoLog(): List<ThermoLogEntry> = thermoRuntime?.decisionLog().orEmpty()
+
+    /** Wznawia korektę strefy wstrzymaną po ręcznym przywróceniu kalibracji instalatora. */
+    fun resumeCalibration(zone: ZoneKey) {
+        thermoRuntime?.resumeCalibration(zone)
+    }
+
+    /** Użytkownik przyjął do wiadomości, że na poprzednim sterowniku mogły zostać kalibracje Domika. */
+    fun dismissCalibrationLeaveWarning() {
+        thermoSettings.leaveWarning = false
+        _leaveWarning.value = false
+        _thermo.update { it.copy(previousControllerNotRestored = false) }
+    }
+
+    /** Przyjmuje kalibrację zmienioną poza Domikiem (Configurator) jako bazową i wznawia korektę strefy. */
+    fun acknowledgeCalibrationChange(zone: ZoneKey) {
+        thermoRuntime?.acknowledgeExternalChange(zone)
+    }
+
+    private fun thermoProfile(session: HomeSession): ThermoProfileSettings =
+        thermoSettings.profile(session.profileId, thermoDefaults(session))
+
+    private fun thermoDefaults(session: HomeSession): ThermoProfileSettings =
+        session.demoController?.let(ThermoSessions::demoDefaults) ?: ThermoProfileSettings()
+
+    private fun editThermo(change: (ThermoProfileSettings) -> ThermoProfileSettings): Boolean {
+        val session = _session.value ?: return false
+        val current = thermoProfile(session)
+        val updated = change(current)
+        if (updated != current) thermoSettings.saveProfile(session.profileId, updated)
+        thermoRuntime?.updateSettings(updated, thermoSettings.hub)
+        return true
+    }
+
+    private fun openThermo(session: HomeSession) {
+        val runtime = ThermoSessions.create(
+            session, thermoSettings, env.thermometerSource, env.wallClock, sessionScope, writesFeatureEnabled = env.thermoWritesEnabled,
+        )
+        thermoRuntime = runtime
+        thermoJob = sessionScope.launch {
+            combine(runtime.state, _leaveWarning) { state, warning -> state.copy(previousControllerNotRestored = warning) }
+                .collect { _thermo.value = it }
+        }
+    }
+
+    private fun closeThermo() {
+        thermoJob?.cancel()
+        thermoJob = null
+        thermoRuntime?.close()
+        thermoRuntime = null
+        _thermo.value = ThermoUiState.INACTIVE.copy(previousControllerNotRestored = _leaveWarning.value)
+    }
+
+    /**
+     * Sesja [old] kończy się, bo sterownik zmieniono albo zapomniano: najpierw przywrócenie kalibracji instalatora
+     * (najwyżej [AppEnvironment.leaveRestoreTimeoutMillis]); gdy się nie uda – trwałe ostrzeżenie (pliki zostają).
+     */
+    private suspend fun restoreBeforeLeaving(old: HomeSession) {
+        val leaving = restoreOnLeave
+        restoreOnLeave = null
+        val runtime = thermoRuntime ?: return
+        if (leaving != old.profileId || old.isDemo) return
+        val clean = try {
+            withTimeoutOrNull(env.leaveRestoreTimeoutMillis) { runtime.restoreBeforeLeaving() } ?: false
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            false
+        }
+        if (!clean) {
+            thermoSettings.leaveWarning = true
+            _leaveWarning.value = true
+        }
+    }
+
     /** Ponawia połączenie od razu (przycisk na pasku, powrót aplikacji na pierwszy plan). */
     fun retryConnection() {
         _session.value?.repository?.retry()
@@ -311,6 +503,8 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
     fun shutdown() {
         val session = _session.value
         _session.value = null
+        closeThermo()
+        emodul.close()
         // Własny zakres: zakres ViewModelu bywa już anulowany, a połączenie trzeba zamknąć porządnie.
         CoroutineScope(env.sessionDispatcher).launch {
             try {
@@ -340,17 +534,26 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
                 _icons.value = opened?.let { IconChoices.decode(settings.icons(it.profileId)) } ?: IconChoices.EMPTY
                 _weatherOptions.value = opened?.let { WeatherOptions.decode(settings.weatherOptions(it.profileId)) } ?: WeatherOptions.DEFAULT
                 _session.value = opened
+                emodul.setDemo(opened?.isDemo == true)
+                opened?.let(::openThermo)
             }
         }
     }
 
     private fun closeSession() {
-        scope.launch { sessionLock.withLock { closeCurrent() } }
+        scope.launch {
+            sessionLock.withLock {
+                closeCurrent()
+                emodul.setDemo(false)
+            }
+        }
     }
 
     private suspend fun closeCurrent() {
         val old = _session.value ?: return
         _session.value = null
+        restoreBeforeLeaving(old)
+        closeThermo()
         _layout.value = LayoutState()
         _icons.value = IconChoices.EMPTY
         _weatherOptions.value = WeatherOptions.DEFAULT
@@ -417,5 +620,10 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
     private fun readInfo(): AppInfo {
         val saved = settings.controller()
         return AppInfo(settings.mode, saved?.profile?.name.orEmpty(), saved?.profile?.host)
+    }
+
+    private companion object {
+        /** Wejścia analogowe modułu: 0..11. */
+        const val MAX_INPUT_NR = 11
     }
 }

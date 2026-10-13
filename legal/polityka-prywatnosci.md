@@ -1,6 +1,6 @@
 # Polityka prywatności aplikacji Domik
 
-Wersja 1.0 · Obowiązuje od: 10 października 2026
+Wersja 1.1 · Obowiązuje od: 13 października 2026
 
 [English version](en/privacy-policy.md) · [Regulamin](regulamin.md)
 
@@ -8,6 +8,8 @@ Wersja 1.0 · Obowiązuje od: 10 października 2026
 > serwera autora. Wszystko, co aplikacja zapisuje, zostaje na Twoim telefonie lub tablecie. Sterownikiem steruje
 > bezpośrednio w Twojej sieci lokalnej. Jeśli korzystasz z kafelka pogody, wysyła do serwisu pogodowego Open-Meteo
 > tylko wpisaną nazwę miejscowości (przy wyszukiwaniu) i przybliżone współrzędne wybranej miejscowości.
+> Jeśli sam dodasz opcjonalną integrację z serwisem eModul (sterowniki TECH), Aplikacja wysyła do tego serwisu Twój
+> klucz API i tylko odczytuje dane Twoich sterowników; autor Aplikacji nadal niczego nie otrzymuje.
 
 Pojęcia pisane wielką literą (np. Aplikacja, Sterownik, Numer seryjny, Sieć lokalna, Repozytorium, Oficjalne źródło)
 mają znaczenie nadane im w [Regulaminie](regulamin.md).
@@ -30,7 +32,9 @@ seryjnego, adresu IP Sterownika ani innych danych, których nie chcesz ujawniać
 3. Autor nie ma dostępu do danych zapisanych przez Aplikację na Twoim Urządzeniu, do Twoich kalendarzy ani do Twojej
    Instalacji.
 4. Poza Twoją Sieć lokalną Aplikacja wysyła wyłącznie dane potrzebne do wyświetlenia pogody – i tylko wtedy, gdy
-   wyszukujesz lub wskażesz miejscowość dla kafelka pogody (pkt 4 ust. 3–4).
+   wyszukujesz lub wskażesz miejscowość dla kafelka pogody (pkt 4 ust. 3–4) – oraz, tylko jeśli sam dodasz
+   opcjonalną integrację eModul, dane potrzebne do odczytu Twoich sterowników z serwisu eModul (pkt 4 ust. 5).
+   Nic z tego nie trafia do Autora.
 5. Kod źródłowy Aplikacji jest publiczny (Repozytorium), więc każdy może sprawdzić, jakie dane i dokąd Aplikacja
    wysyła.
 
@@ -46,6 +50,8 @@ Aby działać, Aplikacja zapisuje na Urządzeniu, w swojej prywatnej pamięci:
 | Układ pulpitu, wybór ikon i elementów kafelków, wybór wyświetlanych kalendarzy, ustawienia wyglądu i trybu tabletu | działanie funkcji Aplikacji | w Aplikacji (np. „Przywróć układ domyślny”) lub przez jej usunięcie |
 | Miejscowość wskazana dla pogody i jej przybliżone współrzędne | wyświetlanie pogody | „Usuń miejscowość” w menu Aplikacji lub usunięcie Aplikacji |
 | Ostatnio pobrana prognoza pogody wraz z czasem pobrania i przybliżonymi współrzędnymi miejscowości (pamięć podręczna) | wyświetlanie ostatniej pogody, np. po ponownym uruchomieniu bez dostępu do Internetu | „Usuń miejscowość” w menu Aplikacji lub usunięcie Aplikacji; zastępowana przy każdym pobraniu |
+| Klucz API eModul – zaszyfrowany kluczem przechowywanym w systemowym magazynie kluczy Android Keystore (tylko po dodaniu integracji eModul) | połączenie z serwisem eModul | „Usuń integrację” w ustawieniach eModul w Aplikacji lub usunięcie Aplikacji |
+| Lista Twoich modułów eModul (identyfikatory), wybór wyświetlanych danych, ostatnio pobrane odpowiedzi serwisu eModul (dane i menu sterowników, fragment słownika tekstów) wraz z czasem pobrania (pamięć podręczna w prywatnym katalogu Aplikacji) | wyświetlanie danych sterowników eModul, także po ponownym uruchomieniu bez dostępu do Internetu | „Usuń integrację” w ustawieniach eModul w Aplikacji lub usunięcie Aplikacji; odświeżane przy każdym pobraniu |
 | Wersja zaakceptowanego Regulaminu | potwierdzenie akceptacji, ponowne pytanie po zmianie Regulaminu | przez usunięcie Aplikacji |
 
 1. Bieżący stan Instalacji (np. temperatury, stany wyjść) Aplikacja odczytuje ze Sterownika na potrzeby wyświetlania
@@ -67,7 +73,7 @@ Aby działać, Aplikacja zapisuje na Urządzeniu, w swojej prywatnej pamięci:
 1. **Sterownik.** Aplikacja łączy się ze Sterownikiem pod adresem IP podanym przez Ciebie, w Twojej Sieci lokalnej.
    Połączenie jest szyfrowane (TLS), a Aplikacja sprawdza certyfikat Sterownika. Poziom bezpieczeństwa tego połączenia
    zależy także od Sterownika i jego oprogramowania, na które Autor nie ma wpływu. Aplikacja nie łączy się z chmurą
-   Producenta Sterownika ani z serwerami Autora.
+   Producenta Sterownika (Deimic) ani z serwerami Autora.
 2. **Kalendarze.** Synchronizację kalendarzy (np. kalendarza Google na koncie dodanym w Urządzeniu) wykonuje system
    Android i aplikacje dostawców kalendarzy, na ich zasadach. Aplikacja nie łączy się z ich serwerami.
 3. **Wyszukiwanie miejscowości.** Gdy wpisujesz nazwę miejscowości dla pogody, Aplikacja wyszukuje ją w serwisie
@@ -84,19 +90,38 @@ Aby działać, Aplikacja zapisuje na Urządzeniu, w swojej prywatnej pamięci:
    Dopóki nie wyszukujesz ani nie wybierzesz miejscowości, Aplikacja nie łączy się z serwisem pogodowym; po usunięciu
    miejscowości („Usuń miejscowość”) przestaje się z nim łączyć. W trybie demonstracyjnym nie łączy się z nim wcale
    (pkt 3 ust. 7).
-5. **Linki.** Elementy otwierane przez Ciebie w innych aplikacjach (np. wydarzenie otwarte w aplikacji kalendarza,
+5. **eModul (TECH) – opcjonalnie.** Ta funkcja jest wyłączona, dopóki sama jej nie dodasz („Dodaj integrację eModul”
+   w menu Aplikacji); przed pierwszym połączeniem Aplikacja pokazuje komunikat, który musisz potwierdzić.
+   - *Co jest wysyłane.* Aplikacja łączy się bezpośrednio z Urządzenia z serwisem `emodul.eu` (HTTPS) i wysyła w nagłówku
+     `Authorization` Twój klucz API wygenerowany w koncie eModul (klucz zawiera nazwę użytkownika i identyfikator konta
+     eModul). Wysyła wyłącznie zapytania odczytujące: pobiera listę Twoich modułów (sterowników), ich bieżące dane i menu
+     oraz słownik tekstów. Niczego nie zmienia w Twoich sterownikach ani w koncie eModul.
+   - *Kiedy.* Dopiero po dodaniu integracji i tylko gdy Urządzenie ma dostęp do Internetu: dane sterowników co ok. 60
+     sekund, gdy pulpit Aplikacji jest otwarty na ekranie, menu sterowników co ok. 15 minut, listę modułów co ok. 6
+     godzin, a słownik tekstów raz na dobę. Poza tym Aplikacja się z serwisem nie łączy. W trybie demonstracyjnym nie
+     łączy się z nim wcale (pkt 3 ust. 7).
+   - *Gdzie to jest zapisane.* Klucz API jest zaszyfrowany kluczem z Android Keystore i zapisany tylko na Urządzeniu;
+     pobrane odpowiedzi (pamięć podręczna) – w prywatnej pamięci Aplikacji (pkt 3). „Usuń integrację” usuwa klucz,
+     zapisane dane eModul i wybór wyświetlanych danych, a Aplikacja przestaje się łączyć z serwisem.
+   - *Autor niczego nie otrzymuje.* Dane i klucz trafiają wyłącznie do serwisu eModul – nie do Autora ani żadnego
+     serwera Autora. Serwis eModul otrzymuje też adres IP Urządzenia i standardowe dane techniczne połączenia.
+   - *Odrębny administrator.* Serwis eModul prowadzi TECH STEROWNIKI sp. z o.o. sp. k. (ul. Biała Droga 31, 34-122
+     Wieprz, KRS 0000594881), która jest odrębnym administratorem Twoich danych i przetwarza je na własnych zasadach
+     (pkt 8). Aby korzystać z tej funkcji, potrzebujesz własnego konta eModul.
+6. **Linki.** Elementy otwierane przez Ciebie w innych aplikacjach (np. wydarzenie otwarte w aplikacji kalendarza,
    strona otwarta w przeglądarce) działają na zasadach danej aplikacji lub serwisu (pkt 8).
 
 ## 5. Uprawnienia
 
 | Uprawnienie | Po co | Uwagi |
 |---|---|---|
-| Internet i stan sieci | połączenie ze Sterownikiem w Sieci lokalnej, pobieranie pogody, wykrywanie utraty i zmiany sieci | nadawane przy instalacji |
+| Internet i stan sieci | połączenie ze Sterownikiem w Sieci lokalnej, pobieranie pogody, odczyt danych z serwisu eModul (po dodaniu integracji), wykrywanie utraty i zmiany sieci | nadawane przy instalacji |
 | Odczyt kalendarza | wyświetlanie wydarzeń na kafelku kalendarza; tylko odczyt | Aplikacja pyta dopiero po stuknięciu „Pokaż mój kalendarz”; bez zgody kafelek kalendarza nie pokazuje Twoich wydarzeń |
 | Dostęp do urządzeń w sieci lokalnej (jeśli wersja Androida tego wymaga) | połączenie ze Sterownikiem | obecna wersja Aplikacji o to uprawnienie nie prosi; jeśli będzie go wymagać, bez zgody zadziała tylko tryb demonstracyjny |
+| Bluetooth („Urządzenia w pobliżu”; w Androidzie 11 i starszym także lokalizacja) – tylko po włączeniu obsługi termometrów | odbiór komunikatów radiowych termometrów pokojowych | używane wyłącznie lokalnie do odczytu termometrów; Aplikacja nie ustala z nich Twojego położenia, nie łączy się z nimi i nie wysyła tych danych poza Urządzenie |
 
 Uprawnienia można w każdej chwili zmienić w Ustawieniach systemu (Ustawienia → Aplikacje → Domik → Uprawnienia).
-Aplikacja nie prosi o dostęp do lokalizacji, kontaktów, zdjęć, aparatu ani mikrofonu i nie wysyła powiadomień.
+Aplikacja nie prosi o dostęp do kontaktów, zdjęć, aparatu ani mikrofonu, o lokalizację prosi wyłącznie w Androidzie 11 i starszym przy obsłudze termometrów (wiersz wyżej), a powiadomienie pokazuje tylko jako stały wpis działającej obsługi termometrów.
 
 Opcja „Domik jako ekran główny” (tryb tabletu ściennego) nie jest uprawnieniem: po jej włączeniu i wybraniu Domika
 w ustawieniach systemu jako ekranu głównego Android sam otwiera Aplikację po ponownym uruchomieniu Urządzenia.
@@ -162,10 +187,16 @@ Urządzeniu.
   własnej strony internetowej i nie stosuje własnych plików cookies, analityki ani narzędzi śledzących.
 - **Open-Meteo** – dostawca danych pogodowych i wyszukiwarki miejscowości (pkt 4 ust. 3–4), działający na własnych
   zasadach: <https://open-meteo.com>.
+- **TECH STEROWNIKI sp. z o.o. sp. k.** (ul. Biała Droga 31, 34-122 Wieprz, KRS 0000594881) – operator serwisu eModul
+  (<https://emodul.eu>), do którego Aplikacja łączy się wyłącznie po dodaniu przez Ciebie integracji eModul (pkt 4
+  ust. 5). Jest odrębnym administratorem Twoich danych (m.in. klucza API i danych Twoich sterowników) i działa na
+  własnych zasadach: polityka prywatności <https://emodul.eu/policy/emodul/pl>, regulamin
+  <https://emodul.eu/terms-of-service/emodul/pl>. Autor nie jest powiązany z firmą TECH Sterowniki ani z serwisem
+  eModul.
 - **Google** – system Android oraz synchronizacja kalendarzy Google na Urządzeniu (pkt 4 ust. 2) działają na zasadach
   Google, które jest odrębnym administratorem danych: <https://policies.google.com/privacy>. Aplikacja nie przekazuje
   Google żadnych danych.
-- **Producent Sterownika** – Aplikacja nie przekazuje mu żadnych danych. Sterownik oraz usługi Producenta Sterownika
+- **Producent Sterownika (Deimic)** – Aplikacja nie przekazuje mu żadnych danych. Sterownik oraz usługi Producenta Sterownika
   (np. jego aplikacja lub chmura), jeśli z nich korzystasz, działają na jego zasadach, niezależnie od Aplikacji.
 
 ## 9. Dzieci

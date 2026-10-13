@@ -44,6 +44,9 @@ data class DomikColors(
     val precipitation: Color,
     val error: Color,
     val onError: Color,
+    /** Pasek ostrzeżenia (nieaktualne dane eModul) i tekst na nim. */
+    val warning: Color,
+    val onWarning: Color,
     val backgroundTop: Color,
     val backgroundBottom: Color,
 ) {
@@ -78,6 +81,8 @@ data class DomikColors(
                 precipitation = Color(base.precipitationText),
                 error = Color(base.error),
                 onError = Color(onColorFor(base.error)),
+                warning = Color(base.warning),
+                onWarning = Color(onColorFor(base.warning)),
                 backgroundTop = Color(tintedBackground(base.backgroundTop, variant.accent, tint)),
                 backgroundBottom = Color(tintedBackground(base.backgroundBottom, variant.accent, tint)),
             )
@@ -118,6 +123,8 @@ internal fun DomikColors.animated(): DomikColors {
         precipitation = precipitation.a("precipitation"),
         error = error.a("error"),
         onError = onError.a("onError"),
+        warning = warning.a("warning"),
+        onWarning = onWarning.a("onWarning"),
         backgroundTop = backgroundTop.a("backgroundTop"),
         backgroundBottom = backgroundBottom.a("backgroundBottom"),
     )

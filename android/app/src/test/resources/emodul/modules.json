@@ -1,0 +1,22 @@
+[
+ {
+  "id": 0,
+  "default": true,
+  "name": "Kocioł testowy",
+  "type": "pellet",
+  "controllerStatus": "active",
+  "moduleStatus": "active",
+  "additionalInformation": "",
+  "phoneNumber": null,
+  "zipCode": "",
+  "tag": null,
+  "country": null,
+  "gmtId": 30,
+  "gmtTime": "1",
+  "postcodePolicyAccepted": false,
+  "style": "defro",
+  "version": "Stalmark: ST-978 F2 (v.2.7.0)",
+  "company": "stalmark",
+  "udid": "0123456789abcdef0123456789abcdef"
+ }
+]

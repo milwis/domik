@@ -13,9 +13,10 @@ import app.domik.R
 import app.domik.data.HomeRepository
 import app.domik.ui.components.HeatingTile
 import app.domik.ui.components.HeatingTileSize
+import app.domik.ui.thermo.ThermoActions
 
 /**
- * Kafelek strefy na pulpicie razem z jej oknem ([HeatingZoneDialog]): dotknięcie kafelka M, a w L – obszaru poza
+ * Kafelek strefy na pulpicie razem z jej oknem ([HeatingZoneDialog]): dotknięcie kafelka S albo M, a w L – obszaru poza
  * przyciskami − / + i przełącznikiem profilu, otwiera okno. W trybie edycji pulpitu dotknięcie nic nie robi
  * (okno zamyka się, gdyby edycja zaczęła się przy otwartym). Otwarte okno przeżywa obrót ekranu.
  */
@@ -26,6 +27,7 @@ fun HeatingZoneTile(
     editing: Boolean,
     controlSize: Dp,
     modifier: Modifier = Modifier,
+    thermo: ThermoActions? = null,
 ) {
     val id = item.id
     var open by rememberSaveable { mutableStateOf(false) }
@@ -33,7 +35,11 @@ fun HeatingZoneTile(
 
     HeatingTile(
         state = item.state,
-        size = if (item.size.rows < 2) HeatingTileSize.Medium else HeatingTileSize.Large,
+        size = when {
+            item.size.cols < 2 -> HeatingTileSize.Small
+            item.size.rows < 2 -> HeatingTileSize.Medium
+            else -> HeatingTileSize.Large
+        },
         modifier = modifier,
         controlSize = controlSize,
         onDecrease = { repository.adjustSetpoint(id.module, id.outputNr, -1) },
@@ -44,6 +50,6 @@ fun HeatingZoneTile(
         onClickLabel = stringResource(R.string.heating_open_settings),
     )
     if (open && !editing) {
-        HeatingZoneDialog(repository = repository, zone = id, onDismiss = { open = false })
+        HeatingZoneDialog(repository = repository, zone = id, onDismiss = { open = false }, thermo = thermo)
     }
 }

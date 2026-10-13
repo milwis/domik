@@ -5,7 +5,7 @@ package app.domik.data
  * **Zmiana tej liczby wymusza ponowną akceptację** przy następnym uruchomieniu.
  * Podnieść przy każdej zmianie treści dokumentów (tekst ekranu: `strings.xml`, klucze `terms_*`).
  */
-const val TERMS_VERSION: Int = 1
+const val TERMS_VERSION: Int = 2
 
 /**
  * Adresy z tekstu streszczenia na ekranie akceptacji (`terms_body`), które ekran robi klikalnymi: oficjalne źródło

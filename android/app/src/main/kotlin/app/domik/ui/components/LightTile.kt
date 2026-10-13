@@ -9,11 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,7 +40,6 @@ import app.domik.ui.theme.DomikTheme
  *
  * @param pending trwa oczekiwanie na potwierdzenie sterownika (kafelek ma już docelowy wygląd, jasność pulsuje)
  * @param onToggle dotknięcie całego kafelka
- * @param wide wariant M (2×1): ikona z lewej, nazwa i pomieszczenie obok (zamiast ikony nad tekstem)
  */
 @Composable
 fun LightTile(
@@ -54,7 +50,6 @@ fun LightTile(
     modifier: Modifier = Modifier,
     icon: DeviceIcon = DeviceIcon.Bulb,
     pending: Boolean = false,
-    wide: Boolean = false,
 ) {
     val stateText = stringResource(
         when {
@@ -77,22 +72,13 @@ fun LightTile(
             stateDescription = stateText,
             contentPadding = PaddingValues(density.padding),
         ) { tile ->
-            if (wide) {
-                val lines = fitNameLines(inner, fixed = 0.dp, density.nameStyle, room.takeIf { it.isNotBlank() }?.let { density.roomStyle })
-                Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-                    DeviceIconGlow(icon = icon, lit = on, tint = tile.icon, size = density.icon)
-                    Spacer(Modifier.width(16.dp))
-                    Column(Modifier.weight(1f)) { TileNameAndRoom(name, room, tile, density, lines) }
-                }
-            } else {
-                val lines = fitNameLines(inner, fixed = density.icon, density.nameStyle, room.takeIf { it.isNotBlank() }?.let { density.roomStyle })
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    DeviceIconGlow(icon = icon, lit = on, tint = tile.icon, size = density.icon)
-                    TileNameAndRoom(name, room, tile, density, lines)
-                }
+            val lines = fitNameLines(inner, fixed = density.icon, density.nameStyle, room.takeIf { it.isNotBlank() }?.let { density.roomStyle })
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                DeviceIconGlow(icon = icon, lit = on, tint = tile.icon, size = density.icon)
+                TileNameAndRoom(name, room, tile, density, lines)
             }
         }
     }

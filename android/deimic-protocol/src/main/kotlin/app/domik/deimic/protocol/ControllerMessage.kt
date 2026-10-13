@@ -17,6 +17,8 @@ sealed interface ControllerMessage {
                 CommandCode.HEATER_STATE -> HeaterState.parse(frame)
                 CommandCode.TEMPERATURE_REPORT -> TemperatureReport.parse(frame)
                 CommandCode.ANALOG_VALUE_CHANGED -> AnalogValueChanged.parse(frame)
+                CommandCode.INPUT_CALIBRATION_GET -> InputCalibrationTable.parse(frame)
+                CommandCode.INPUT_CALIBRATION_SET -> InputCalibrationWritten.parse(frame)
                 CommandCode.OUTPUT_ROSE, CommandCode.OUTPUT_FELL -> OutputEvent.parse(frame)
                 CommandCode.SHUTTER_STATE -> ShutterState.parse(frame)
                 CommandCode.ACK -> Ack.parse(frame)

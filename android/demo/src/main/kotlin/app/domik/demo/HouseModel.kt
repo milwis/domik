@@ -2,6 +2,7 @@ package app.domik.demo
 
 import app.domik.deimic.protocol.HeaterState
 import app.domik.deimic.protocol.HeatingProfile
+import app.domik.deimic.protocol.InputCalibration
 import app.domik.deimic.protocol.ShutterDirection
 import kotlin.math.abs
 import kotlin.time.Duration
@@ -104,15 +105,22 @@ internal class HouseModel(val home: DemoHome, private val simulation: DemoSimula
             internal set
     }
 
-    /** A temperature sensor: the one of a [zone] (same number as the zone's `output_nr`) or a free-standing one. */
+    /**
+     * A temperature sensor on the analog input [number] of its module: the sensor of a [zone] (the zone's
+     * [DemoZone.inputNr], which is not its `output_nr`) or a free-standing one.
+     */
     class Sensor(
         val module: Int,
         val number: Int,
         val levelId: Int,
         val roomId: Int,
-        private val zone: Zone?,
-        private val fixed: Float,
+        internal val zone: Zone?,
+        fixed: Float,
     ) {
+        /** Value of a free-standing sensor (a zone's sensor reports the zone's temperature). */
+        internal var fixed: Float = fixed
+
+        /** The value the controller reports, i.e. after the input's calibration. */
         val temperature: Float get() = zone?.current ?: fixed
 
         /** The value the clients were last told about (a report or a readout). */
@@ -127,9 +135,23 @@ internal class HouseModel(val home: DemoHome, private val simulation: DemoSimula
     val shutters: List<Shutter> = home.shutters.map(::Shutter)
 
     val sensors: List<Sensor> = (
-        zones.map { Sensor(it.module, it.outputNr, it.levelId, it.roomId, it, 0f) } +
+        zones.map { Sensor(it.module, it.spec.inputNr, it.levelId, it.roomId, it, 0f) } +
             home.sensors.map { Sensor(it.module, it.number, home.levelOf(it.roomId), it.roomId, null, it.temperature) }
         ).sortedWith(compareBy({ it.module }, { it.number }))
+
+    /**
+     * Calibration table per module: [InputCalibration.MAX_INPUT] + 1 records, like 0x131 returns them. Initially a
+     * sensor on an input 0..11 has a one-point calibration of -2.5 °C that **leaves the reported temperature as it
+     * is**: the raw value of the sensor is 2.5 °C ([RAW_BIAS]) above the true temperature of the room, and the
+     * calibration takes it off again; the other inputs are inactive.
+     */
+    private val calibrations: Map<Int, Array<InputCalibration>> = home.modules.associateWith { module ->
+        Array(InputCalibration.MAX_INPUT + 1) { input ->
+            sensors.firstOrNull { it.module == module && it.number == input }?.let {
+                InputCalibration.onePoint(measuredCelsius = it.temperature + RAW_BIAS, trueCelsius = it.temperature)
+            } ?: InputCalibration.INACTIVE
+        }
+    }
 
     init {
         home.outputs.filter { it.initiallyOn }.forEach { outputs.getValue(it.module)[it.relay] = true }
@@ -178,6 +200,54 @@ internal class HouseModel(val home: DemoHome, private val simulation: DemoSimula
         return shutter.direction
     }
 
+    /** The calibration table of a module (records of inputs 0..11), or null for an unknown module. */
+    fun calibrations(module: Int): List<InputCalibration>? = calibrations[module]?.toList()
+
+    /**
+     * Replaces the calibration of an input. The sensor on that input (same number) reports the raw value run through
+     * the new calibration from now on: `reported = new(raw)`, where `raw` is recovered from the value reported until
+     * now with the old calibration. Returns false (changing nothing) for an unknown module, an input above
+     * [InputCalibration.MAX_INPUT] or an active point with a non-finite value.
+     */
+    fun setCalibration(module: Int, input: Int, record: InputCalibration): Boolean {
+        val table = calibrations[module] ?: return false
+        if (input !in table.indices) return false
+        val points = listOfNotNull(
+            (record.measured1Tenths to record.true1Tenths).takeIf { record.point1Active },
+            (record.measured2Tenths to record.true2Tenths).takeIf { record.point2Active },
+        )
+        if (points.any { !it.first.isFinite() || !it.second.isFinite() }) return false
+        val old = table[input]
+        table[input] = record
+        val sensor = sensor(module, input) ?: return true
+        val corrected = record.correctCelsius(rawOf(old, sensor.temperature))
+        if (!corrected.isFinite()) return true
+        val zone = sensor.zone
+        if (zone != null) setCurrent(zone, corrected) else sensor.fixed = corrected
+        return true
+    }
+
+    /** The raw sensor value behind a [reported] one, undoing [calibration] (which is linear). */
+    private fun rawOf(calibration: InputCalibration, reported: Float): Float {
+        if (!calibration.point1Active && !calibration.point2Active) return reported
+        val atZero = calibration.correctTenths(0f)
+        val slope = calibration.correctTenths(1f) - atZero
+        if (slope == 0f || !slope.isFinite()) return reported
+        return (reported * 10f - atZero) / slope / 10f
+    }
+
+    /**
+     * The true temperature of the room of [zone] – what an independent thermometer would show – as opposed to
+     * [Zone.current], which is what the controller reports (the raw sensor value through the input's calibration).
+     * A change of the calibration moves the reported value but not this one; the physics moves both.
+     */
+    fun roomTemperature(zone: Zone): Float {
+        val table = calibrations[zone.module] ?: return zone.current
+        val calibration = table.getOrNull(zone.spec.inputNr) ?: return zone.current
+        return rawOf(calibration, zone.current) - RAW_BIAS
+    }
+
+    /** The sensor on the analog input [number] of [module] (not the zone with that `output_nr`). */
     fun sensor(module: Int, number: Int): Sensor? = sensors.firstOrNull { it.module == module && it.number == number }
 
     fun sensorsOf(module: Int): List<Sensor> = sensors.filter { it.module == module }
@@ -239,6 +309,9 @@ internal class HouseModel(val home: DemoHome, private val simulation: DemoSimula
     companion object {
         const val OUTPUTS_PER_MODULE: Int = 128
         const val SENSORS_PER_MODULE: Int = 128
+
+        /** How much the raw value of a sensor exceeds the true temperature, before the initial calibration removes it. */
+        const val RAW_BIAS: Float = 2.5f
 
         /** Longest physics step; keeps long jumps accurate. */
         private const val MAX_STEP_SECONDS = 10.0

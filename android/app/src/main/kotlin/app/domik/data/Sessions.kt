@@ -11,6 +11,8 @@ import app.domik.deimic.client.commands.DeviceCommands
 import app.domik.deimic.config.ConfigCache
 import app.domik.deimic.config.ConfigStore
 import app.domik.deimic.protocol.SerialNumber
+import app.domik.integrations.thermo.CalibrationPort
+import app.domik.integrations.thermo.DeviceCommandsCalibrationPort
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,12 +26,17 @@ import kotlinx.coroutines.cancel
  *
  * @property profileId identyfikator profilu (klucz kopii konfiguracji i układu pulpitu)
  * @property demoController symulowany sterownik (tylko w trybie demo) – do ręcznego „poruszenia domem” w testach
+ * @property calibration odczyt i zapis kalibracji wejść analogowych tego samego połączenia (dla modułu termometrów)
+ * @property controllerSerial numer seryjny sterownika sesji – wyłącznie do wyliczenia klucza plików termometrów
+ *   (`ThermoSettings.controllerKey`); nie logować, nie pokazywać
  */
 class HomeSession internal constructor(
     val profileId: String,
     val repository: HomeRepository,
     val demoController: FakeController?,
+    val calibration: CalibrationPort,
     private val scope: CoroutineScope,
+    internal val controllerSerial: SerialNumber,
 ) {
     val isDemo: Boolean get() = demoController != null
 
@@ -64,14 +71,17 @@ object Sessions {
         val connection = Connection(
             controller.endpoint, controller.serial, sessionScope, controller.transportFactory, connectionConfig,
         )
+        val commands = DeviceCommands(connection, experimentalProfileSwitching = Features.PROFILE_SWITCHING)
         val repository = HomeRepository(
             sessionScope,
             connection,
-            DeviceCommands(connection, experimentalProfileSwitching = Features.PROFILE_SWITCHING),
+            commands,
             ConfigStore(connection, controller.profile, cache, ioDispatcher = ioDispatcher),
             settings,
         )
-        return HomeSession(controller.profile.id, repository, controller, sessionScope)
+        return HomeSession(
+            controller.profile.id, repository, controller, DeviceCommandsCalibrationPort(commands), sessionScope, controller.serial,
+        )
     }
 
     /**
@@ -95,14 +105,15 @@ object Sessions {
         } else {
             Connection(profile.endpoint, serial, sessionScope, transportFactory, connectionConfig)
         }
+        val commands = DeviceCommands(connection, experimentalProfileSwitching = Features.PROFILE_SWITCHING)
         val repository = HomeRepository(
             sessionScope,
             connection,
-            DeviceCommands(connection, experimentalProfileSwitching = Features.PROFILE_SWITCHING),
+            commands,
             ConfigStore(connection, profile, cache, ioDispatcher = ioDispatcher),
             settings,
         )
-        return HomeSession(profile.id, repository, null, sessionScope)
+        return HomeSession(profile.id, repository, null, DeviceCommandsCalibrationPort(commands), sessionScope, serial)
     }
 
     private fun childScope(parent: CoroutineScope): CoroutineScope =

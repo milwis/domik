@@ -88,4 +88,15 @@ object Request {
      */
     fun shutterStop(serial: SerialNumber, module: UInt, outputNr: UByte): Frame =
         Frame(serial, module, CommandCode.SHUTTER_STOP, payload = Bytes.of(outputNr.toInt()))
+
+    /** 0x131, empty payload, addressed to [module] – the controller answers with [InputCalibrationTable]. */
+    fun inputCalibrations(serial: SerialNumber, module: UInt): Frame =
+        Frame(serial, module, CommandCode.INPUT_CALIBRATION_GET)
+
+    /**
+     * 0x132 `[input_nr][18 B record]` – writes the calibration of analog input [input] (0..[InputCalibration.MAX_INPUT]).
+     * Takes effect at once; the controller confirms by echoing the payload ([InputCalibrationWritten]).
+     */
+    fun setInputCalibration(serial: SerialNumber, module: UInt, input: UByte, record: InputCalibration): Frame =
+        Frame(serial, module, CommandCode.INPUT_CALIBRATION_SET, payload = Bytes.of(input.toInt()) + record.encode())
 }

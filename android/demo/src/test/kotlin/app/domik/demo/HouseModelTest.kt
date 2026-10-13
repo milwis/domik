@@ -166,11 +166,26 @@ class HouseModelTest {
     }
 
     @Test
-    fun zoneSensorsShareTheZoneNumberAndRoom() {
-        val sensor = checkNotNull(model.sensor(1, 2))
+    fun zoneSensorsSitOnTheirOwnInputNumbersInTheZonesRoom() {
+        // Łazienka is zone 2, but its sensor is analog input 3; input 2 of module 1 does not exist.
+        val sensor = checkNotNull(model.sensor(1, 3))
         assertEquals(zone(1, 2).current, sensor.temperature)
         assertEquals(7, sensor.roomId)
         assertEquals(2, sensor.levelId)
-        assertEquals(listOf(1 to 0, 1 to 1, 1 to 2, 2 to 0, 2 to 1), model.sensors.map { it.module to it.number })
+        assertNull(model.sensor(1, 2))
+        assertEquals(listOf(1 to 0, 1 to 3, 1 to 4, 2 to 1, 2 to 2), model.sensors.map { it.module to it.number })
+    }
+
+    @Test
+    fun theRoomTemperatureIgnoresTheCalibrationButFollowsThePhysics() {
+        val salon = zone(1, 0)
+        assertEquals(21.4f, model.roomTemperature(salon), 0.001f)
+        val calibration = checkNotNull(model.calibrations(1))[4]
+        assertTrue(model.setCalibration(1, 4, calibration.copy(true1Tenths = calibration.true1Tenths + 10f))) // +1.0 °C
+        assertEquals(22.4f, salon.current, 0.001f)
+        assertEquals(21.4f, model.roomTemperature(salon), 0.001f)
+        val before = model.roomTemperature(salon)
+        model.advance(60.0 * 10)
+        assertTrue(model.roomTemperature(salon) != before)
     }
 }

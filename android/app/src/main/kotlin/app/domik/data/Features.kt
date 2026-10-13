@@ -11,4 +11,13 @@ object Features {
      * Wartość `false` ukrywa strzałki profilu i blokuje „+” na wyłączonej strefie.
      */
     const val PROFILE_SWITCHING: Boolean = true
+
+    /**
+     * Rzeczywisty zapis kalibracji czujników (0x132) przez moduł termometrów Xiaomi (`notes/THERMOSTATS.md` §3).
+     *
+     * Dopóki `false`, tryb rzeczywisty jest zablokowany: korekta działa wyłącznie w trybie próbnym (decyzje tylko
+     * w dzienniku – pomiar fazy 1). Wyjątek: sesja demo, gdzie zapis trafia do symulatora. Zmiana na `true` dopiero
+     * za zgodą właściciela, po pomiarze częstości kalibracji.
+     */
+    const val SENSOR_CALIBRATION_WRITES: Boolean = false
 }

@@ -112,6 +112,15 @@ class PaletteContrastTest {
     }
 
     @Test
+    fun `tekst na pasku ostrzezenia co najmniej 4,5`() {
+        for (dark in listOf(false, true)) {
+            val tokens = DomikTokens.of(dark)
+            val onWarning = onColorFor(tokens.warning)
+            assertTrue(contrastRatio(onWarning, tokens.warning) >= 4.5, "warning (dark=$dark)")
+        }
+    }
+
+    @Test
     fun `tresc na kolorze akcentu co najmniej 3`() {
         for (c in cases) {
             check("onAccent", 3.0, contrastRatio(onColorFor(c.variant.accent), c.variant.accent), c)

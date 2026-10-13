@@ -71,6 +71,22 @@ class DemoDatabaseTest {
     }
 
     @Test
+    fun everyZoneFindsItsTemperatureInputThroughTheRoomAndTheNumbersDiffer() {
+        for (spec in home.zones) {
+            val zone = checkNotNull(config.heatingZone(spec.module, spec.outputNr))
+            val inputs = config.temperatureInputsFor(zone)
+            assertEquals(listOf(spec.inputNr), inputs.map { it.inputNr }, "zone ${spec.module}:${spec.outputNr}")
+            assertEquals(spec.module, inputs.single().module)
+            assertTrue(spec.inputNr != spec.outputNr, "input and zone numbers must differ in the demo home")
+        }
+        // The outdoor sensor is an input too, in a room without a zone.
+        val outdoor = home.sensors.single()
+        assertTrue(config.analogInputs.any { it.module == outdoor.module && it.inputNr == outdoor.number && it.roomId == outdoor.roomId })
+        assertEquals(home.zones.size + home.sensors.size, config.analogInputs.size)
+        assertTrue(config.analogInputs.all { it.isTemperature })
+    }
+
+    @Test
     fun theDemoHomeShowsAllKindsOfDevicesAndProfiles() {
         val kinds = config.outputs.map { it.kind }.toSet()
         assertEquals(setOf(OutputKind.ON_OFF, OutputKind.LED, OutputKind.DIMMER_ON_OFF, OutputKind.RGB), kinds)

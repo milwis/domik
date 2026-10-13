@@ -43,9 +43,11 @@ import app.domik.data.LicenseKind
 import app.domik.data.OpenSourceComponent
 import app.domik.data.OpenSourceItem
 import app.domik.data.OpenSourceLicenses
+import app.domik.data.LegalDocument
 import app.domik.data.ProjectLinks
 import app.domik.data.reflowNoticeText
 import app.domik.ui.components.rememberLinkOpener
+import app.domik.ui.legal.LegalDocumentDialog
 import app.domik.ui.theme.DomikShapes
 import app.domik.ui.theme.DomikTheme
 import java.io.IOException
@@ -59,6 +61,7 @@ import java.io.IOException
 @Composable
 fun AboutDialog(version: AppVersion?, onDismiss: () -> Unit) {
     val open = rememberLinkOpener()
+    var document by rememberSaveable { mutableStateOf<LegalDocument?>(null) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.about_title)) },
@@ -78,8 +81,11 @@ fun AboutDialog(version: AppVersion?, onDismiss: () -> Unit) {
                     LinkRow(stringResource(R.string.about_link_releases), ProjectLinks.RELEASES, open)
                 }
                 Group(R.string.about_documents_title) {
-                    LinkRow(stringResource(R.string.about_link_terms), ProjectLinks.TERMS, open)
-                    LinkRow(stringResource(R.string.about_link_privacy), ProjectLinks.PRIVACY_POLICY, open)
+                    // Pełne teksty są w aplikacji (offline); wersje online (repozytorium) – jako dodatek poniżej.
+                    DocumentRow(stringResource(R.string.about_link_terms)) { document = LegalDocument.TERMS }
+                    DocumentRow(stringResource(R.string.about_link_privacy)) { document = LegalDocument.PRIVACY }
+                    LinkRow(stringResource(R.string.about_link_terms_online), ProjectLinks.TERMS, open)
+                    LinkRow(stringResource(R.string.about_link_privacy_online), ProjectLinks.PRIVACY_POLICY, open)
                 }
                 OpenSourceGroup(open)
                 Group(R.string.about_contact_title) {
@@ -96,6 +102,7 @@ fun AboutDialog(version: AppVersion?, onDismiss: () -> Unit) {
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.about_close)) } },
     )
+    document?.let { LegalDocumentDialog(it, onDismiss = { document = null }) }
 }
 
 @Composable
@@ -170,21 +177,38 @@ private fun LinkRow(title: String, url: String, open: (String) -> Unit) {
     InfoRow(title = title, details = listOf(ProjectLinks.displayAddress(url)), url = url, open = open)
 }
 
+/** Wiersz otwierający pełny tekst dokumentu w aplikacji (offline), z podpisem „działa bez internetu”. */
+@Composable
+private fun DocumentRow(title: String, onClick: () -> Unit) {
+    InfoRow(
+        title = title,
+        details = listOf(stringResource(R.string.about_document_offline)),
+        url = null,
+        open = {},
+        onClick = onClick,
+        clickLabel = stringResource(R.string.about_open_document),
+    )
+}
+
 /**
- * Wiersz z tytułem i wierszami szczegółów; z [url] całość jest klikalna (min. 56 dp, jeden element dostępności)
- * i kończy się strzałką.
+ * Wiersz z tytułem i wierszami szczegółów; z [url] (otwierany w przeglądarce) albo [onClick] całość jest klikalna
+ * (min. 56 dp, jeden element dostępności) i kończy się strzałką.
  */
 @Composable
-private fun InfoRow(title: String, details: List<String>, url: String?, open: (String) -> Unit) {
+private fun InfoRow(
+    title: String,
+    details: List<String>,
+    url: String?,
+    open: (String) -> Unit,
+    onClick: (() -> Unit)? = null,
+    clickLabel: String = stringResource(R.string.about_open_in_browser),
+) {
     val colors = DomikTheme.colors
-    val clickable = if (url == null) {
+    val action: (() -> Unit)? = if (url != null) ({ open(url) }) else onClick
+    val clickable = if (action == null) {
         Modifier
     } else {
-        Modifier.clickable(
-            onClickLabel = stringResource(R.string.about_open_in_browser),
-            role = Role.Button,
-            onClick = { open(url) },
-        )
+        Modifier.clickable(onClickLabel = clickLabel, role = Role.Button, onClick = action)
     }
     Row(
         modifier = Modifier
@@ -200,7 +224,7 @@ private fun InfoRow(title: String, details: List<String>, url: String?, open: (S
                 Text(line, style = MaterialTheme.typography.bodyMedium, color = colors.textSecondary)
             }
         }
-        if (url != null) {
+        if (action != null) {
             Spacer(Modifier.width(12.dp))
             Icon(painterResource(R.drawable.ic_chevron_right), contentDescription = null, tint = colors.accent, modifier = Modifier.size(24.dp))
         }

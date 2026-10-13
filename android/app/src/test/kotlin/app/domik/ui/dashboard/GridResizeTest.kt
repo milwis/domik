@@ -27,12 +27,13 @@ class GridResizeTest {
 
     @Test
     fun `przyciaganie respektuje rodzaj i liczbe kolumn`() {
-        // Ogrzewanie: 2×1 albo 2×2, nawet gdy palec pokazuje 5×3.
+        // Ogrzewanie: 1×1, 2×1 albo 2×2, nawet gdy palec pokazuje 5×3.
         assertEquals(TileSize(2, 2), GridResize.snap(TileKind.ZONE, geometry, geometry.width(5), geometry.height(3)))
-        // Światło: najwyżej 2×1.
-        assertEquals(TileSize(2, 1), GridResize.snap(TileKind.SWITCH, geometry, geometry.width(3), geometry.height(1)))
-        // Roleta: zawsze 2×1.
-        assertEquals(TileSize(2, 1), GridResize.snap(TileKind.SHUTTER, geometry, geometry.width(1), geometry.height(3)))
+        assertEquals(TileSize(1, 1), GridResize.snap(TileKind.ZONE, geometry, geometry.width(1), geometry.height(1)))
+        // Światło: zawsze 1×1.
+        assertEquals(TileSize(1, 1), GridResize.snap(TileKind.SWITCH, geometry, geometry.width(3), geometry.height(1)))
+        // Roleta: 1×1, 2×1 albo 2×2.
+        assertEquals(TileSize(2, 2), GridResize.snap(TileKind.SHUTTER, geometry, geometry.width(1), geometry.height(3)))
         // Kalendarz szerszy niż siatka 6 kolumn – do 6, wysokość do 8 wierszy.
         val portrait = geometry.copy(columns = 6)
         assertEquals(TileSize(6, 8), GridResize.snap(TileKind.AGENDA, portrait, 5000f, 5000f))

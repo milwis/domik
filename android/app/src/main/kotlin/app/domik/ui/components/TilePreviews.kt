@@ -12,15 +12,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import app.domik.data.TileSize
+import app.domik.ui.dashboard.EmodulBanner
+import app.domik.ui.dashboard.EmodulIcon
+import app.domik.ui.dashboard.EmodulTile
+import app.domik.ui.dashboard.EmodulTileUi
+import app.domik.ui.dashboard.ResourcesEmodulUiTexts
+import app.domik.integrations.emodul.EmodulAttention
 import app.domik.ui.theme.AccentPalette
 import app.domik.ui.theme.DomikBackground
 import app.domik.ui.theme.DomikTheme
 import app.domik.ui.theme.ThemeMode
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 
 /*
  * @Preview każdego kafelka w czterech wariantach naraz: jasny/ciemny × Zieleń (domyślna) / Fiolet.
@@ -100,6 +110,32 @@ private fun ShutterTilePreview() = PreviewMatrix {
             modifier = Modifier.fillMaxWidth().height(108.dp),
         )
         ShutterTile("Okno", "Sypialnia", ShutterDisplay.Open, onControl = {}, modifier = Modifier.fillMaxWidth().height(232.dp))
+    }
+}
+
+/** Roleta 1×1 (bez przycisków; dotknięcie otwiera okno) – komórki 108 i 140 dp. */
+@Preview(name = "ShutterTile S", widthDp = CELL_W * 2, heightDp = 2 * 190)
+@Composable
+private fun ShutterTileSmallPreview() = PreviewMatrix {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        ShutterTile("Okno", "Salon", ShutterDisplay.Open, onControl = {}, compact = true, modifier = Modifier.weight(1f).height(140.dp))
+        ShutterTile(
+            "Drzwi tarasowe", "Salon", ShutterDisplay.MovingUp, onControl = {}, compact = true, pending = ShutterControl.Up,
+            modifier = Modifier.weight(1f).height(108.dp),
+        )
+    }
+}
+
+@Preview(name = "HeatingTile S", widthDp = CELL_W * 2, heightDp = 2 * 190)
+@Composable
+private fun HeatingTileSmallPreview() = PreviewMatrix {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        HeatingTile(sampleZone, HeatingTileSize.Small, Modifier.weight(1f).height(140.dp))
+        HeatingTile(
+            sampleZone.copy(name = "Łazienka", profile = HeatingProfile.Off, heating = false),
+            HeatingTileSize.Small,
+            Modifier.weight(1f).height(108.dp),
+        )
     }
 }
 
@@ -183,5 +219,78 @@ private fun CalendarAgendaTilePreview() = PreviewMatrix {
 private fun ConnectionBannerPreview() = PreviewMatrix {
     Box(Modifier.fillMaxWidth().background(androidx.compose.ui.graphics.Color.Transparent)) {
         ConnectionBanner(visible = true)
+    }
+}
+
+// eModul (tylko odczyt): typy 6 (status z zadaną), 23 (zawór), 31 (paliwo) i 40 (tekst) w rozmiarach S, M i L.
+
+private fun emodulSample(
+    title: String,
+    icon: EmodulIcon,
+    primary: String,
+    details: List<Pair<String, String>> = emptyList(),
+    progress: Float? = null,
+    note: String? = null,
+    minutesOld: Long = 3,
+    active: Boolean = false,
+) = EmodulTileUi(
+    title = title, module = "Kocioł", icon = icon, primary = primary, primaryLabel = null, details = details,
+    progress = progress, active = active, note = note, description = "$title, $primary", multiModule = false,
+    dataTime = Instant.now().minusSeconds(minutesOld * 60), fetchedAtMillis = System.currentTimeMillis(), moduleOnline = true,
+)
+
+private val emodulSamples = listOf(
+    emodulSample("Temperatura CO", EmodulIcon.BOILER, "64,3°", listOf("zadana" to "65°")),
+    emodulSample(
+        "Zawór wbudowany", EmodulIcon.VALVE, "34,5°",
+        listOf("zadana" to "35°", "powrót" to "30,1°", "otwarcie" to "40 %", "pompa" to "zał."),
+        progress = 0.4f, note = "wg krzywej grzewczej",
+    ),
+    emodulSample("Zasobnik paliwa", EmodulIcon.FUEL, "64 %", listOf("czas pracy" to "≈ 41 h"), progress = 0.64f),
+    emodulSample("Stan sterownika", EmodulIcon.INFO, "Praca"),
+)
+
+@Composable
+private fun EmodulTiles(size: TileSize, samples: List<EmodulTileUi>, width: Int, height: Int) {
+    val texts = ResourcesEmodulUiTexts(LocalResources.current)
+    val zone = ZoneId.systemDefault()
+    val now = System.currentTimeMillis()
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        samples.chunked(if (size == TileSize.S) 3 else 1).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                row.forEach { EmodulTile(it, size, now, zone, texts, Modifier.width(width.dp).height(height.dp)) }
+            }
+        }
+    }
+}
+
+@Preview(name = "EmodulTile S", widthDp = CELL_W * 2, heightDp = 2 * 270)
+@Composable
+private fun EmodulTileSmallPreview() = PreviewMatrix {
+    EmodulTiles(TileSize.S, emodulSamples + emodulSample("Temp. zewn.", EmodulIcon.THERMOMETER, "8,4°", minutesOld = 40, active = false) +
+        emodulSample("Zawór 1", EmodulIcon.VALVE, "41,2°", listOf("zadana" to "42°"), minutesOld = 600), 104, 104)
+}
+
+@Preview(name = "EmodulTile M", widthDp = CELL_W * 2, heightDp = 2 * 460)
+@Composable
+private fun EmodulTileMediumPreview() = PreviewMatrix {
+    EmodulTiles(TileSize.M, emodulSamples, 216, 104)
+}
+
+@Preview(name = "EmodulTile L", widthDp = CELL_W * 2, heightDp = 2 * 920)
+@Composable
+private fun EmodulTileLargePreview() = PreviewMatrix {
+    EmodulTiles(TileSize.L, emodulSamples, 216, 216)
+}
+
+@Preview(name = "EmodulBanner", widthDp = CELL_W * 2, heightDp = 2 * 260)
+@Composable
+private fun EmodulBannerPreview() = PreviewMatrix {
+    val now = System.currentTimeMillis()
+    val since = Instant.ofEpochMilli(now - 40 * 60_000L)
+    Column {
+        EmodulBanner(EmodulAttention.ControllerSilent(since), now, ZoneId.systemDefault())
+        EmodulBanner(EmodulAttention.CloudUnreachable(since), now, ZoneId.systemDefault())
+        EmodulBanner(EmodulAttention.KeyRejected, now, ZoneId.systemDefault())
     }
 }

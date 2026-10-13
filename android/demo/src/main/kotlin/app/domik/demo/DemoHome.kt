@@ -1,6 +1,7 @@
 package app.domik.demo
 
 import app.domik.deimic.protocol.HeatingProfile
+import app.domik.deimic.protocol.InputCalibration
 import app.domik.deimic.protocol.SerialNumber
 
 /** `output_type` values stored in the controller's database (`outputs.output_type`). */
@@ -39,7 +40,12 @@ data class DemoOutput(
  * `output_nr` and must never be used in heating commands (it is stored only to make the database realistic).
  *
  * Every profile keeps its own setpoint ([eco], [comfort], [maximum]); [off] is what an inactive zone reports.
- * The zone's temperature sensor has the number [outputNr] on the same module.
+ *
+ * The zone's temperature sensor is wired to the analog input [inputNr] of the same module (the sensor reports through
+ * 0x72 / 0x130 under that number and is calibrated with 0x131 / 0x132 under it). The input number is deliberately NOT
+ * the zone's [outputNr] in [DemoHome.standard]: like in a real installation the two numberings are independent, and the
+ * link between a zone and its input exists only through the room (the `inputs` table of [DemoDatabase] gives the
+ * input the zone's room, `input_type` 8).
  */
 data class DemoZone(
     val module: Int,
@@ -47,6 +53,7 @@ data class DemoZone(
     val name: String,
     val roomId: Int,
     val relay: Int,
+    val inputNr: Int,
     val profile: HeatingProfile,
     val eco: Float,
     val comfort: Float,
@@ -80,7 +87,10 @@ data class DemoShutter(
     val relay: Int get() = 2 * outputNr
 }
 
-/** A temperature sensor that is not part of a zone (for example outdoors); reports a constant [temperature]. */
+/**
+ * A temperature sensor that is not part of a zone (for example outdoors); reports a constant [temperature].
+ * [number] is its analog input number on the [module] (it must differ from the [DemoZone.inputNr] of every zone).
+ */
 data class DemoSensor(val module: Int, val number: Int, val roomId: Int, val temperature: Float)
 
 /**
@@ -119,8 +129,9 @@ class DemoHome(
         require(zones.map { it.module to it.outputNr }.toSet().size == zones.size) { "duplicate zone address" }
         require(zones.all { it.profile !is HeatingProfile.Unknown }) { "a zone has an unknown profile" }
         require(sensors.all { it.module >= 1 && it.number in 0..MAX_SENSOR }) { "sensor address out of range" }
-        val sensorAddresses = zones.map { it.module to it.outputNr } + sensors.map { it.module to it.number }
-        require(sensorAddresses.toSet().size == sensorAddresses.size) { "a sensor number is used twice" }
+        require(zones.all { it.inputNr in 0..InputCalibration.MAX_INPUT }) { "zone input number out of range" }
+        val sensorAddresses = zones.map { it.module to it.inputNr } + sensors.map { it.module to it.number }
+        require(sensorAddresses.toSet().size == sensorAddresses.size) { "an analog input number is used twice" }
     }
 
     /** The distinct module addresses (`id_device`) of all devices, ascending. */
@@ -154,7 +165,9 @@ class DemoHome(
          * lamp, garden lamp, LED strip, dimmer, RGB), a socket, a fan, a pump, an alarm output (icon_id 124, hidden on
          * the dashboard by default), five shutters and four heating zones with different profiles (comfort, eco,
          * maximum, off). Zone 0 and shutter 0 exist on both modules on purpose, so that code must address them by
-         * module *and* number.
+         * module *and* number. The zones' sensors sit on analog inputs whose numbers differ from the zone numbers
+         * (module 1: zone 0 -> input 4, zone 1 -> input 0, zone 2 -> input 3; module 2: zone 0 -> input 2; the
+         * outdoor sensor is input 1 of module 2).
          */
         fun standard(): DemoHome {
             val levels = listOf(DemoLevel(1, "Parter"), DemoLevel(2, "Piętro"))
@@ -198,19 +211,19 @@ class DemoHome(
             )
             val zones = listOf(
                 DemoZone(
-                    1, 0, "Salon", roomId = 1, relay = 40, profile = HeatingProfile.Comfort,
+                    1, 0, "Salon", roomId = 1, relay = 40, inputNr = 4, profile = HeatingProfile.Comfort,
                     eco = 19.0f, comfort = 22.0f, maximum = 24.0f, current = 21.4f,
                 ),
                 DemoZone(
-                    1, 1, "Sypialnia", roomId = 6, relay = 41, profile = HeatingProfile.Eco,
+                    1, 1, "Sypialnia", roomId = 6, relay = 41, inputNr = 0, profile = HeatingProfile.Eco,
                     eco = 18.0f, comfort = 21.0f, maximum = 23.0f, current = 19.2f,
                 ),
                 DemoZone(
-                    1, 2, "Łazienka", roomId = 7, relay = 42, profile = HeatingProfile.Maximum,
+                    1, 2, "Łazienka", roomId = 7, relay = 42, inputNr = 3, profile = HeatingProfile.Maximum,
                     eco = 20.0f, comfort = 23.0f, maximum = 24.5f, current = 22.3f,
                 ),
                 DemoZone(
-                    2, 0, "Gabinet", roomId = 4, relay = 40, profile = HeatingProfile.Off,
+                    2, 0, "Gabinet", roomId = 4, relay = 40, inputNr = 2, profile = HeatingProfile.Off,
                     eco = 18.5f, comfort = 21.5f, maximum = 23.5f, current = 19.8f,
                 ),
             )

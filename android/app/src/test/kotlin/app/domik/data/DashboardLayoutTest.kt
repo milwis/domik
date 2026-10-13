@@ -125,12 +125,12 @@ class DashboardLayoutTest {
     }
 
     @Test
-    fun `odczyt rolet pomija uszkodzone wpisy i naprawia rozmiary S, L i XL na 2x1`() {
+    fun `odczyt rolet pomija uszkodzone wpisy i czyta rozmiary S i L, a XL zwezone do L`() {
         val decoded = DashboardLayout.decode("v2;+ r:1:2 l;+ r:x:1 m;+ r:1 m;+ r:2:0 s;+ r:1:2:3 m;+ r:1:2 m;- r:3:1 xl")
         assertEquals(
             DashboardLayout(
-                tiles = listOf(entry(TileId.Shutter(1, 2), TileSize.M), entry(TileId.Shutter(2, 0), TileSize.M)), // L, S -> 2×1
-                hidden = listOf(entry(TileId.Shutter(3, 1), TileSize.M)), // XL niedozwolony -> 2×1
+                tiles = listOf(entry(TileId.Shutter(1, 2), TileSize.L), entry(TileId.Shutter(2, 0), TileSize.S)), // L, S zostają
+                hidden = listOf(entry(TileId.Shutter(3, 1), TileSize.L)), // XL niedozwolony -> 2×2
             ),
             decoded,
         )
@@ -202,24 +202,29 @@ class DashboardLayoutTest {
             DashboardLayout(listOf(entry(TileId.Weather)), hidden = listOf(entry(TileId.Weather)))
         }
         assertThrows(IllegalArgumentException::class.java) { TileEntry(TileId.Switch(1, 1), TileSize.XL) }
-        assertThrows(IllegalArgumentException::class.java) { TileEntry(TileId.Zone(1, 1), TileSize.S) }
-        // Roleta: trzy przyciski po 48 dp nie mieszczą się w kwadracie 1×1, wyższa karta nic nie daje – tylko 2×1.
-        assertThrows(IllegalArgumentException::class.java) { TileEntry(TileId.Shutter(1, 0), TileSize.S) }
-        assertThrows(IllegalArgumentException::class.java) { TileEntry(TileId.Shutter(1, 0), TileSize.L) }
+        assertThrows(IllegalArgumentException::class.java) { TileEntry(TileId.Switch(1, 1), TileSize.M) }
+        // Strefa i roleta: 1×1, 2×1, 2×2 – nic poza tym.
+        TileEntry(TileId.Zone(1, 1), TileSize.S)
+        TileEntry(TileId.Shutter(1, 0), TileSize.S)
+        TileEntry(TileId.Shutter(1, 0), TileSize.L)
         assertThrows(IllegalArgumentException::class.java) { TileEntry(TileId.Shutter(1, 0), TileSize.XL) }
         assertEquals(TileSize.M, TileKind.SHUTTER.defaultSize)
-        assertFalse(TileKind.SHUTTER.resizable)
+        assertTrue(TileKind.SHUTTER.resizable)
+        assertFalse(TileKind.SWITCH.resizable)
     }
 
     @Test
-    fun `roleta ma tylko 2x1 - przycisk rozmiar nic nie zmienia`() {
+    fun `roleta S - M - L - S, a przelacznik nie zmienia rozmiaru`() {
         val id = TileId.Shutter(1, 0)
         val layout = DashboardLayout(listOf(entry(TileId.Weather), entry(id)))
         assertEquals(TileSize.M, layout.size(id))
-        assertNull(layout.nextSize(id))
-        assertSame(layout, layout.cycled(id))
-        assertSame(layout, layout.resized(id, TileSize.S))
-        assertSame(layout, layout.resized(id, TileSize.L))
+        val sizes = generateSequence(layout) { it.cycled(id) }.take(5).map { it.size(id) }.toList()
+        assertEquals(listOf(TileSize.M, TileSize.L, TileSize.S, TileSize.M, TileSize.L), sizes)
+        assertEquals(TileSize.S, layout.resized(id, TileSize.S).size(id))
+        assertSame(layout, layout.resized(id, TileSize.XL))
+        val switch = DashboardLayout(listOf(entry(TileId.Switch(1, 1))))
+        assertNull(switch.nextSize(TileId.Switch(1, 1)))
+        assertSame(switch, switch.cycled(TileId.Switch(1, 1)))
         val hidden = layout.hide(id)
         assertEquals(listOf(entry(id, TileSize.M)), hidden.hidden)
         assertEquals(TileSize.M, hidden.show(id).size(id))
@@ -228,9 +233,10 @@ class DashboardLayoutTest {
     @Test
     fun `zmiana rozmiaru tylko na dozwolony`() {
         assertEquals(TileSize.L, sample.resized(TileId.Zone(1, 2), TileSize.L).size(TileId.Zone(1, 2)))
-        assertEquals(TileSize.M, sample.resized(TileId.Switch(1, 3), TileSize.M).size(TileId.Switch(1, 3)))
+        assertSame(sample, sample.resized(TileId.Switch(1, 3), TileSize.M)) // przełącznik tylko 1×1
         assertSame(sample, sample.resized(TileId.Switch(1, 3), TileSize.XL))
-        assertSame(sample, sample.resized(TileId.Zone(1, 2), TileSize.S))
+        assertEquals(TileSize.S, sample.resized(TileId.Zone(1, 2), TileSize.S).size(TileId.Zone(1, 2)))
+        assertSame(sample, sample.resized(TileId.Zone(1, 2), TileSize.XL))
         assertSame(sample, sample.resized(TileId.Switch(7, 7), TileSize.S))
         // Kalendarz i pogoda – dowolny rozmiar w zakresie.
         assertEquals(TileSize(5, 7), sample.resized(TileId.Agenda, TileSize(5, 7)).size(TileId.Agenda))
@@ -244,8 +250,8 @@ class DashboardLayoutTest {
     @Test
     fun `przycisk rozmiar przechodzi po dozwolonych rozmiarach i zawija`() {
         val zone = TileId.Zone(1, 2)
-        assertEquals(TileSize.M, sample.nextSize(zone)) // L -> M
-        assertEquals(TileSize.L, sample.cycled(zone).cycled(zone).size(zone)) // L -> M -> L
+        assertEquals(TileSize.S, sample.nextSize(zone)) // L -> S
+        assertEquals(TileSize.M, sample.cycled(zone).cycled(zone).size(zone)) // L -> S -> M
         val agenda = TileId.Agenda
         val sizes = generateSequence(sample) { it.cycled(agenda) }.take(5).map { it.size(agenda) }.toList()
         assertEquals(listOf(TileSize(2, 4), TileSize(4, 4), TileSize.L, TileSize.XL, TileSize(2, 4)), sizes)
@@ -291,7 +297,7 @@ class DashboardLayoutTest {
         val config = config(outputs = listOf(output(1, 1), output(1, 2), output(1, 9)), zones = listOf(zone(1, 0), zone(1, 1)))
         val saved = DashboardLayout(
             listOf(
-                entry(TileId.Switch(1, 2), TileSize.M), entry(TileId.Zone(1, 1), TileSize.M), entry(TileId.Weather),
+                entry(TileId.Switch(1, 2), TileSize.S), entry(TileId.Zone(1, 1), TileSize.M), entry(TileId.Weather),
                 entry(TileId.Switch(1, 77)), // 77 już nie istnieje
                 entry(TileId.Zone(1, 0)), entry(TileId.Switch(1, 1)),
             ),
@@ -302,7 +308,8 @@ class DashboardLayoutTest {
             listOf(TileId.Switch(1, 2), TileId.Zone(1, 1), TileId.Weather, TileId.Zone(1, 0), TileId.Switch(1, 1), TileId.Switch(1, 9)),
             result.ids,
         )
-        assertEquals(TileSize.M, result.size(TileId.Switch(1, 2)))
+        assertEquals(TileSize.S, result.size(TileId.Switch(1, 2)))
+        assertEquals(TileSize.M, result.size(TileId.Zone(1, 1)))
         assertEquals(TileSize.S, result.size(TileId.Switch(1, 9))) // nowe urządzenie – rozmiar domyślny
         assertEquals(listOf(entry(TileId.Agenda)), result.hidden) // ukryte, ale nadal istniejące zostaje ukryte
     }

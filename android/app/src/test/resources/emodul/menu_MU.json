@@ -1,0 +1,1559 @@
+{
+ "status": "success",
+ "data": {
+  "elements": [
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 0,
+    "parentId": 0,
+    "access": true,
+    "txtId": 388,
+    "wikiTxtId": 0,
+    "iconId": 10,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 20,
+    "id": 250,
+    "parentId": 0,
+    "access": false,
+    "txtId": 671,
+    "wikiTxtId": 1,
+    "iconId": 5,
+    "params": {
+     "txtId": 971,
+     "type": 1,
+     "value": -1,
+     "blockHide": 0,
+     "description": "Dialogue control - Yes/No"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 20,
+    "id": 251,
+    "parentId": 0,
+    "access": true,
+    "txtId": 912,
+    "wikiTxtId": 0,
+    "iconId": 2,
+    "params": {
+     "txtId": 972,
+     "type": 1,
+     "value": -1,
+     "blockHide": 0,
+     "description": "Dialogue control - Yes/No"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 20,
+    "id": 252,
+    "parentId": 0,
+    "access": true,
+    "txtId": 964,
+    "wikiTxtId": 3,
+    "iconId": 1,
+    "params": {
+     "txtId": 965,
+     "type": 1,
+     "value": -1,
+     "blockHide": 0,
+     "description": "Dialogue control - Yes/No"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30005,
+    "parentId": 0,
+    "access": true,
+    "txtId": 441,
+    "wikiTxtId": 0,
+    "iconId": 87,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2060,
+    "parentId": 30005,
+    "access": true,
+    "txtId": 937,
+    "wikiTxtId": 5,
+    "iconId": 87,
+    "params": {
+     "format": 1,
+     "value": 65,
+     "min": 53,
+     "max": 80,
+     "default": 60,
+     "txtId": 1035,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2062,
+    "parentId": 30005,
+    "access": true,
+    "txtId": 297,
+    "wikiTxtId": 6,
+    "iconId": 47,
+    "params": {
+     "format": 1,
+     "value": 3,
+     "min": 1,
+     "max": 25,
+     "default": 5,
+     "txtId": 1035,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2061,
+    "parentId": 30005,
+    "access": true,
+    "txtId": 938,
+    "wikiTxtId": 7,
+    "iconId": 87,
+    "params": {
+     "format": 1,
+     "value": 55,
+     "min": 40,
+     "max": 75,
+     "default": 50,
+     "txtId": 1035,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2063,
+    "parentId": 30005,
+    "access": true,
+    "txtId": 296,
+    "wikiTxtId": 8,
+    "iconId": 47,
+    "params": {
+     "format": 1,
+     "value": 10,
+     "min": 1,
+     "max": 25,
+     "default": 5,
+     "txtId": 1035,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2065,
+    "parentId": 30005,
+    "access": true,
+    "txtId": 763,
+    "wikiTxtId": 0,
+    "iconId": 87,
+    "params": {
+     "format": 1,
+     "value": 45,
+     "min": 30,
+     "max": 55,
+     "default": 40,
+     "txtId": 1035,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 2,
+    "id": 2089,
+    "parentId": 30005,
+    "access": false,
+    "txtId": 790,
+    "wikiTxtId": 0,
+    "iconId": 87,
+    "params": {
+     "format": 2,
+     "value": 0,
+     "min": 50,
+     "max": 400,
+     "default": 20,
+     "txtId": 728,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30012,
+    "parentId": 0,
+    "access": false,
+    "txtId": 440,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2760,
+    "parentId": 30012,
+    "access": true,
+    "txtId": 147,
+    "wikiTxtId": 11,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 5,
+     "min": 1,
+     "max": 10,
+     "default": 5,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2761,
+    "parentId": 30012,
+    "access": true,
+    "txtId": 634,
+    "wikiTxtId": 12,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 15,
+     "min": 5,
+     "max": 60,
+     "default": 15,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2762,
+    "parentId": 30012,
+    "access": true,
+    "txtId": 686,
+    "wikiTxtId": 43,
+    "iconId": 102,
+    "params": {
+     "format": 1,
+     "value": 75,
+     "min": 1,
+     "max": 100,
+     "default": 75,
+     "txtId": 76,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2763,
+    "parentId": 30012,
+    "access": true,
+    "txtId": 605,
+    "wikiTxtId": 14,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 2,
+     "min": 2,
+     "max": 20,
+     "default": 4,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 3,
+    "id": 2764,
+    "parentId": 30012,
+    "access": true,
+    "txtId": 635,
+    "wikiTxtId": 15,
+    "iconId": 101,
+    "params": {
+     "format": 3,
+     "value": 54,
+     "min": 2,
+     "max": 60,
+     "default": 22,
+     "txtId": 0,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 2765,
+    "parentId": 30012,
+    "access": true,
+    "txtId": 1082,
+    "wikiTxtId": 16,
+    "iconId": 102,
+    "params": {
+     "format": 1,
+     "value": 50,
+     "min": 1,
+     "max": 100,
+     "default": 50,
+     "txtId": 76,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30019,
+    "parentId": 0,
+    "access": true,
+    "txtId": 439,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30020,
+    "parentId": 30019,
+    "access": true,
+    "txtId": 430,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3750,
+    "parentId": 30020,
+    "access": true,
+    "txtId": 147,
+    "wikiTxtId": 11,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 3,
+     "min": 1,
+     "max": 10,
+     "default": 4,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3751,
+    "parentId": 30020,
+    "access": true,
+    "txtId": 634,
+    "wikiTxtId": 12,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 60,
+     "min": 3,
+     "max": 60,
+     "default": 32,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3752,
+    "parentId": 30020,
+    "access": true,
+    "txtId": 459,
+    "wikiTxtId": 43,
+    "iconId": 102,
+    "params": {
+     "format": 1,
+     "value": 24,
+     "min": 1,
+     "max": 100,
+     "default": 26,
+     "txtId": 76,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30024,
+    "parentId": 30019,
+    "access": true,
+    "txtId": 431,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3740,
+    "parentId": 30024,
+    "access": true,
+    "txtId": 147,
+    "wikiTxtId": 11,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 3,
+     "min": 1,
+     "max": 10,
+     "default": 4,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3741,
+    "parentId": 30024,
+    "access": true,
+    "txtId": 634,
+    "wikiTxtId": 12,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 30,
+     "min": 3,
+     "max": 60,
+     "default": 12,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3742,
+    "parentId": 30024,
+    "access": true,
+    "txtId": 459,
+    "wikiTxtId": 43,
+    "iconId": 102,
+    "params": {
+     "format": 1,
+     "value": 35,
+     "min": 1,
+     "max": 100,
+     "default": 48,
+     "txtId": 76,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3743,
+    "parentId": 30024,
+    "access": true,
+    "txtId": 468,
+    "wikiTxtId": 0,
+    "iconId": 87,
+    "params": {
+     "format": 1,
+     "value": 2,
+     "min": 0,
+     "max": 3,
+     "default": 1,
+     "txtId": 1035,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30029,
+    "parentId": 30019,
+    "access": true,
+    "txtId": 429,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3730,
+    "parentId": 30029,
+    "access": true,
+    "txtId": 147,
+    "wikiTxtId": 11,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 3,
+     "min": 1,
+     "max": 10,
+     "default": 3,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3731,
+    "parentId": 30029,
+    "access": true,
+    "txtId": 634,
+    "wikiTxtId": 12,
+    "iconId": 101,
+    "params": {
+     "format": 1,
+     "value": 18,
+     "min": 3,
+     "max": 60,
+     "default": 5,
+     "txtId": 685,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3732,
+    "parentId": 30029,
+    "access": true,
+    "txtId": 459,
+    "wikiTxtId": 43,
+    "iconId": 102,
+    "params": {
+     "format": 1,
+     "value": 40,
+     "min": 1,
+     "max": 100,
+     "default": 71,
+     "txtId": 76,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 3733,
+    "parentId": 30029,
+    "access": true,
+    "txtId": 468,
+    "wikiTxtId": 0,
+    "iconId": 87,
+    "params": {
+     "format": 1,
+     "value": 5,
+     "min": 4,
+     "max": 15,
+     "default": 4,
+     "txtId": 1035,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30042,
+    "parentId": 0,
+    "access": true,
+    "txtId": 719,
+    "wikiTxtId": 18,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30043,
+    "parentId": 30042,
+    "access": true,
+    "txtId": 546,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 10,
+    "id": 3350,
+    "parentId": 30043,
+    "access": true,
+    "txtId": 1258,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "value": 0,
+     "default": 0,
+     "description": "On/Off control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30045,
+    "parentId": 30043,
+    "access": true,
+    "txtId": 546,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 13,
+    "id": 3352,
+    "parentId": 30045,
+    "access": true,
+    "txtId": 589,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "dayId": 1,
+     "prevObjId": 3351,
+     "nextObjId": 3353,
+     "value": 0,
+     "default": 0,
+     "noZones": 48,
+     "daySubtitles": 1,
+     "description": "Weekly control - on/off"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 13,
+    "id": 3353,
+    "parentId": 30045,
+    "access": true,
+    "txtId": 893,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "dayId": 2,
+     "prevObjId": 3352,
+     "nextObjId": 3354,
+     "value": 0,
+     "default": 0,
+     "noZones": 48,
+     "daySubtitles": 1,
+     "description": "Weekly control - on/off"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 13,
+    "id": 3354,
+    "parentId": 30045,
+    "access": true,
+    "txtId": 707,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "dayId": 3,
+     "prevObjId": 3353,
+     "nextObjId": 3355,
+     "value": 0,
+     "default": 0,
+     "noZones": 48,
+     "daySubtitles": 1,
+     "description": "Weekly control - on/off"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 13,
+    "id": 3355,
+    "parentId": 30045,
+    "access": true,
+    "txtId": 234,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "dayId": 4,
+     "prevObjId": 3354,
+     "nextObjId": 3356,
+     "value": 0,
+     "default": 0,
+     "noZones": 48,
+     "daySubtitles": 1,
+     "description": "Weekly control - on/off"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 13,
+    "id": 3356,
+    "parentId": 30045,
+    "access": true,
+    "txtId": 515,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "dayId": 5,
+     "prevObjId": 3355,
+     "nextObjId": 3357,
+     "value": 0,
+     "default": 0,
+     "noZones": 48,
+     "daySubtitles": 1,
+     "description": "Weekly control - on/off"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 13,
+    "id": 3357,
+    "parentId": 30045,
+    "access": true,
+    "txtId": 702,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "dayId": 6,
+     "prevObjId": 3356,
+     "nextObjId": 3351,
+     "value": 0,
+     "default": 0,
+     "noZones": 48,
+     "daySubtitles": 1,
+     "description": "Weekly control - on/off"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 13,
+    "id": 3351,
+    "parentId": 30045,
+    "access": true,
+    "txtId": 444,
+    "wikiTxtId": 19,
+    "iconId": 13,
+    "params": {
+     "dayId": 0,
+     "prevObjId": 3357,
+     "nextObjId": 3352,
+     "value": 0,
+     "default": 0,
+     "noZones": 48,
+     "daySubtitles": 1,
+     "description": "Weekly control - on/off"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30053,
+    "parentId": 30042,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 11,
+    "id": 3000,
+    "parentId": 30053,
+    "access": true,
+    "txtId": 806,
+    "wikiTxtId": 18,
+    "iconId": 13,
+    "params": {
+     "value": 0,
+     "default": 0,
+     "options": [
+      {
+       "txtId": 922,
+       "value": 0
+      },
+      {
+       "txtId": 818,
+       "value": 1
+      },
+      {
+       "txtId": 819,
+       "value": 2
+      }
+     ],
+     "description": "Radio button control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30055,
+    "parentId": 30053,
+    "access": true,
+    "txtId": 843,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3002,
+    "parentId": 30055,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 1,
+     "prevObjId": 3001,
+     "nextObjId": 3003,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3003,
+    "parentId": 30055,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 2,
+     "prevObjId": 3002,
+     "nextObjId": 3004,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3004,
+    "parentId": 30055,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 3,
+     "prevObjId": 3003,
+     "nextObjId": 3005,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3005,
+    "parentId": 30055,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 4,
+     "prevObjId": 3004,
+     "nextObjId": 3006,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3006,
+    "parentId": 30055,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 5,
+     "prevObjId": 3005,
+     "nextObjId": 3007,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3007,
+    "parentId": 30055,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 6,
+     "prevObjId": 3006,
+     "nextObjId": 3001,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3001,
+    "parentId": 30055,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 0,
+     "prevObjId": 3007,
+     "nextObjId": 3002,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30063,
+    "parentId": 30053,
+    "access": true,
+    "txtId": 844,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3008,
+    "parentId": 30063,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 7,
+     "prevObjId": 3009,
+     "nextObjId": 3009,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3009,
+    "parentId": 30063,
+    "access": true,
+    "txtId": 823,
+    "wikiTxtId": 20,
+    "iconId": 13,
+    "params": {
+     "dayId": 8,
+     "prevObjId": 3008,
+     "nextObjId": 3008,
+     "valueObjId": 2060,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30066,
+    "parentId": 30042,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 11,
+    "id": 3200,
+    "parentId": 30066,
+    "access": true,
+    "txtId": 806,
+    "wikiTxtId": 18,
+    "iconId": 13,
+    "params": {
+     "value": 0,
+     "default": 0,
+     "options": [
+      {
+       "txtId": 922,
+       "value": 0
+      },
+      {
+       "txtId": 818,
+       "value": 1
+      },
+      {
+       "txtId": 819,
+       "value": 2
+      }
+     ],
+     "description": "Radio button control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30068,
+    "parentId": 30066,
+    "access": true,
+    "txtId": 843,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3202,
+    "parentId": 30068,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 1,
+     "prevObjId": 3201,
+     "nextObjId": 3203,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3203,
+    "parentId": 30068,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 2,
+     "prevObjId": 3202,
+     "nextObjId": 3204,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3204,
+    "parentId": 30068,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 3,
+     "prevObjId": 3203,
+     "nextObjId": 3205,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3205,
+    "parentId": 30068,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 4,
+     "prevObjId": 3204,
+     "nextObjId": 3206,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3206,
+    "parentId": 30068,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 5,
+     "prevObjId": 3205,
+     "nextObjId": 3207,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3207,
+    "parentId": 30068,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 6,
+     "prevObjId": 3206,
+     "nextObjId": 3201,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3201,
+    "parentId": 30068,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 0,
+     "prevObjId": 3207,
+     "nextObjId": 3202,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30076,
+    "parentId": 30066,
+    "access": true,
+    "txtId": 844,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3208,
+    "parentId": 30076,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 7,
+     "prevObjId": 3209,
+     "nextObjId": 3209,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 12,
+    "id": 3209,
+    "parentId": 30076,
+    "access": true,
+    "txtId": 822,
+    "wikiTxtId": 21,
+    "iconId": 13,
+    "params": {
+     "dayId": 8,
+     "prevObjId": 3208,
+     "nextObjId": 3208,
+     "valueObjId": 2061,
+     "min": -10,
+     "max": 10,
+     "values": [],
+     "description": "Weekly control - temperature correction"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 11,
+    "id": 2011,
+    "parentId": 0,
+    "access": true,
+    "txtId": 814,
+    "wikiTxtId": 0,
+    "iconId": 17,
+    "params": {
+     "value": 3,
+     "default": 0,
+     "options": [
+      {
+       "txtId": 473,
+       "value": 0
+      },
+      {
+       "txtId": 608,
+       "value": 1
+      },
+      {
+       "txtId": 587,
+       "value": 2
+      },
+      {
+       "txtId": 811,
+       "value": 3
+      }
+     ],
+     "description": "Radio button control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 10,
+    "id": 2814,
+    "parentId": 0,
+    "access": true,
+    "txtId": 1125,
+    "wikiTxtId": 0,
+    "iconId": 96,
+    "params": {
+     "value": 0,
+     "default": 1,
+     "description": "On/Off control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 0,
+    "id": 30034,
+    "parentId": 0,
+    "access": false,
+    "txtId": 501,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "description": "Element gruping menu"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 10,
+    "id": 2012,
+    "parentId": 30034,
+    "access": true,
+    "txtId": 501,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "value": 0,
+     "default": 0,
+     "description": "On/Off control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 3,
+    "id": 2758,
+    "parentId": 30034,
+    "access": true,
+    "txtId": 156,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "format": 3,
+     "value": 30,
+     "min": 0,
+     "max": 60,
+     "default": 30,
+     "txtId": 0,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 3,
+    "id": 2759,
+    "parentId": 30034,
+    "access": true,
+    "txtId": 161,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "format": 3,
+     "value": 420,
+     "min": 0,
+     "max": 600,
+     "default": 420,
+     "txtId": 0,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 10,
+    "id": 3759,
+    "parentId": 30034,
+    "access": true,
+    "txtId": 2889,
+    "wikiTxtId": 0,
+    "iconId": 95,
+    "params": {
+     "value": 0,
+     "default": 0,
+     "description": "On/Off control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 1,
+    "id": 4765,
+    "parentId": 30034,
+    "access": true,
+    "txtId": 1079,
+    "wikiTxtId": 0,
+    "iconId": 87,
+    "params": {
+     "format": 1,
+     "value": 40,
+     "min": 20,
+     "max": 70,
+     "default": 40,
+     "txtId": 1035,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 3,
+    "id": 4766,
+    "parentId": 30034,
+    "access": true,
+    "txtId": 1655,
+    "wikiTxtId": 0,
+    "iconId": 0,
+    "params": {
+     "format": 3,
+     "value": 900,
+     "min": 60,
+     "max": 1800,
+     "default": 900,
+     "txtId": 0,
+     "description": "Number value control"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 20,
+    "id": 255,
+    "parentId": 0,
+    "access": true,
+    "txtId": 246,
+    "wikiTxtId": 27,
+    "iconId": 15,
+    "params": {
+     "txtId": 237,
+     "type": 1,
+     "value": -1,
+     "blockHide": 0,
+     "description": "Dialogue control - Yes/No"
+    },
+    "duringChange": null
+   },
+   {
+    "menuType": "MU",
+    "type": 20,
+    "id": 260,
+    "parentId": 0,
+    "access": true,
+    "txtId": 839,
+    "wikiTxtId": 37,
+    "iconId": 14,
+    "params": {
+     "txtId": 838,
+     "type": 1,
+     "value": -1,
+     "blockHide": 0,
+     "description": "Dialogue control - Yes/No"
+    },
+    "duringChange": null
+   }
+  ],
+  "transaction_time": "2026-10-13 17:37:26.119273+02"
+ }
+}

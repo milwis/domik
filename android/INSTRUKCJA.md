@@ -2,14 +2,15 @@
 
 Domik to aplikacja na Androida do sterowników **Deimic 1. generacji** („Deimic Master”). Sterownik obsługuje
 wyłącznie w Twojej sieci lokalnej: łączy się z nim bezpośrednio (TLS, port 60110), bez chmury i bez zbierania danych.
-Nazwy pomieszczeń, świateł i stref grzewczych pobiera ze sterownika. Jedyne połączenie z internetem to opcjonalna
-pogoda z serwisu Open-Meteo (patrz [Pogoda](#pogoda)).
+Nazwy pomieszczeń, świateł i stref grzewczych pobiera ze sterownika. Poza siecią lokalną Domik łączy się z internetem
+tylko w dwóch opcjonalnych przypadkach: po pogodę z serwisu Open-Meteo (patrz [Pogoda](#pogoda)) oraz – jeśli sam
+dodasz integrację – po odczyt danych sterowników TECH z serwisu eModul (patrz [Integracja eModul](#integracja-emodul-tech--opcjonalnie)).
 
 > **Projekt edukacyjny, nieoficjalny.** Domik jest hobbystycznym projektem niezwiązanym z producentem sterowników
 > Deimic i **nie zastępuje oficjalnej aplikacji** – szczegóły w sekcji
 > [Zastrzeżenia](../README.md#zastrzeżenia) w pliku README.
 
-> Wersja **0.1.0**. Ograniczenia: patrz [na końcu](#ograniczenia-wersji-010).
+> Wersja **0.2.0**. Ograniczenia: patrz [na końcu](#ograniczenia-wersji-020).
 
 ---
 
@@ -36,7 +37,7 @@ Aplikacja nie jest w Google Play – instaluje się plik APK. Krótszy opis krok
 i odcisku podpisu – w [README](../README.md#instalacja-apk).
 
 **Sposób A – plik APK na tablecie**
-1. Pobierz plik `domik-0.1.0.apk` na tablet (z [GitHub Releases](https://github.com/milwis/domik/releases/latest)
+1. Pobierz plik `domik-0.2.0.apk` na tablet (z [GitHub Releases](https://github.com/milwis/domik/releases/latest)
    – razem z plikiem `SHA256SUMS`, albo przez kabel / dysk).
 2. Otwórz go w aplikacji **Moje pliki**. Android poprosi o zgodę na instalowanie aplikacji z tego źródła:
    **Ustawienia → Zezwól z tego źródła** (włącz), wróć i stuknij **Zainstaluj**.
@@ -48,14 +49,24 @@ i odcisku podpisu – w [README](../README.md#instalacja-apk).
 1. Na tablecie włącz *Opcje programisty* (patrz §4.1, krok 2) i w nich **Debugowanie USB**.
 2. Podłącz tablet, zaakceptuj na nim komputer, a na komputerze:
    ```bash
-   adb install -r domik-0.1.0.apk
+   adb install -r domik-0.2.0.apk
    ```
+
+**Aktualizacja z wersji 0.1.0**
+- Zainstaluj `domik-0.2.0.apk` **bezpośrednio nad starą wersją**, tym samym sposobem co pierwszą instalację
+  (bez odinstalowywania). Wszystkie wydania z GitHub Releases są podpisane tym samym kluczem, więc Android traktuje to
+  jak zwykłą aktualizację i **zachowuje dane**: zapisany sterownik (adres, numer seryjny), układ pulpitu, wygląd, miejscowość pogody.
+- Dane zostają tylko wtedy, gdy podpis się zgadza. Plik zbudowany samodzielnie albo wersja testowa *debug* ma inny
+  podpis – Android odmówi aktualizacji i trzeba taką wersję odinstalować (ustawienia wpiszesz wtedy od nowa).
+- Po pierwszym uruchomieniu 0.2.0 Domik pokaże **regulamin w wersji 1.1** – trzeba go **zaakceptować jeszcze raz**
+  (nowa wersja opisuje opcjonalną integrację z eModul i obsługę termometrów). Bez akceptacji aplikacja nie ruszy.
 
 ---
 
 ## 3. Pierwsze uruchomienie Domika
 
-1. Przeczytaj i zaakceptuj **regulamin** (przy zmianie regulaminu w nowej wersji aplikacja zapyta ponownie).
+1. Przeczytaj i zaakceptuj **regulamin** (przy zmianie regulaminu w nowej wersji aplikacja zapyta ponownie – tak jest po
+   aktualizacji z 0.1.0 do 0.2.0, regulamin ma teraz wersję 1.1).
 2. Wybierz **Połącz ze swoim sterownikiem** (albo **Wypróbuj tryb demo** – fikcyjny dom, bez sterownika).
 3. Wpisz:
    - **Adres** – IP sterownika,
@@ -95,6 +106,52 @@ Menu ☰ → **Wygląd**: motyw jasny / ciemny / systemowy / **wg godzin** (np. 
    miejscowości zaokrąglone do 2 miejsc po przecinku (ok. 1 km). Podpis dostawcy danych jest na dole sekcji
    **Pogoda** w menu.
 6. **Tryb demo** pokazuje pogodę przykładową i nie łączy się z internetem; można w nim tylko wybrać elementy kafelka.
+
+### Termometry pokojowe (opcjonalnie, tryb próbny)
+Bezprzewodowe termometry Xiaomi z oprogramowaniem pvvx – jak je przygotować i przypisać do stref: **[TERMOMETRY.md](TERMOMETRY.md)**.
+W wersji 0.2.0 Domik pracuje z nimi w **trybie próbnym**: odbiera odczyty przez Bluetooth, pokazuje je obok temperatury
+zadanej i porównuje z czujnikiem Deimic, ale **niczego nie zapisuje do sterownika** (kalibracja czujnika jest wyłączona).
+Obsługa termometrów jest wyłączona, dopóki jej nie włączysz (menu ☰ → **Termometry pokojowe**).
+
+### Integracja eModul (TECH) – opcjonalnie
+Jeśli masz też kocioł lub sterownik firmy TECH Sterowniki dodany do serwisu eModul (emodul.eu), Domik może pokazać jego dane
+na pulpicie. To **tylko odczyt** – Domik niczego nie zmienia w sterowniku TECH. Bez tej integracji nic z eModul nie jest
+pobierane i Domik w ogóle się z nim nie łączy.
+
+**Dodanie integracji krok po kroku**
+1. W **eModul** (strona emodul.eu lub aplikacja) otwórz **Ustawienia → Konto** i na samym dole stuknij **„Generuj klucz
+   API”**. Skopiuj wygenerowany klucz (długi ciąg znaków z kropkami).
+2. W Domiku: menu ☰ → **Integracje** → **Dodaj integrację eModul**.
+3. Przeczytaj informację o prywatności, wklej klucz w polu **Klucz API eModul** i stuknij **Dalej**. Domik sprawdzi klucz,
+   łącząc się z eModul. Klucz jest wysyłany dopiero po stuknięciu **Dalej**; **Anuluj** nie zostawia niczego na tablecie.
+   Typowe komunikaty: *To nie wygląda na klucz API* (skopiowano niecały klucz), *eModul odrzucił klucz* (wygeneruj nowy),
+   *Brak połączenia z eModul* (sprawdź internet tabletu).
+4. Na liście **zaznacz pola wyboru** przy danych, które mają się pokazać na pulpicie (pogrupowane według modułów; przy każdej
+   pozycji widać bieżącą wartość). Przyciski **Zaznacz wszystkie / Odznacz wszystkie** przyspieszają wybór; trzeba wybrać
+   co najmniej jedną pozycję. Wstępnie zaznaczone są najczęściej potrzebne (np. temperatury CO i CWU, zawory, paliwo).
+5. Stuknij **Zapisz** – klucz zostanie zapisany (zaszyfrowany), a wybrane kafelki trafią na koniec pulpitu.
+   Rozmiar kafelka zmienisz w trybie edycji (1×1, 2×1 lub 2×2).
+
+**Co Domik odczytuje:** listę modułów na koncie, aktualne wartości kafelków sterownika (temperatury, stany wyjść, zawory,
+zasobnik paliwa, zegar, alarmy), wartości zadane odczytywane z menu użytkownika (tylko do wyświetlenia) oraz słownik
+tekstów (nazwy). Nic nie jest zapisywane w sterowniku TECH ani w koncie eModul.
+
+**Jak często:** co ok. 60 sekund, gdy pulpit jest otwarty; menu sterownika co ok. 15 minut, listę modułów co ok. 6 godzin,
+słownik raz na dobę. Przy każdym kafelku widać **„Odczyt HH:mm”** (godzinę ostatniego odczytu). Jeśli dane są starsze niż
+15 minut, kafelek jest przygaszony, a u góry pulpitu pojawia się **pasek ostrzeżenia**: brak komunikacji z modułem pieca
+(sprawdź jego połączenie z internetem), brak połączenia z serwerem eModul (sprawdź internet tabletu) albo odrzucony klucz.
+
+**Prywatność:** do `emodul.eu` trafia Twój klucz API (zawiera on nazwę użytkownika i identyfikator konta eModul) oraz zwykłe
+dane techniczne połączenia (np. adres IP tabletu); serwis prowadzi **odrębny administrator – TECH STEROWNIKI sp. z o.o.
+sp. k.**, nie autor Domika, który niczego nie otrzymuje. Klucz jest zaszyfrowany w sprzętowym magazynie kluczy Androida,
+nie trafia do kopii zapasowych i nie jest pokazywany w całości (widać tylko jego końcówkę). Szczegóły –
+[polityka prywatności](../legal/polityka-prywatnosci.md), § 4 ust. 5. W **trybie demo** Domik pokazuje przykładowy kocioł
+bez klucza i bez żadnego połączenia z internetem.
+
+**Zmiana wyboru i usunięcie:** menu ☰ → **Integracje** → **Ustawienia eModul** – tu zmienisz zaznaczone dane (nowe dane
+w sterowniku są oznaczone jako *nowe* i odznaczone), **Zmień klucz** albo **Usuń integrację**. Usunięcie kasuje klucz,
+wybór i zapisane dane z tabletu, usuwa kafelki eModul z pulpitu i kończy wszelkie połączenia z eModul. Gdy chcesz tylko
+unieważnić dostęp, wygeneruj w eModul nowy klucz – stary przestanie działać.
 
 ---
 
@@ -224,7 +281,12 @@ Testy: `./gradlew test :app:testDebugUnitTest`.
 
 ---
 
-## Ograniczenia wersji 0.1.0
+## Ograniczenia wersji 0.2.0
+- **eModul** jest tylko do odczytu (bez zmiany nastaw sterownika TECH), wymaga konta eModul i internetu, a zakres danych
+  zależy od typu sterownika – działanie sprawdzono na jednym sterowniku TECH. Nieznane typy kafelków mogą mieć nazwy
+  zastępcze.
+- **Termometry pokojowe** działają w trybie próbnym: zapis kalibracji do sterownika jest wyłączony, a zmiana temperatury
+  zadanej przyciskami na termometrze nie jest jeszcze dostępna.
 - **Pogoda** wymaga internetu i ręcznego wskazania miejscowości (bez lokalizacji tabletu); dane Open-Meteo mają
   charakter wyłącznie informacyjny, a bez internetu kafelek pokazuje ostatnią zapamiętaną prognozę (oznaczoną jako
   nieaktualna). **Kalendarz** jest prawdziwy (kalendarze z tabletu,
@@ -239,8 +301,8 @@ Testy: `./gradlew test :app:testDebugUnitTest`.
 - Wybór Domika jako ekranu głównego (§4.7) działa przez ustawienia systemu; nazwy pozycji różnią się między
   wersjami One UI.
 - Plik APK jest podpisany kluczem autora; odcisk SHA-256 certyfikatu podpisu to `71:0C:AB:67:52:6A:DE:DB:C3:03:3F:44:00:EC:4C:EF:01:E0:C7:A9:C8:0C:2A:B4:54:F8:74:F2:97:9D:C9:59` (jak go
-  sprawdzić – [README](../README.md#weryfikacja-pobranego-pliku)). Kolejne wersje będą podpisane tym samym kluczem,
-  więc aktualizacja nad poprzednią wersją zachowuje ustawienia. Wcześniejsze wersje testowe podpisane kluczem
+  sprawdzić – [README](../README.md#weryfikacja-pobranego-pliku)). Wszystkie wersje są podpisane tym samym kluczem,
+  więc aktualizacja nad poprzednią wersją (także 0.1.0 → 0.2.0) zachowuje ustawienia. Wcześniejsze wersje testowe podpisane kluczem
   debug trzeba raz odinstalować (ustawienia wpisujesz wtedy ponownie).
 - Domik jest nieoficjalną aplikacją, niezwiązaną z producentem sterowników Deimic, i nie zastępuje oficjalnej
   aplikacji. Używasz jej na własną odpowiedzialność, bez gwarancji – patrz

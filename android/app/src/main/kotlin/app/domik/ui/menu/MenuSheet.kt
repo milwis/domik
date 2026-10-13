@@ -39,6 +39,9 @@ class MenuActions(
  * dokumenty, odnośniki – zawsze na dole).
  * [focusWeather] ustawia kursor w polu wyszukiwania miejscowości (menu otwarte z karty „Wybierz miejscowość”).
  * [onWeatherOptions] otwiera okno „Pogoda – co pokazywać” (arkusz się zamyka); dostępne też w trybie demo.
+ * [onThermo] otwiera pełnoekranowe okno „Termometry pokojowe” (arkusz się zamyka); dostępne też w trybie demo.
+ * [thermoWarning] pokazuje przy tej pozycji ostrzeżenie, że na sterowniku mogła zostać kalibracja ustawiona przez Domik.
+ * [emodul] – sekcja „Integracje” (eModul): dodanie integracji / ustawienia (arkusz się zamyka); dostępna też w trybie demo.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +56,9 @@ fun MenuSheet(
     weather: WeatherMenu? = null,
     focusWeather: Boolean = false,
     onWeatherOptions: (() -> Unit)? = null,
+    onThermo: (() -> Unit)? = null,
+    thermoWarning: Boolean = false,
+    emodul: EmodulMenu? = null,
 ) {
     val colors = DomikTheme.colors
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -80,6 +86,8 @@ fun MenuSheet(
                 WeatherOptionsOnlySection(openOptions)
             }
             if (calendar != null) CalendarSection(calendar)
+            if (onThermo != null) ThermoMenuSection(thermoWarning) { onDismiss(); onThermo() }
+            if (emodul != null) EmodulMenuSection(emodul, close = onDismiss)
             AppearanceSection(appearance, onAppearanceChange)
             if (kiosk != null) KioskSection(kiosk)
             AboutSection()
@@ -109,6 +117,27 @@ private fun ConnectionSection(info: AppInfo, actions: MenuActions, close: () -> 
                 MenuButton(R.string.menu_switch_to_demo) { close(); actions.onSwitchToDemo() }
             }
         }
+    }
+}
+
+/** Pozycja „Termometry pokojowe”: opis i przycisk otwierający okno termometrów. */
+@Composable
+private fun ThermoMenuSection(warning: Boolean, onOpen: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(stringResource(R.string.menu_thermo), style = MaterialTheme.typography.headlineSmall)
+        Text(
+            stringResource(R.string.menu_thermo_hint),
+            style = MaterialTheme.typography.bodyLarge,
+            color = DomikTheme.colors.textSecondary,
+        )
+        if (warning) {
+            Text(
+                stringResource(R.string.menu_thermo_warning),
+                style = MaterialTheme.typography.bodyLarge,
+                color = DomikTheme.colors.error,
+            )
+        }
+        MenuButton(R.string.menu_thermo_open, onOpen)
     }
 }
 

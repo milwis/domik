@@ -33,6 +33,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -61,16 +62,27 @@ import app.domik.data.OutputKey
 import app.domik.data.TileId
 import app.domik.data.toNotice
 import app.domik.deimic.client.ConnectionProblem
+import app.domik.integrations.emodul.EmodulState
+import app.domik.integrations.emodul.toCatalog
 import app.domik.ui.components.ConnectionBanner
 import app.domik.ui.components.LightTile
-import app.domik.ui.components.ShutterTile
+import app.domik.ui.emodul.EmodulSetupDialog
 import app.domik.ui.menu.CalendarMenu
+import app.domik.ui.menu.EmodulMenu
+import app.domik.ui.menu.EmodulMenuStatus
 import app.domik.ui.menu.MenuActions
 import app.domik.ui.menu.MenuSheet
 import app.domik.ui.menu.WeatherMenu
 import app.domik.ui.theme.DomikShapes
+import app.domik.ui.thermo.ThermoScreen
+import app.domik.ui.thermo.freshThermometerTemps
+import app.domik.ui.thermo.leaveWarning
+import app.domik.ui.thermo.thermoActions
 import app.domik.ui.theme.DomikTheme
 import app.domik.ui.time.rememberNow
+import app.domik.ui.time.rememberSystemZone
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 /** Pulpit: czeka na sesję, a potem pokazuje dom z [HomeSession]. */
 @Composable
@@ -96,14 +108,27 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
     val layoutState by model.layout.collectAsStateWithLifecycle()
     val iconChoices by model.icons.collectAsStateWithLifecycle()
     val weatherOptions by model.weatherOptions.collectAsStateWithLifecycle()
+    val emodulState by model.emodul.state.collectAsStateWithLifecycle()
+    val emodulCatalog = remember(emodulState) { emodulState.toCatalog() }
+    val (emodulTexts, emodulLocale) = rememberEmodulUiTexts()
+    val emodulUi = remember(emodulState, emodulTexts, emodulLocale) { EmodulTileMapper.map(emodulState, emodulLocale, emodulTexts) }
+    val thermoActions = remember(model) { model.thermoActions() }
+    // Świeże odczyty termometrów pokojowych po strefach (kafelek pokazuje je zamiast odczytu Deimic).
+    val thermometerTemps by remember(thermoActions) {
+        thermoActions.state.map(::freshThermometerTemps).distinctUntilChanged()
+    }.collectAsStateWithLifecycle(emptyMap())
     val notice = connection.toNotice()
     val now by rememberNow()
+    val zone by rememberSystemZone()
+    val nowMillis = remember(now, zone) { now.atZone(zone).toInstant().toEpochMilli() }
     val calendarAccess = rememberCalendarAccess()
     var showMenu by rememberSaveable { mutableStateOf(false) }
     var focusWeatherSearch by rememberSaveable { mutableStateOf(false) }
     var showAdd by rememberSaveable { mutableStateOf(false) }
     var showReset by rememberSaveable { mutableStateOf(false) }
     var showWeatherOptions by rememberSaveable { mutableStateOf(false) }
+    var showThermo by rememberSaveable { mutableStateOf(false) }
+    var showEmodul by rememberSaveable { mutableStateOf(false) }
     var scrollToEnd by remember { mutableIntStateOf(0) }
     val editing = layoutState.editing
     var iconPickerFor by remember { mutableStateOf<TileId.Switch?>(null) }
@@ -132,8 +157,11 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
 
     // Wartości wyliczone w układzie (zależą od rozmiaru okna), potrzebne arkuszowi „Dodaj” i oknu resetu.
     var columnsNow by remember { mutableIntStateOf(GridSpec.COLUMNS_PHONE) }
+    val emodulCatalogNow by rememberUpdatedState(emodulCatalog)
     var hiddenNow by remember { mutableStateOf(emptyList<HiddenTileModel>()) }
+    var emodulActive by remember { mutableStateOf(false) }
     var switchesNow by remember { mutableStateOf(emptyMap<TileId, SwitchTileModel>()) }
+    EmodulRefreshEffect(model.emodul, emodulActive)
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().safeDrawingPadding()) {
             ConnectionBanner(
@@ -148,9 +176,15 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
                 val columns = GridSpec.columns(maxWidth.value, maxHeight.value)
                 val config = state.config
                 val status = state.configStatus
-                val layout = layoutState.resolve(config, columns)
-                val dashboard = remember(state, layout, iconChoices) { buildDashboard(state, layout, iconChoices) }
+                val layout = layoutState.resolve(config, columns, emodulCatalog)
+                val dashboard = remember(state, layout, iconChoices, thermometerTemps, emodulUi) {
+                    buildDashboard(state, layout, iconChoices, thermometerTemps, emodulUi)
+                }
+                val emodulSlots = remember(dashboard) { dashboard.emodul.map { it.id.slot }.toSet() }
+                // Pasek uwagi: tylko moduły, które mają kafelek na pulpicie; do tego tyknięcie zegara co minutę.
+                val emodulAttention = remember(emodulState, emodulSlots, nowMillis) { model.emodul.attention(emodulSlots, nowMillis) }
                 SideEffect {
+                    emodulActive = emodulSlots.isNotEmpty()
                     columnsNow = columns
                     hiddenNow = dashboard.hidden
                     switchesNow = dashboard.switches.associateBy { it.id }
@@ -189,10 +223,11 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
                             gap = gap,
                             compact = !tablet,
                             canEdit = config != null && dashboard.hasDevices,
-                            onEdit = { model.startLayoutEdit(config, columns) },
+                            onEdit = { model.startLayoutEdit(config, columns, emodulCatalog) },
                             onMenu = { focusWeatherSearch = false; showMenu = true },
                         )
                     }
+                    EmodulBanner(emodulAttention, nowMillis, zone)
                     when {
                         config == null && status is ConfigStatus.Failed ->
                             MessagePanel(
@@ -226,6 +261,7 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
                                     now = now,
                                     onChoosePlace = { focusWeatherSearch = true; showMenu = true },
                                     modifier = Modifier.fillMaxSize(),
+                                    editing = editing,
                                 )
                                 is AgendaTileModel -> CalendarTile(
                                     calendar = model.calendar,
@@ -240,6 +276,7 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
                                     editing = editing,
                                     controlSize = if (tablet && width >= 270.dp) 56.dp else 48.dp,
                                     modifier = Modifier.fillMaxSize(),
+                                    thermo = thermoActions,
                                 )
                                 is SwitchTileModel -> LightTile(
                                     name = item.name,
@@ -257,18 +294,33 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
                                         }
                                     },
                                     modifier = Modifier.fillMaxSize(),
-                                    wide = item.size.cols >= 2,
                                 )
-                                is ShutterTileModel -> ShutterTile(
-                                    name = item.name,
-                                    room = item.room,
-                                    display = item.display,
-                                    pending = item.pending,
+                                is ShutterTileModel -> ShutterTileHost(
+                                    item = item,
+                                    editing = editing,
                                     onControl = { control ->
                                         repository.pressShutter(item.id.module, item.id.outputNr, control.toButton())
                                     },
                                     modifier = Modifier.fillMaxSize(),
                                 )
+                                is EmodulTileModel -> {
+                                    val ui = item.ui
+                                    if (ui != null) {
+                                        EmodulTile(ui, item.size, nowMillis, zone, emodulTexts, Modifier.fillMaxSize())
+                                    } else {
+                                        EmodulPlaceholderTile(
+                                            title = stringResource(R.string.emodul_tile_n, item.id.number),
+                                            message = stringResource(
+                                                when (emodulState) {
+                                                    EmodulState.KeyRejected -> R.string.emodul_tile_key_rejected
+                                                    EmodulState.Loading -> R.string.emodul_tile_loading
+                                                    else -> R.string.emodul_tile_no_data
+                                                },
+                                            ),
+                                            modifier = Modifier.fillMaxSize(),
+                                        )
+                                    }
+                                }
                                 null -> Unit
                             }
                         }
@@ -284,6 +336,7 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
         val calendarSelection by model.calendar.selection.collectAsStateWithLifecycle()
         val weatherPlace by model.weather.place.collectAsStateWithLifecycle()
         val weatherSearch by model.weather.search.collectAsStateWithLifecycle()
+        val thermoState by thermoActions.state.collectAsStateWithLifecycle()
         MenuSheet(
             info = info,
             appearance = appearance,
@@ -313,7 +366,16 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
             },
             focusWeather = focusWeatherSearch,
             onWeatherOptions = { showWeatherOptions = true },
+            onThermo = { showThermo = true },
+            thermoWarning = leaveWarning(thermoState) != null,
+            emodul = EmodulMenu(EmodulMenuStatus.of(emodulState), session.isDemo) { showEmodul = true },
         )
+    }
+    if (showEmodul) {
+        EmodulSetupDialog(model.emodul, onDismiss = { showEmodul = false })
+    }
+    if (showThermo) {
+        ThermoScreen(actions = thermoActions, repository = repository, onDismiss = { showThermo = false })
     }
     if (showWeatherOptions) {
         WeatherOptionsDialog(
@@ -363,7 +425,7 @@ private fun SessionDashboard(model: AppModel, session: HomeSession) {
             confirmButton = {
                 TextButton(onClick = {
                     showReset = false
-                    model.resetLayout(state.config, columnsNow)
+                    model.resetLayout(state.config, columnsNow, emodulCatalogNow)
                 }) { Text(stringResource(R.string.edit_reset_confirm)) }
             },
             dismissButton = { TextButton(onClick = { showReset = false }) { Text(stringResource(R.string.edit_cancel)) } },
@@ -377,6 +439,7 @@ private fun TileModel.label(weather: String, agenda: String): String = when (thi
     is ZoneTileModel -> listOf(state.name, state.room).filter { it.isNotBlank() }.joinToString(", ")
     is SwitchTileModel -> listOf(name, room).filter { it.isNotBlank() }.joinToString(", ")
     is ShutterTileModel -> listOf(name, room).filter { it.isNotBlank() }.joinToString(", ")
+    is EmodulTileModel -> ui?.let { listOf(it.title, it.primary.orEmpty()) }.orEmpty().filter { it.isNotBlank() }.joinToString(", ")
 }
 
 /**

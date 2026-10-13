@@ -1,6 +1,6 @@
 # Regulamin aplikacji Domik
 
-**Warunki korzystania** · Wersja 1.0 · Obowiązuje od: 10 października 2026
+**Warunki korzystania** · Wersja 1.1 · Obowiązuje od: 13 października 2026
 
 [English version](en/terms.md) · [Polityka prywatności](polityka-prywatnosci.md)
 
@@ -11,6 +11,8 @@
 > - Nie jest alternatywą ani zamiennikiem oficjalnej aplikacji producenta i nie jest przez niego wspierany ani
 >   zatwierdzony.
 > - Steruje Twoim sterownikiem bezpośrednio w Twojej sieci lokalnej, bez chmury. Autor nie zbiera żadnych danych.
+> - Opcjonalnie (tylko jeśli sam ją dodasz) może odczytywać dane Twoich sterowników z serwisu eModul firmy TECH
+>   Sterowniki. To niezależny serwis, który działa na własnych zasadach; Autor nie odpowiada za jego działanie ani dane.
 > - Korzystasz z niej na własne ryzyko i bez gwarancji. Nie może być jedynym zabezpieczeniem ogrzewania, ochrony przed
 >   zamarzaniem, pomp ani rolet.
 > - Steruj tylko własną instalacją albo cudzą za zgodą właściciela. Chroń numer seryjny sterownika.
@@ -69,10 +71,13 @@
    ze Sterownikiem. Nie zawiera oprogramowania Producenta Sterownika.
 5. „Deimic” i inne oznaczenia Producenta Sterownika mogą być znakami towarowymi ich właścicieli. W Aplikacji, w jej
    opisie i w Repozytorium są używane wyłącznie opisowo – aby wskazać, z jakimi urządzeniami Aplikacja współpracuje.
-   Android jest znakiem towarowym Google LLC, a GitHub – znakiem towarowym GitHub, Inc. Wszystkie znaki towarowe należą
-   do ich właścicieli.
+   Android jest znakiem towarowym Google LLC, GitHub – znakiem towarowym GitHub, Inc., a „eModul” i „TECH” – oznaczeniami
+   TECH STEROWNIKI sp. z o.o. sp. k. Wszystkie znaki towarowe należą do ich właścicieli.
 6. Aplikacja jest bezpłatna. Nie zawiera reklam ani zakupów w aplikacji.
 7. Kod źródłowy Aplikacji jest publicznie dostępny w Repozytorium na licencji MIT (§ 7 ust. 1).
+8. Aplikacja nie jest powiązana z firmą TECH STEROWNIKI sp. z o.o. sp. k. (dalej: „TECH Sterowniki”) ani z serwisem
+   eModul, nie jest przez nie autoryzowana, sponsorowana ani wspierana. Opcjonalna integracja z serwisem eModul
+   (§ 4 ust. 6) korzysta z interfejsu udostępnianego przez ten serwis.
 
 ## § 4. Funkcje Aplikacji
 
@@ -84,18 +89,31 @@
    5. układanie własnego pulpitu z kafelkami, w tym pracę w trybie stale włączonego tabletu (np. na ścianie);
    6. wyświetlanie wydarzeń z kalendarzy dostępnych na Urządzeniu – tylko do odczytu i za zgodą Użytkownika;
    7. wyświetlanie bieżącej pogody i prognozy dla miejscowości wskazanej przez Użytkownika;
-   8. tryb demonstracyjny na przykładowych danych, bez łączenia się z jakimkolwiek urządzeniem.
+   8. opcjonalnie – wyświetlanie (tylko do odczytu) danych sterowników TECH z serwisu eModul, po dodaniu przez
+      Użytkownika integracji eModul (ust. 6);
+   9. tryb demonstracyjny na przykładowych danych, bez łączenia się z jakimkolwiek urządzeniem.
 2. Do sterowania Instalacją Aplikacja łączy się bezpośrednio ze Sterownikiem w Sieci lokalnej (połączenie szyfrowane
-   TLS). Nie korzysta z chmury Producenta Sterownika ani z serwerów Autora. Z Internetem Aplikacja łączy się wyłącznie
-   w celu wyszukania wskazanej miejscowości i pobrania prognozy pogody z zewnętrznego serwisu (obecnie Open-Meteo) –
-   szczegóły w Polityce prywatności.
+   TLS). Nie korzysta z chmury Producenta Sterownika (Deimic) ani z serwerów Autora. Z Internetem Aplikacja łączy się
+   wyłącznie w celu wyszukania wskazanej miejscowości i pobrania prognozy pogody z zewnętrznego serwisu (obecnie
+   Open-Meteo) oraz – tylko jeśli Użytkownik sam doda integrację eModul (ust. 6) – w celu odczytu danych z serwisu
+   eModul. Szczegóły zawiera Polityka prywatności.
 3. Aplikacja odczytuje ze Sterownika jego konfigurację (np. nazwy pomieszczeń, stref i wyjść), aby ją wyświetlić.
    Nie wgrywa do Sterownika oprogramowania (firmware) i nie zmienia zapisanej w nim konfiguracji.
-4. Dane pogodowe i kalendarzowe pochodzą od podmiotów trzecich i mają charakter wyłącznie informacyjny. Nie należy
-   na ich podstawie podejmować decyzji wpływających na bezpieczeństwo ludzi, zwierząt lub mienia. Dane pogodowe są
-   udostępniane na warunkach ich dostawcy, wskazanych w Aplikacji (sekcja „Pogoda” w menu).
+4. Dane pogodowe, kalendarzowe i pochodzące z serwisu eModul pochodzą od podmiotów trzecich i mają charakter wyłącznie
+   informacyjny. Nie należy na ich podstawie podejmować decyzji wpływających na bezpieczeństwo ludzi, zwierząt lub
+   mienia. Dane pogodowe są udostępniane na warunkach ich dostawcy, wskazanych w Aplikacji (sekcja „Pogoda” w menu).
 5. Zakres funkcji może się zmieniać w kolejnych wersjach Aplikacji (§ 13). Aktualny opis funkcji zawierają Repozytorium
    i sama Aplikacja.
+6. **Integracja eModul (opcjonalna).** Funkcja jest wyłączona, dopóki Użytkownik sam jej nie doda w Aplikacji
+   i nie potwierdzi komunikatu o połączeniu. Po dodaniu Aplikacja łączy się bezpośrednio z Urządzenia z serwisem
+   eModul (<https://emodul.eu>) i – z użyciem klucza API wygenerowanego przez Użytkownika w jego koncie eModul –
+   wyłącznie odczytuje dane jego sterowników; niczego w nich ani w koncie eModul nie zmienia. Serwis eModul prowadzi
+   niezależny od Autora podmiot, TECH Sterowniki, który działa na własnych zasadach, w tym na warunkach regulaminu
+   serwisu (<https://emodul.eu/terms-of-service/emodul/pl>). Użytkownik potrzebuje własnego konta eModul i odpowiada za
+   zgodność korzystania z niego z tymi warunkami oraz za ochronę swojego klucza API. Autor nie odpowiada za dostępność
+   i działanie serwisu eModul ani za prawidłowość, aktualność i kompletność pochodzących z niego danych (§ 11 ust. 3).
+   Użytkownik może w każdej chwili usunąć integrację w ustawieniach Aplikacji; usuwa to klucz API i zapisane dane
+   eModul.
 
 ## § 5. Wymagania techniczne
 
@@ -105,7 +123,8 @@
    3. połączenie Urządzenia z Siecią lokalną, w której działa Sterownik, oraz zgoda na dostęp Aplikacji do sieci
       lokalnej, jeśli system jej wymaga;
    4. adres IP Sterownika w Sieci lokalnej (zalecany stały adres, np. rezerwacja DHCP w routerze) i Numer seryjny;
-   5. dla kafelka pogody – dostęp do Internetu; dla kafelka kalendarza – zgoda na dostęp do kalendarza.
+   5. dla kafelka pogody – dostęp do Internetu; dla kafelka kalendarza – zgoda na dostęp do kalendarza; dla
+      integracji eModul (opcjonalnej) – dostęp do Internetu oraz własne konto eModul i klucz API.
 2. Instalacja z pliku APK wymaga zezwolenia w systemie Android na instalowanie aplikacji z wybranego źródła.
 3. Zdalne łączenie się z Siecią lokalną (np. przez VPN) Użytkownik organizuje i zabezpiecza samodzielnie, na własną
    odpowiedzialność.
@@ -211,11 +230,12 @@
    1. błędnej konfiguracji Sterownika lub Instalacji;
    2. awarii lub niedostępności Sieci lokalnej, Internetu, zasilania lub Urządzenia;
    3. zmian oprogramowania Sterownika wprowadzonych przez Producenta Sterownika;
-   4. działań lub zaniechań Producenta Sterownika, Google, GitHub lub innych osób trzecich, za które Autor nie
-      odpowiada;
+   4. działań lub zaniechań Producenta Sterownika, Google, GitHub, TECH Sterowniki (w tym niedostępności, zmian lub
+      zakończenia działania serwisu eModul) lub innych osób trzecich, za które Autor nie odpowiada;
    5. ujawnienia Numeru seryjnego lub korzystania z Aplikacji niezgodnie z Regulaminem, w szczególności z §§ 8–10;
    6. niewykonania lub opóźnienia poleceń z przyczyn wymienionych w § 10 ust. 2 pkt 1–6;
-   7. nieścisłości lub niedostępności danych pochodzących od podmiotów trzecich (np. prognozy pogody, kalendarzy);
+   7. nieścisłości lub niedostępności danych pochodzących od podmiotów trzecich (np. prognozy pogody, kalendarzy,
+      serwisu eModul);
    8. korzystania z wersji Aplikacji pobranych spoza Oficjalnego źródła lub zmienionych przez osoby trzecie;
    9. stanu technicznego, montażu i zasilania Urządzenia (np. tabletu pracującego stale na ścianie).
 4. **Żadne postanowienie Regulaminu nie wyłącza ani nie ogranicza odpowiedzialności Autora:**
@@ -286,8 +306,10 @@
 
 ## § 16. Prywatność
 
-Aplikacja nie przesyła Autorowi żadnych danych. Jedyne dane wysyłane poza Sieć lokalną służą do wyświetlenia pogody.
-Szczegóły zawiera [Polityka prywatności](polityka-prywatnosci.md).
+Aplikacja nie przesyła Autorowi żadnych danych. Dane wysyłane poza Sieć lokalną służą do wyświetlenia pogody oraz –
+tylko jeśli Użytkownik sam doda opcjonalną integrację eModul – do odczytu danych jego sterowników z serwisu eModul
+(w tym klucz API Użytkownika, który trafia wyłącznie do tego serwisu). Szczegóły zawiera
+[Polityka prywatności](polityka-prywatnosci.md).
 
 ## § 17. Zmiany Regulaminu
 
@@ -297,7 +319,8 @@ Szczegóły zawiera [Polityka prywatności](polityka-prywatnosci.md).
    3. zmiana funkcji Aplikacji;
    4. potrzeba zapewnienia bezpieczeństwa Użytkowników lub Instalacji;
    5. zmiany Sterownika lub jego oprogramowania wpływające na działanie Aplikacji;
-   6. zmiana danych kontaktowych Autora lub Oficjalnego źródła;
+   6. zmiana danych kontaktowych Autora lub Oficjalnego źródła, w tym zmiana warunków lub zakresu działania
+      zewnętrznych serwisów, z których korzysta Aplikacja;
    7. potrzeba usunięcia niejasności, błędów lub omyłek.
 2. Nowa wersja Regulaminu, z numerem wersji i datą wejścia w życie, jest publikowana w Repozytorium (katalog `legal/`)
    i udostępniana w Aplikacji. Zmiany nie działają wstecz.

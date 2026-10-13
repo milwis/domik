@@ -1,14 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Połączenie ze sterownikiem w sieci lokalnej (LAN, bez chmury). Do internetu aplikacja sięga wyłącznie po
-         pogodę (Open-Meteo): wyszukiwanie miejscowości po wpisanej nazwie i prognoza dla wybranej miejscowości. -->
+    <!-- Połączenie ze sterownikiem w sieci lokalnej (LAN, bez chmury). Do internetu aplikacja sięga tylko po
+         pogodę (Open-Meteo: wyszukiwanie miejscowości po wpisanej nazwie i prognoza dla wybranej miejscowości) oraz,
+         opcjonalnie i wyłącznie do odczytu, do chmury eModul (TECH Sterowniki) po podaniu przez użytkownika jego
+         własnych danych logowania. W trybie demo nie ma żadnego ruchu sieciowego. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Wykrywanie braku sieci / zmiany Wi-Fi → ponowne łączenie. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Kafelek kalendarza: wydarzenia z kalendarza urządzenia (tylko odczyt, tylko lokalnie). Zgoda dopiero po
          stuknięciu „Pokaż mój kalendarz”, nigdy przy starcie. -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
+
+    <!-- Termometry Xiaomi (firmware pvvx/ATC): odbiór reklam Bluetooth LE, wyłącznie lokalnie, bez łączenia z urządzeniami.
+         Android 12+: BLUETOOTH_SCAN z flagą neverForLocation (aplikacja nie wyprowadza położenia z Bluetooth, więc nie
+         potrzebuje lokalizacji). UWAGA: ta flaga każe systemowi odfiltrowywać część reklam (m.in. typu beacon) – do
+         sprawdzenia na tablecie, czy reklamy 0x181A termometrów przechodzą; jeśli nie, usunąć flagę i dodać
+         ACCESS_FINE_LOCATION bez maxSdkVersion.
+         Android ≤ 11: starsze uprawnienia Bluetooth + lokalizacja (skan BLE bez niej milczy). -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:ignore="UnusedAttribute" />
+    <!-- Usługa pierwszoplanowa odbioru termometrów (typ connectedDevice) i jej powiadomienie. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Aplikacja działa bez Bluetooth LE i bez GPS (tylko termometry wymagają BLE); sideload nie filtruje po sprzęcie,
+         ale deklaracje zapobiegają odfiltrowaniu w sklepach. -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 
     <application
         android:name=".DomikApplication"
@@ -49,6 +75,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity-alias>
+
+        <!-- Odbiór termometrów w tle (powiadomienie „Domik monitoruje termometry pokojowe”). Uruchamiana wyłącznie
+             z kodu po włączeniu ustawienia „To urządzenie kalibruje”; nie startuje sama. -->
+        <service
+            android:name=".platform.ThermoService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
     </application>
 
 </manifest>

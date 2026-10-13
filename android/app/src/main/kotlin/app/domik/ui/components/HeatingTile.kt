@@ -64,6 +64,8 @@ enum class HeatingProfile(@StringRes val labelRes: Int) {
  *   jest wyszarzona)
  * @property busy trwa zmiana profilu / włączanie strefy – sterowanie wyszarzone do potwierdzenia sterownika
  * @property profileSwitching false = bez strzałek ‹ › (zmiana profilu niedostępna), sama etykieta profilu
+ * @property fromThermometer [currentTemp] pochodzi z termometru pokojowego (świeży odczyt), nie z czujnika Deimic –
+ *   przy temperaturze pojawia się mała ikona termometru
  */
 @Immutable
 data class HeatingTileState(
@@ -78,10 +80,14 @@ data class HeatingTileState(
     val canSwitchOn: Boolean = false,
     val busy: Boolean = false,
     val profileSwitching: Boolean = true,
+    val fromThermometer: Boolean = false,
 )
 
-/** Wariant rozmiaru: [Medium] 2×1 (tylko odczyt) albo [Large] szeroka karta ze sterowaniem (± i profil). */
-enum class HeatingTileSize { Medium, Large }
+/**
+ * Wariant rozmiaru: [Small] 1×1 i [Medium] 2×1 (tylko odczyt; sterowanie w oknie strefy) albo [Large] 2×2 – karta
+ * ze sterowaniem (± i profil).
+ */
+enum class HeatingTileSize { Small, Medium, Large }
 
 /**
  * Które kontrolki strefy są aktywne – jedna reguła dla dużego kafelka i okna strefy.
@@ -115,6 +121,8 @@ fun HeatingTileState.controls(online: Boolean = true): HeatingControls {
 /**
  * Kafelek strefy ogrzewania.
  *
+ *  - **S (1×1):** nazwa (jedna linia), pod nią duża temperatura aktualna, „→ zadana” i płomyk, gdy grzeje; bez
+ *    przycisków (dotknięcie otwiera okno strefy).
  *  - **M (2×1):** ikona termometru, nazwa i pomieszczenie; po prawej duża temperatura aktualna („21,5°”)
  *    i pod nią „→ 22,0° · Komfort”; płomyk w kolorze `heating` obok temperatury, gdy grzeje (wtedy też ciepły
  *    odcień tła). Profil „wyłączone” – kafelek przygaszony jak wyłączone światło. Układ dopasowuje się do
@@ -154,8 +162,19 @@ fun HeatingTile(
         target,
         profileLabel,
     ).let { if (showHeating) stringResource(R.string.heating_summary_heating, it) else it }
+        .let { if (state.fromThermometer) stringResource(R.string.heating_summary_thermometer, it) else it }
 
-    if (size == HeatingTileSize.Medium) {
+    if (size == HeatingTileSize.Small) {
+        BoxWithConstraints(modifier) {
+            val density = TileDensity.forHeight(maxHeight)
+            HeatingCard(
+                tileState, showHeating, summary, Modifier.fillMaxSize(), PaddingValues(density.padding),
+                onClick, onLongClick, onClickLabel, mergeDescendants = true,
+            ) { tile ->
+                SmallContent(state, tile, current, target, showHeating, density)
+            }
+        }
+    } else if (size == HeatingTileSize.Medium) {
         // Wysokość komórki 2×1 waha się od ok. 104 do ok. 160 dp, więc gęstość układu zależy od niej (jak w ShutterTile).
         BoxWithConstraints(modifier) {
             val density = TileDensity.forHeight(maxHeight)
@@ -219,6 +238,63 @@ private fun HeatingCard(
 }
 
 /**
+ * Zawartość kafelka S (1×1): nazwa (1 linia) z płomykiem grzania po prawej u góry, na dole **po prawej** duża temperatura
+ * aktualna (headlineMedium; w najmniejszych komórkach titleLarge, by „20,3°” z ikoną termometru się mieściło),
+ * pod nią „→ zadana”. Pomieszczenie pomijamy (nie mieści się; widać je w oknie strefy).
+ */
+@Composable
+private fun SmallContent(
+    state: HeatingTileState,
+    tile: TileColors,
+    current: String,
+    target: String,
+    showHeating: Boolean,
+    density: TileDensity,
+) {
+    val tight = density == TileDensity.Tight
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Text(
+                text = state.name,
+                style = density.nameStyle,
+                color = tile.title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            if (showHeating) {
+                Spacer(Modifier.width(4.dp))
+                Flame(if (tight) 20.dp else 24.dp)
+            }
+        }
+        // Wartości zawsze po prawej (jak w M): temperatura i „→ zadana” wyrównane do końca.
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (state.fromThermometer) {
+                    ThermometerMark(if (tight) 12.dp else 16.dp, tile.subtitle)
+                    Spacer(Modifier.width(2.dp))
+                }
+                Text(
+                    text = current,
+                    style = if (tight) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium,
+                    color = tile.title,
+                    maxLines = 1,
+                    softWrap = false,
+                )
+            }
+            Text(
+                text = stringResource(R.string.heating_target, target),
+                style = density.roomStyle,
+                color = tile.subtitle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.End,
+            )
+        }
+    }
+}
+
+/**
  * Zawartość kafelka M. Lewa kolumna: ikona u góry, nazwa (do 2 linii, jeśli się mieści) i pomieszczenie na dole.
  * Prawa kolumna przyklejona do dołu: temperatura aktualna (płomyk **obok niej**, nie nad nią – nie zabiera wysokości)
  * i pod nią „→ zadana · profil”. Cała prawa kolumna ma ≤ 64 dp wysokości, więc mieści się w każdej komórce siatki,
@@ -259,6 +335,10 @@ private fun MediumContent(
                 if (showHeating) {
                     Flame(if (tight) 24.dp else 28.dp)
                     Spacer(Modifier.width(4.dp))
+                }
+                if (state.fromThermometer) {
+                    ThermometerMark(if (tight) 16.dp else 20.dp, tile.subtitle)
+                    Spacer(Modifier.width(2.dp))
                 }
                 Text(
                     text = current,
@@ -321,13 +401,19 @@ private fun LargeContent(
                 onClick = onDecrease,
             )
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = current,
-                    style = MaterialTheme.typography.displaySmall,
-                    color = tile.title,
-                    maxLines = 1,
-                    softWrap = false,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (state.fromThermometer) {
+                        ThermometerMark(14.dp, tile.subtitle)
+                        Spacer(Modifier.width(2.dp))
+                    }
+                    Text(
+                        text = current,
+                        style = MaterialTheme.typography.displaySmall,
+                        color = tile.title,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                }
                 Text(
                     text = stringResource(R.string.heating_target, target),
                     style = MaterialTheme.typography.titleMedium,
@@ -381,6 +467,17 @@ private fun NameAndRoom(name: String, room: String, tile: TileColors) {
 @Composable
 private fun FlameOrSpace(visible: Boolean) {
     if (visible) Flame(28.dp) else Spacer(Modifier.size(28.dp))
+}
+
+/** Mała ikona „odczyt z termometru pokojowego” obok temperatury aktualnej. */
+@Composable
+private fun ThermometerMark(size: Dp, tint: Color) {
+    Image(
+        painter = painterResource(R.drawable.ic_thermostat_outline),
+        contentDescription = stringResource(R.string.heating_from_thermometer),
+        colorFilter = ColorFilter.tint(tint),
+        modifier = Modifier.size(size),
+    )
 }
 
 @Composable

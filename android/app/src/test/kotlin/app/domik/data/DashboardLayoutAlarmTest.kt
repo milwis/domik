@@ -181,18 +181,18 @@ class DashboardLayoutAlarmTest {
 
         val layout = DashboardLayout.reconcile(stored.layout, withAlarm, migrateAlarms = stored.alarmMigrationPending)
         assertEquals(
-            listOf(entry(TileId.Weather, TileSize.M), entry(TileId.Agenda, TileSize.XL), entry(TileId.Zone(1, 0), TileSize.L), entry(sw(0)), entry(sw(2), TileSize.M)),
+            listOf(entry(TileId.Weather, TileSize.M), entry(TileId.Agenda, TileSize.XL), entry(TileId.Zone(1, 0), TileSize.L), entry(sw(0)), entry(sw(2))), // dawny 2×1 wraca do 1×1
             layout.tiles,
         )
         assertEquals(listOf(entry(sw(1)), entry(sw(3))), layout.hidden)
     }
 
     @Test
-    fun `migracja alarmu zachowuje rozmiar kafelka i dopisuje go do juz ukrytych`() {
+    fun `migracja alarmu dopisuje go do juz ukrytych, a dawny rozmiar 2x1 wraca do 1x1`() {
         val layout = migrated("v2;+ w m;+ a xl;+ z:1:0 l;+ s:1:0 s;+ s:1:1 m;+ s:1:2 s;- s:1:3 s")
 
         assertFalse(sw(1) in layout)
-        assertEquals(listOf(entry(sw(3)), entry(sw(1), TileSize.M)), layout.hidden)
+        assertEquals(listOf(entry(sw(3)), entry(sw(1))), layout.hidden)
     }
 
     @Test
