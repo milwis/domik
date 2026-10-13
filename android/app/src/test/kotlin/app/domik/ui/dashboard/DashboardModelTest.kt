@@ -114,16 +114,16 @@ class DashboardModelTest {
     fun `kafelki dostaja rozmiar z ukladu`() {
         val resized = layout
             .resized(TileId.Zone(1, 0), TileSize.M)
-            .resized(TileId.Switch(1, 0), TileSize.M)
-            .resized(TileId.Shutter(2, 0), TileSize.L) // niedozwolony (roleta tylko 2×1) – bez zmian
+            .resized(TileId.Switch(1, 0), TileSize.M) // niedozwolony (przełącznik tylko 1×1) – bez zmian
+            .resized(TileId.Shutter(2, 0), TileSize.L)
             .resized(TileId.Weather, TileSize.L)
         val model = buildDashboard(state(), resized)
         assertEquals(TileSize.M, model.zones[0].size)
         assertEquals(TileSize.L, model.zones[1].size)
-        assertEquals(TileSize.M, model.switches[0].size)
+        assertEquals(TileSize.S, model.switches[0].size)
         assertEquals(TileSize.S, model.switches[1].size)
         assertEquals(TileSize.M, model.shutters[0].size)
-        assertEquals(TileSize.M, model.shutters[1].size)
+        assertEquals(TileSize.L, model.shutters[1].size)
         assertEquals(TileSize.L, model.tiles.first { it is WeatherTileModel }.size)
     }
 
@@ -184,6 +184,34 @@ class DashboardModelTest {
         assertEquals(22.0f, tile.setpoint)
         assertEquals(TileProfile.Comfort, tile.profile)
         assertTrue(tile.heating && tile.canDecrease && tile.canIncrease && !tile.busy && !tile.canSwitchOn)
+    }
+
+    @Test
+    fun `swiezy termometr pokojowy zastepuje odczyt Deimic na kafelku`() {
+        val key = ZoneKey(1, 0)
+        val reading = state(zones = mapOf(key to heater(ProtocolProfile.Comfort, 22.0f, current = 20.0f)))
+        val tile = buildDashboard(reading, layout, thermometerTemps = mapOf(key to 21.3f)).zones[0].state
+        assertEquals(21.3f, tile.currentTemp)
+        assertTrue(tile.fromThermometer)
+        assertEquals(22.0f, tile.setpoint) // zadana bez zmian
+        // Inna strefa nie ma termometru: odczyt Deimic jak dotąd.
+        val other = buildDashboard(reading, layout, thermometerTemps = mapOf(ZoneKey(2, 0) to 18.0f)).zones[0].state
+        assertEquals(20.0f, other.currentTemp)
+        assertFalse(other.fromThermometer)
+    }
+
+    @Test
+    fun `termometr bez odczytu strefy pokazuje temperature termometru, a niepoprawna wartosc jest pomijana`() {
+        val key = ZoneKey(1, 0)
+        val unread = buildDashboard(state(), layout, thermometerTemps = mapOf(key to 19.5f)).zones[0].state
+        assertEquals(19.5f, unread.currentTemp)
+        assertTrue(unread.fromThermometer)
+        val nan = buildDashboard(
+            state(zones = mapOf(key to heater(ProtocolProfile.Comfort, 22.0f, current = 20.0f))), layout,
+            thermometerTemps = mapOf(key to Float.NaN),
+        ).zones[0].state
+        assertEquals(20.0f, nan.currentTemp)
+        assertFalse(nan.fromThermometer)
     }
 
     @Test
@@ -368,8 +396,57 @@ class DashboardModelTest {
     @Test
     fun `grupy arkusza Dodaj - kolejnosc wyswietlania`() {
         assertEquals(
-            listOf(TileGroup.HEATING, TileGroup.LIGHTS, TileGroup.SHUTTERS, TileGroup.ALARM, TileGroup.OTHER),
+            listOf(TileGroup.HEATING, TileGroup.EMODUL, TileGroup.LIGHTS, TileGroup.SHUTTERS, TileGroup.ALARM, TileGroup.OTHER),
             TileGroup.entries,
         )
+    }
+
+    // eModul
+
+    private val emodulTile = TileId.Emodul(1, 6)
+    private val emodulZone = TileId.EmodulZone(2, 101)
+
+    private fun emodulUi(title: String, module: String = "Kocioł") = EmodulTileUi(
+        title = title, module = module, icon = EmodulIcon.BOILER, primary = "64,0", primaryLabel = null, details = emptyList(),
+        progress = null, active = false, note = null, description = title,
+    )
+
+    @Test
+    fun `kafelki eModul w ukladzie trafiaja do modelu z rozmiarem i zawartoscia`() {
+        val withEmodul = DashboardLayout(
+            layout.tiles + listOf(TileEntry(emodulTile, TileSize.M), TileEntry(emodulZone, TileSize.L)), layout.hidden,
+        )
+        val model = buildDashboard(state(), withEmodul, emodul = mapOf(emodulTile to emodulUi("Temp. CO")))
+        assertEquals(listOf(emodulTile, emodulZone), model.emodul.map { it.id })
+        assertEquals(listOf(TileSize.M, TileSize.L), model.emodul.map { it.size })
+        assertEquals("Temp. CO", model.emodul[0].ui?.title)
+        assertEquals(null, model.emodul[1].ui) // brak danych = kafelek bez zawartości, nie znika
+    }
+
+    @Test
+    fun `ukryte kafelki eModul sa w grupie eModul, bez danych z pusta nazwa`() {
+        val withHidden = DashboardLayout(layout.tiles, layout.hidden + listOf(TileEntry(emodulTile, TileSize.S), TileEntry(emodulZone, TileSize.L)))
+        val model = buildDashboard(state(), withHidden, emodul = mapOf(emodulTile to emodulUi("Temp. CO", "Pellet")))
+        val hidden = model.hidden.filter { it.group == TileGroup.EMODUL }
+        assertEquals(listOf<TileId>(emodulTile, emodulZone), hidden.map { it.id })
+        assertEquals("Temp. CO", hidden[0].name)
+        assertEquals("Pellet", hidden[0].room)
+        assertEquals("", hidden[1].name)
+    }
+
+    @Test
+    fun `kafelki eModul liczą sie jako urzadzenia i dzialaja bez konfiguracji Deimic`() {
+        val only = DashboardLayout(listOf(TileEntry(emodulTile, TileSize.M)), emptyList())
+        assertTrue(buildDashboard(state(), only).hasDevices)
+        val noConfig = HomeState()
+        val model = buildDashboard(noConfig, only, emodul = mapOf(emodulTile to emodulUi("Temp. CO")))
+        assertEquals(listOf(emodulTile), model.emodul.map { it.id })
+        assertEquals("Temp. CO", model.emodul.single().ui?.title)
+    }
+
+    @Test
+    fun `ukryty kafelek eModul sam wystarcza, by pulpit mial urzadzenia do dodania`() {
+        val hiddenOnly = DashboardLayout(emptyList(), listOf(TileEntry(emodulTile, TileSize.S)))
+        assertTrue(buildDashboard(state(), hiddenOnly).hasDevices)
     }
 }

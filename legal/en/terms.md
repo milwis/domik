@@ -1,6 +1,6 @@
 # Domik – Terms of Use
 
-Version 1.0 · Effective from: 10 October 2026
+Version 1.1 · Effective from: 13 October 2026
 
 [Wersja polska](../regulamin.md) · [Privacy Policy](privacy-policy.md)
 
@@ -14,6 +14,9 @@ mandatory law provides otherwise.*
 > - It is not an alternative to or a replacement for the manufacturer's official app, and it is not supported or
 >   approved by the manufacturer.
 > - It controls your controller directly on your local network, without any cloud. The Author collects no data.
+> - Optionally (only if you add it yourself) it can read your controllers' data from the eModul service of TECH
+>   Sterowniki. That is an independent service with its own terms; the Author is not responsible for its operation or
+>   data.
 > - You use it at your own risk and without warranty. It must not be the only safeguard for heating, frost protection,
 >   pumps or blinds.
 > - Only control your own installation, or someone else's with the owner's permission. Protect your controller's
@@ -72,10 +75,13 @@ mandatory law provides otherwise.*
    with the Controller. It contains no software of the Controller Manufacturer.
 5. "Deimic" and other designations of the Controller Manufacturer may be trademarks of their owners. They are used in
    the App, its description and the Repository only descriptively – to indicate which devices the App works with.
-   Android is a trademark of Google LLC, and GitHub is a trademark of GitHub, Inc. All trademarks belong to their
-   owners.
+   Android is a trademark of Google LLC, GitHub is a trademark of GitHub, Inc., and "eModul" and "TECH" are
+   designations of TECH STEROWNIKI sp. z o.o. sp. k. All trademarks belong to their owners.
 6. The App is free. It contains no advertising and no in-app purchases.
 7. The App's source code is publicly available in the Repository under the MIT licence (§ 7(1)).
+8. The App is not affiliated with TECH STEROWNIKI sp. z o.o. sp. k. ("TECH Sterowniki") or with the eModul service,
+   and is not authorised, sponsored or supported by them. The optional integration with the eModul service (§ 4(6))
+   uses an interface provided by that service.
 
 ## § 4. Features
 
@@ -87,18 +93,31 @@ mandatory law provides otherwise.*
    5. arranging a personal dashboard of tiles, including use as an always-on tablet (e.g. wall-mounted);
    6. showing events from calendars available on the Device – read-only and with the User's permission;
    7. showing current weather and the forecast for a place chosen by the User;
-   8. a demo mode using sample data, without connecting to any device.
+   8. optionally – showing (read-only) the data of TECH controllers from the eModul service, after the User adds the
+      eModul integration (section 6);
+   9. a demo mode using sample data, without connecting to any device.
 2. To control the Installation, the App connects directly to the Controller on the Local Network (TLS-encrypted
-   connection). It does not use the Controller Manufacturer's cloud or any servers of the Author. The App connects to
-   the Internet only to search for the chosen place and to download the weather forecast from an external service
-   (currently Open-Meteo) – see the Privacy Policy for details.
+   connection). It does not use the cloud of the Controller Manufacturer (Deimic) or any servers of the Author. The App
+   connects to the Internet only to search for the chosen place and to download the weather forecast from an external
+   service (currently Open-Meteo) and – only if the User adds the eModul integration themselves (section 6) – to read
+   data from the eModul service. See the Privacy Policy for details.
 3. The App reads the Controller's configuration (e.g. names of rooms, zones and outputs) in order to display it. It
    does not upload firmware to the Controller and does not change the configuration stored in it.
-4. Weather and calendar data come from third parties and are for information only. They must not be relied on for
-   decisions affecting the safety of people, animals or property. Weather data is provided under its provider's terms,
+4. Weather, calendar and eModul data come from third parties and are for information only. They must not be relied on
+   for decisions affecting the safety of people, animals or property. Weather data is provided under its provider's terms,
    indicated in the App (the "Weather" section of the menu).
 5. Features may change in future versions of the App (§ 13). The current description of features is available in the
    Repository and in the App itself.
+6. **eModul integration (optional).** The feature is off until the User adds it in the App and confirms the connection
+   notice. Once added, the App connects directly from the Device to the eModul service (<https://emodul.eu>) and – using
+   an API key the User generated in their eModul account – only reads the data of their controllers; it changes nothing
+   in them or in the eModul account. The eModul service is run by an entity independent of the Author, TECH Sterowniki,
+   which acts under its own terms, including the service's terms of service
+   (<https://emodul.eu/terms-of-service/emodul/pl>, Polish). The User needs their own eModul account and is responsible
+   for using it in line with those terms and for protecting their API key. The Author is not responsible for the
+   availability or operation of the eModul service or for the correctness, timeliness and completeness of data coming
+   from it (§ 11(3)). The User can remove the integration at any time in the App's settings; this deletes the API key
+   and the stored eModul data.
 
 ## § 5. Technical requirements
 
@@ -109,7 +128,8 @@ mandatory law provides otherwise.*
       the local network, if the system requires it;
    4. the Controller's IP address on the Local Network (a fixed address is recommended, e.g. a DHCP reservation in the
       router) and the Serial Number;
-   5. for the weather tile – Internet access; for the calendar tile – permission to read the calendar.
+   5. for the weather tile – Internet access; for the calendar tile – permission to read the calendar; for the
+      (optional) eModul integration – Internet access, and your own eModul account and API key.
 2. Installing from an APK file requires allowing app installation from the chosen source in Android settings.
 3. Remote access to the Local Network (e.g. via VPN) is set up and secured by the User, at the User's own
    responsibility.
@@ -211,11 +231,11 @@ mandatory law provides otherwise.*
    1. incorrect configuration of the Controller or the Installation;
    2. failure or unavailability of the Local Network, the Internet, the power supply or the Device;
    3. changes to the Controller's firmware made by the Controller Manufacturer;
-   4. acts or omissions of the Controller Manufacturer, Google, GitHub or other third parties for whom the Author is
-      not responsible;
+   4. acts or omissions of the Controller Manufacturer, Google, GitHub, TECH Sterowniki (including unavailability,
+      changes or discontinuation of the eModul service) or other third parties for whom the Author is not responsible;
    5. disclosure of the Serial Number or use of the App in breach of these Terms, in particular §§ 8–10;
    6. commands not being executed, or being delayed, for the reasons listed in § 10(2) points 1–6;
-   7. inaccuracy or unavailability of third-party data (e.g. weather forecasts, calendars);
+   7. inaccuracy or unavailability of third-party data (e.g. weather forecasts, calendars, the eModul service);
    8. use of versions of the App obtained outside the Official Source or modified by third parties;
    9. the technical condition, mounting and power supply of the Device (e.g. a tablet permanently mounted on a wall).
 4. **Nothing in these Terms excludes or limits the Author's liability:**
@@ -283,8 +303,10 @@ mandatory law provides otherwise.*
 
 ## § 16. Privacy
 
-The App sends no data to the Author. The only data sent outside the Local Network is used to show the weather. See the
-[Privacy Policy](privacy-policy.md) for details.
+The App sends no data to the Author. Data sent outside the Local Network is used to show the weather and – only if the
+User adds the optional eModul integration themselves – to read the data of their controllers from the eModul service
+(including the User's API key, which goes only to that service). See the [Privacy Policy](privacy-policy.md) for
+details.
 
 ## § 17. Changes to the Terms
 
@@ -294,7 +316,8 @@ The App sends no data to the Author. The only data sent outside the Local Networ
    3. changes to the App's features;
    4. the need to ensure the security of Users or Installations;
    5. changes to the Controller or its firmware affecting how the App works;
-   6. changes to the Author's contact details or the Official Source;
+   6. changes to the Author's contact details or the Official Source, including changes to the terms or scope of
+      operation of external services the App uses;
    7. the need to remove ambiguities, errors or typos.
 2. A new version of the Terms, with its version number and effective date, is published in the Repository (the
    `legal/` directory) and made available in the App. Changes do not apply retroactively.

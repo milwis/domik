@@ -122,11 +122,14 @@ private fun AddRow(item: HiddenTileModel, onClick: () -> Unit) {
 private fun HiddenTileModel.displayName(): String = when (id) {
     TileId.Weather -> stringResource(R.string.tile_weather)
     TileId.Agenda -> stringResource(R.string.tile_agenda)
+    is TileId.Emodul -> name.ifBlank { stringResource(R.string.emodul_tile_n, id.tile) }
+    is TileId.EmodulZone -> name.ifBlank { stringResource(R.string.emodul_tile_n, id.zoneId) }
     else -> name
 }
 
 private fun TileGroup.titleRes(): Int = when (this) {
     TileGroup.HEATING -> R.string.add_group_heating
+    TileGroup.EMODUL -> R.string.add_group_emodul
     TileGroup.LIGHTS -> R.string.add_group_lights
     TileGroup.SHUTTERS -> R.string.add_group_shutters
     TileGroup.OTHER -> R.string.add_group_other

@@ -19,6 +19,13 @@ Domik jest (lub ma być) zgodny. Projekt nie ma żadnego związku z tymi produce
 autoryzowany, sponsorowany, zatwierdzony ani wspierany. Licencja MIT dotyczy wyłącznie kodu i materiałów tego projektu i **nie przyznaje żadnych
 praw do znaków towarowych**, w tym do nazwy „Domik” i nazw osób trzecich.
 
+„TECH Sterowniki”, „eModul”, „Xiaomi” oraz „pvvx” (autor niezależnego firmware'u do termometrów Xiaomi) to nazwy
+i oznaczenia należące do ich właścicieli i twórców. Domik jest niezależny od nich wszystkich: nie jest przez nich
+tworzony, autoryzowany, sponsorowany ani wspierany. Nazwy występują wyłącznie opisowo – aby wskazać opcjonalną
+integrację z kotłem przez konto eModul (tylko odczyt, na danych logowania samego użytkownika) oraz odbiór reklam
+Bluetooth z termometrów Xiaomi z firmware'em pvvx. Do Domika nie jest dołączany żaden kod, firmware ani materiał
+tych podmiotów; firmware termometrów użytkownik wgrywa samodzielnie, na własną odpowiedzialność, z ich oficjalnych źródeł.
+
 „Android”, „Google Play” i „Jetpack Compose” są znakami towarowymi Google LLC. „Kotlin” jest znakiem towarowym
 JetBrains s.r.o. Pozostałe nazwy należą do ich właścicieli.
 

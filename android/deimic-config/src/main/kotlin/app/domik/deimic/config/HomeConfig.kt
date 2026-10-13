@@ -142,6 +142,36 @@ data class TemperatureSensor(
     val moduleAddress: UInt get() = module.toUInt()
 }
 
+/**
+ * An input of the controller (`inputs` table), addressed by ([module], [inputNr]) = (`id_device`, `input_nr`). Only
+ * [inputType] [TEMPERATURE_INPUT_TYPE] (a temperature sensor input, the one that takes calibration 0x132) is used by the
+ * app; other rows (e.g. [BUTTON_INPUT_TYPE]) are kept as stored.
+ *
+ * The input number is NOT the number of the heating zone it serves: the link goes through the room, see
+ * [HomeConfig.temperatureInputsFor]. [roomId] / [levelId] as stored (may be [NO_ROOM_ID] / [NO_LEVEL_ID]).
+ */
+data class AnalogInput(
+    val dbId: Long,
+    val module: Int,
+    val inputNr: Int,
+    val roomId: Int?,
+    val levelId: Int?,
+    val inputType: Int,
+    val name: String,
+) {
+    val moduleAddress: UInt get() = module.toUInt()
+
+    val isTemperature: Boolean get() = inputType == TEMPERATURE_INPUT_TYPE
+
+    companion object {
+        /** `input_type` of a temperature sensor input. */
+        const val TEMPERATURE_INPUT_TYPE: Int = 8
+
+        /** `input_type` of a button input. */
+        const val BUTTON_INPUT_TYPE: Int = 2
+    }
+}
+
 enum class ConfigIssueKind {
     /** A row was left out because a required value is NULL. */
     SKIPPED_MISSING_VALUE,
@@ -194,7 +224,8 @@ data class ConfigIssue(
  * "heating in the bedroom").
  *
  * Items keep the database order. [modules] lists the distinct `id_device` values of the items.
- * [temperatureSensors] and [shutters] come last (and default to empty) so that earlier positional constructions
+ * [analogInputs] is read from the optional `inputs` table (empty when the database has none).
+ * [temperatureSensors], [shutters] and [analogInputs] come last (and default to empty) so that earlier positional constructions
  * keep working.
  */
 data class HomeConfig(
@@ -206,6 +237,7 @@ data class HomeConfig(
     val issues: List<ConfigIssue> = emptyList(),
     val temperatureSensors: List<TemperatureSensor> = emptyList(),
     val shutters: List<Shutter> = emptyList(),
+    val analogInputs: List<AnalogInput> = emptyList(),
 ) {
     private val levelsById: Map<Int, Level> by lazy { levels.associateBy { it.id } }
     private val roomsById: Map<Int, Room> by lazy { rooms.associateBy { it.id } }
@@ -285,4 +317,18 @@ data class HomeConfig(
 
     /** The temperature sensor with this address (`id_device`, `output_nr`), or null. */
     fun temperatureSensor(module: Int, number: Int): TemperatureSensor? = sensorsByAddress[module to number]
+
+    /**
+     * The temperature inputs (`input_type` 8) that measure [zone]: same module, same room and level. The input number
+     * never equals the zone number by design, so nothing is guessed from numbers: a zone without a room (null or
+     * [NO_ROOM_ID]), or a database without `inputs`, gives an empty list. Several inputs in one room are all returned
+     * (database order); the caller decides what to do with an ambiguous result.
+     */
+    fun temperatureInputsFor(zone: HeatingZone): List<AnalogInput> {
+        val room = zone.roomId
+        if (room == null || room == NO_ROOM_ID) return emptyList()
+        return analogInputs.filter {
+            it.isTemperature && it.module == zone.module && it.roomId == room && it.levelId == zone.levelId
+        }
+    }
 }

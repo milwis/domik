@@ -16,6 +16,8 @@ import app.domik.deimic.protocol.Frame
 import app.domik.deimic.protocol.FrameAddress
 import app.domik.deimic.protocol.HeaterState
 import app.domik.deimic.protocol.HeatingProfile
+import app.domik.deimic.protocol.InputCalibration
+import app.domik.deimic.protocol.InputCalibrationWritten
 import app.domik.deimic.protocol.Request
 import app.domik.deimic.protocol.SerialNumber
 import app.domik.deimic.protocol.ShutterDirection
@@ -73,6 +75,13 @@ data class DemoNetwork(
  *   position) to every connected client. Like the real firmware, a direction command during motion – the same or the
  *   opposite one – only stops the shutter. A moving shutter arrives by itself after [DemoSimulation.shutterTravel]
  *   and reports "at top" / "at bottom" (4 / 5). The collective state never carries shutter states (they stay 0).
+ * - input calibration: read (0x131 -> 0x131 with the 12 records of the module, 216 B) and write (0x132
+ *   `[input_nr][18 B]` -> the same payload echoed in a 0x132 to the requesting client, then the sensor of that input
+ *   reports its value through the new calibration: 0x72 + 0x130 and, for a zone's sensor, 0x6B, to every connected
+ *   client). A write for an unknown module, an input above 11 or a non-finite active point is only acknowledged.
+ *   The sensor of an input is the one wired to it ([DemoZone.inputNr] for a zone, whose number differs from the
+ *   zone's `output_nr`; the room link is in the `inputs` table of the demo database). Initially every sensor has
+ *   a one-point calibration that changes no reported value (see [calibration]).
  * Unknown commands, modules, zones and out-of-range values are acknowledged and otherwise ignored.
  *
  * While [simulation] is enabled the house keeps living (started by the first connection): heating zones warm up
@@ -120,8 +129,24 @@ class FakeController(
     /** Current state of a zone, or null when there is no such zone. */
     fun heaterState(module: Int, outputNr: Int): HeaterState? = synchronized(lock) { model.zone(module, outputNr)?.state() }
 
-    /** Current value of a sensor, or null when there is no such sensor. */
+    /**
+     * Value the controller currently reports for the sensor on analog input [sensor] (0x72 / 0x130 numbering; for a
+     * zone's sensor see [DemoZone.inputNr] – it is not the zone's `output_nr`), or null when there is no such sensor.
+     */
     fun temperature(module: Int, sensor: Int): Float? = synchronized(lock) { model.sensor(module, sensor)?.temperature }
+
+    /**
+     * The true temperature of the room of heating zone ([module], [outputNr]) – what an independent thermometer in
+     * the room would show, for simulated room thermometers. It follows the simulation but ignores the input's
+     * calibration: writing a calibration (0x132) moves [temperature] and the zone's reported temperature, not this
+     * value. Null when there is no such zone.
+     */
+    fun roomTemperature(module: Int, outputNr: Int): Float? =
+        synchronized(lock) { model.zone(module, outputNr)?.let(model::roomTemperature) }
+
+    /** Calibration record of an analog input (0..11), or null for an unknown module or input. */
+    fun calibration(module: Int, input: Int): InputCalibration? =
+        synchronized(lock) { model.calibrations(module)?.getOrNull(input) }
 
     // Things that happen without a command from the app
 
@@ -258,6 +283,11 @@ class FakeController(
             CommandCode.OUTPUT_ON, CommandCode.OUTPUT_OFF -> switchOutput(request)
             CommandCode.SET_SETPOINT -> setSetpoint(request)
             CommandCode.SET_PROFILE -> setProfile(request)
+            CommandCode.INPUT_CALIBRATION_GET -> model.calibrations(request.address.toInt())?.let { records ->
+                val payload = records.fold(Bytes.EMPTY) { acc, record -> acc + record.encode() }
+                transport.deliver(frame(CommandCode.INPUT_CALIBRATION_GET, payload, request.address))
+            }
+            CommandCode.INPUT_CALIBRATION_SET -> setCalibration(transport, request)
             CommandCode.SHUTTER_UP -> shutterCommand(request, DemoShutterButton.UP)
             CommandCode.SHUTTER_DOWN -> shutterCommand(request, DemoShutterButton.DOWN)
             CommandCode.SHUTTER_STOP -> shutterCommand(request, DemoShutterButton.STOP)
@@ -300,6 +330,20 @@ class FakeController(
         if (profile is HeatingProfile.Unknown) return
         model.setProfile(zone, profile)
         broadcast(heaterFrame(zone))
+    }
+
+    /** 0x132 `[input_nr][18 B]`: confirms to the requester, then reports the sensor's recalculated value to everyone. */
+    private fun setCalibration(transport: InMemoryTransport, request: Frame) {
+        if (request.payload.size < InputCalibrationWritten.LENGTH) return
+        val module = request.address.toInt()
+        val input = request.payload[0].toInt()
+        val record = InputCalibration.decode(ByteReader(request.payload), 1)
+        if (!model.setCalibration(module, input, record)) return
+        transport.deliver(frame(CommandCode.INPUT_CALIBRATION_SET, request.payload.copyOfRange(0, InputCalibrationWritten.LENGTH), request.address))
+        val sensor = model.sensor(module, input) ?: return
+        val zone = sensor.zone // the zone whose sensor sits on that input - NOT the zone numbered like the input
+        sensor.reported = sensor.temperature
+        broadcast(*(temperatureFrames(sensor) + listOfNotNull(zone?.let(::heaterFrame))).toTypedArray())
     }
 
     /** 0x8D / 0x8E / 0x82 `[output_nr]`; a shutter that does not exist is only acknowledged. */

@@ -73,17 +73,32 @@ class TileSizeTest {
     }
 
     @Test
-    fun `ogrzewanie 2x1 i 2x2, przelaczniki 1x1 i 2x1, rolety tylko 2x1`() {
-        assertEquals(listOf(size(2, 1), size(2, 2)), allowedUpTo4x4(TileKind.ZONE))
-        assertEquals(listOf(size(1, 1), size(2, 1)), allowedUpTo4x4(TileKind.SWITCH))
-        assertEquals(listOf(size(2, 1)), allowedUpTo4x4(TileKind.SHUTTER))
+    fun `ogrzewanie i rolety 1x1, 2x1 i 2x2, przelaczniki tylko 1x1`() {
+        assertEquals(listOf(size(1, 1), size(2, 1), size(2, 2)), allowedUpTo4x4(TileKind.ZONE))
+        assertEquals(listOf(size(1, 1)), allowedUpTo4x4(TileKind.SWITCH))
+        assertEquals(listOf(size(1, 1), size(2, 1), size(2, 2)), allowedUpTo4x4(TileKind.SHUTTER))
         assertFalse(TileKind.ZONE.freeSize)
-        assertTrue(TileKind.ZONE.resizable && TileKind.SWITCH.resizable)
-        assertFalse(TileKind.SHUTTER.resizable)
+        assertTrue(TileKind.ZONE.resizable && TileKind.SHUTTER.resizable)
+        assertFalse(TileKind.SWITCH.resizable)
         TileKind.entries.forEach { kind ->
             assertTrue(kind.allows(kind.defaultSize), "$kind: rozmiar domyślny dozwolony")
             assertTrue(kind.presets.all(kind::allows), "$kind: lista przycisku „rozmiar” dozwolona")
         }
+    }
+
+    @Test
+    fun `kafelki eModul - rozmiary S, M, L (1x1, 2x1, 2x2), zmiana rozmiaru przyciskiem`() {
+        assertEquals(listOf(size(1, 1), size(2, 1), size(2, 2)), allowedUpTo4x4(TileKind.EMODUL))
+        assertFalse(TileKind.EMODUL.freeSize)
+        assertTrue(TileKind.EMODUL.resizable)
+        assertEquals(TileSize.M, TileKind.EMODUL.defaultSize)
+        assertEquals(listOf(TileSize.S, TileSize.M, TileSize.L), TileKind.EMODUL.presets)
+        assertEquals(TileSize.M, TileKind.EMODUL.nextPreset(TileSize.S))
+        assertEquals(TileSize.L, TileKind.EMODUL.nextPreset(TileSize.M))
+        assertEquals(TileSize.S, TileKind.EMODUL.nextPreset(TileSize.L))
+        assertEquals(TileSize.M, TileKind.EMODUL.coerce(size(4, 1)))
+        assertTrue(TileKind.EMODUL.allows(TileKind.EMODUL.coerce(size(6, 6))))
+        assertFalse(TileKind.EMODUL.configurable)
     }
 
     @Test
@@ -117,12 +132,13 @@ class TileSizeTest {
         assertEquals(size(2, 1), zone.nearest(2.2f, 1.4f))
         assertEquals(size(2, 2), zone.nearest(2.2f, 1.6f))
         assertEquals(size(2, 2), zone.nearest(6f, 5f))
-        assertEquals(size(2, 1), zone.nearest(0.5f, 0.5f))
+        assertEquals(size(1, 1), zone.nearest(0.5f, 0.5f))
+        assertEquals(size(1, 1), zone.nearest(1.4f, 1f))
+        assertEquals(size(1, 1), zone.nearest(1.5f, 1f)) // remis – wcześniejszy na liście
         val switch = TileKind.SWITCH
         assertEquals(size(1, 1), switch.nearest(1.4f, 1.9f))
-        assertEquals(size(2, 1), switch.nearest(1.6f, 1f))
-        assertEquals(size(1, 1), switch.nearest(1.5f, 1f)) // remis – wcześniejszy na liście
-        assertEquals(size(2, 1), TileKind.SHUTTER.nearest(1f, 4f))
+        assertEquals(size(1, 1), switch.nearest(2f, 1f))
+        assertEquals(size(2, 2), TileKind.SHUTTER.nearest(1f, 4f))
     }
 
     @Test
@@ -134,10 +150,12 @@ class TileSizeTest {
         assertEquals(size(2, 2), TileKind.WEATHER.coerce(size(2, 4))) // dawna pogoda 2×4 -> 2×2
         assertEquals(size(6, 2), TileKind.WEATHER.coerce(size(6, 4)))
         assertEquals(size(2, 2), TileKind.ZONE.coerce(TileSize.XL))
-        assertEquals(size(2, 1), TileKind.ZONE.coerce(TileSize.S))
-        assertEquals(size(2, 1), TileKind.SWITCH.coerce(TileSize.XL))
-        assertEquals(size(2, 1), TileKind.SHUTTER.coerce(TileSize.L))
-        assertEquals(size(2, 1), TileKind.SHUTTER.coerce(TileSize.S))
+        assertEquals(size(1, 1), TileKind.ZONE.coerce(TileSize.S))
+        assertEquals(size(1, 1), TileKind.SWITCH.coerce(TileSize.XL))
+        assertEquals(size(1, 1), TileKind.SWITCH.coerce(TileSize.M))
+        assertEquals(size(2, 2), TileKind.SHUTTER.coerce(TileSize.L))
+        assertEquals(size(1, 1), TileKind.SHUTTER.coerce(TileSize.S))
+        assertEquals(size(2, 2), TileKind.SHUTTER.coerce(TileSize.XL))
     }
 
     // Przycisk „rozmiar”
@@ -151,12 +169,21 @@ class TileSizeTest {
         assertEquals(size(2, 2), agenda.nextPreset(size(2, 4), columns = 3))
         assertEquals(size(4, 2), agenda.nextPreset(size(3, 2))) // 6 komórek -> pierwszy większy na liście: 4×2 (8)
         assertEquals(size(2, 2), agenda.nextPreset(size(6, 6))) // nic większego -> pierwszy
-        assertEquals(size(2, 2), TileKind.ZONE.nextPreset(size(2, 1)))
-        assertEquals(size(1, 1), TileKind.SWITCH.nextPreset(size(2, 1)))
-        assertNull(TileKind.SHUTTER.nextPreset(size(2, 1)))
+        assertEquals(size(1, 1), TileKind.ZONE.nextPreset(size(2, 2)))
+        assertNull(TileKind.SWITCH.nextPreset(size(1, 1)))
+        assertEquals(size(2, 2), TileKind.SHUTTER.nextPreset(size(2, 1)))
     }
 
     // Zapis v4 i migracje
+
+    @Test
+    fun `przycisk rozmiar dla strefy i rolety cyklicznie S, M, L, S`() {
+        listOf(TileKind.ZONE, TileKind.SHUTTER).forEach { kind ->
+            assertEquals(size(2, 1), kind.nextPreset(TileSize.S), "$kind")
+            assertEquals(size(2, 2), kind.nextPreset(TileSize.M), "$kind")
+            assertEquals(TileSize.S, kind.nextPreset(TileSize.L), "$kind")
+        }
+    }
 
     @Test
     fun `zapisana pogoda wyzsza niz 2 wiersze wraca jako 2 wiersze`() {
@@ -186,6 +213,15 @@ class TileSizeTest {
     }
 
     @Test
+    fun `odczyt v4 - przelaczniki 2x1 wracaja do 1x1, a strefa 1x1 zostaje`() {
+        val decoded = checkNotNull(DashboardLayout.decode("v4;+ s:1:5 2x1;- s:1:6 2x1;+ z:1:0 1x1;+ r:1:1 4x2"))
+        assertEquals(TileSize.S, decoded.size(TileId.Switch(1, 5)))
+        assertEquals(TileSize.S, decoded.hidden.single().size)
+        assertEquals(TileSize.S, decoded.size(TileId.Zone(1, 0)))
+        assertEquals(TileSize.L, decoded.size(TileId.Shutter(1, 1)))
+    }
+
+    @Test
     fun `odczyt v4 naprawia niedozwolone i nieczytelne rozmiary`() {
         val decoded = DashboardLayout.decode("v4;+ a 1x9;+ w 12x7;+ z:1:0 4x4;+ s:1:1 7;+ r:1:0 2x2")
         assertEquals(
@@ -193,7 +229,7 @@ class TileSizeTest {
                 listOf(
                     TileEntry(TileId.Agenda, size(2, 8)), TileEntry(TileId.Weather, size(8, 2)),
                     TileEntry(TileId.Zone(1, 0), size(2, 2)), TileEntry(TileId.Switch(1, 1), TileSize.S), // nieczytelny -> domyślny
-                    TileEntry(TileId.Shutter(1, 0), size(2, 1)),
+                    TileEntry(TileId.Shutter(1, 0), size(2, 2)),
                 ),
             ),
             decoded,
@@ -201,7 +237,7 @@ class TileSizeTest {
     }
 
     @Test
-    fun `migracja v3 - kolumna c staje sie 2x4, roleta L 2x1, reszta wg dawnych wymiarow`() {
+    fun `migracja v3 - kolumna c staje sie 2x4, roleta L zostaje 2x2, przelacznik 2x1 wraca 1x1, reszta wg dawnych wymiarow`() {
         val stored = checkNotNull(DashboardLayout.load("v3;+ w m;+ a c;+ z:1:0 l;+ z:1:1 m;+ s:1:0 s;+ s:1:1 m;+ r:1:0 l;- r:1:1 m;- a2 xl"))
         assertFalse(stored.alarmMigrationPending)
         assertEquals(
@@ -209,8 +245,8 @@ class TileSizeTest {
                 tiles = listOf(
                     TileEntry(TileId.Weather, size(2, 1)), TileEntry(TileId.Agenda, size(2, 4)),
                     TileEntry(TileId.Zone(1, 0), size(2, 2)), TileEntry(TileId.Zone(1, 1), size(2, 1)),
-                    TileEntry(TileId.Switch(1, 0), size(1, 1)), TileEntry(TileId.Switch(1, 1), size(2, 1)),
-                    TileEntry(TileId.Shutter(1, 0), size(2, 1)),
+                    TileEntry(TileId.Switch(1, 0), size(1, 1)), TileEntry(TileId.Switch(1, 1), size(1, 1)),
+                    TileEntry(TileId.Shutter(1, 0), size(2, 2)),
                 ),
                 hidden = listOf(TileEntry(TileId.Shutter(1, 1), size(2, 1))),
             ),
@@ -227,7 +263,7 @@ class TileSizeTest {
         assertEquals(
             listOf(
                 TileEntry(TileId.Weather, size(2, 2)), TileEntry(TileId.Agenda, size(4, 2)),
-                TileEntry(TileId.Shutter(1, 0), size(2, 1)), TileEntry(TileId.Switch(1, 0), size(1, 1)),
+                TileEntry(TileId.Shutter(1, 0), size(2, 2)), TileEntry(TileId.Switch(1, 0), size(1, 1)),
             ),
             stored.layout.tiles,
         )

@@ -1,6 +1,6 @@
 # Domik – Privacy Policy
 
-Version 1.0 · Effective from: 10 October 2026
+Version 1.1 · Effective from: 13 October 2026
 
 [Wersja polska](../polityka-prywatnosci.md) · [Terms of Use](terms.md)
 
@@ -10,7 +10,9 @@ mandatory law provides otherwise.*
 > **In short:** The author of Domik receives none of your data. There are no accounts, analytics, ads or author
 > servers. Everything the app stores stays on your phone or tablet. It controls your controller directly on your local
 > network. If you use the weather tile, it sends to the Open-Meteo weather service only the place name you type (when
-> searching) and the approximate coordinates of the chosen place.
+> searching) and the approximate coordinates of the chosen place. If you yourself add the optional eModul integration
+> (TECH controllers), the app sends your API key to that service and only reads the data of your controllers; the
+> author of the app still receives nothing.
 
 Capitalised terms (e.g. App, Controller, Serial Number, Local Network, Repository, Official Source) have the meaning
 given in the [Terms of Use](terms.md).
@@ -31,7 +33,9 @@ Repository's Security advisories feature (<https://github.com/milwis/domik/secur
    (Kotlin).
 3. The Author has no access to the data stored by the App on your Device, to your calendars or to your Installation.
 4. Outside your Local Network, the App sends only the data needed to show the weather – and only when you search for or
-   choose a place for the weather tile (point 4(3)–(4)).
+   choose a place for the weather tile (point 4(3)–(4)) – and, only if you yourself add the optional eModul
+   integration, the data needed to read your controllers from the eModul service (point 4(5)). None of this goes to the
+   Author.
 5. The App's source code is public (the Repository), so anyone can check what data the App sends and where.
 
 ## 3. Data stored only on your Device
@@ -46,6 +50,8 @@ To work, the App stores the following on your Device, in its private storage:
 | Dashboard layout, choice of icons and tile elements, choice of calendars shown, appearance and tablet mode settings | App features | in the App (e.g. "Restore default layout") or by deleting the App |
 | Place chosen for weather and its approximate coordinates | showing the weather | "Remove town" in the App menu or by deleting the App |
 | Most recently downloaded weather forecast, with its download time and the place's approximate coordinates (cache) | showing the latest weather, e.g. after a restart without Internet access | "Remove town" in the App menu or by deleting the App; replaced on every download |
+| eModul API key – encrypted with a key held in the Android Keystore system (only after you add the eModul integration) | connecting to the eModul service | "Remove integration" in the App's eModul settings or by deleting the App |
+| List of your eModul modules (identifiers), choice of data shown, most recently downloaded eModul responses (controller data and menus, part of the text dictionary) with their download time (cache in the App's private storage) | showing the eModul controllers' data, also after a restart without Internet access | "Remove integration" in the App's eModul settings or by deleting the App; replaced on every download |
 | Version of the accepted Terms | confirming acceptance, asking again after the Terms change | by deleting the App |
 
 1. The App reads the current status of the Installation (e.g. temperatures, output states) from the Controller to
@@ -66,7 +72,7 @@ To work, the App stores the following on your Device, in its private storage:
 1. **Controller.** The App connects to the Controller at the IP address you enter, on your Local Network. The
    connection is encrypted (TLS) and the App verifies the Controller's certificate. The security of this connection
    also depends on the Controller and its firmware, which the Author does not control. The App does not connect to the
-   Controller Manufacturer's cloud or to the Author's servers.
+   Controller Manufacturer's (Deimic) cloud or to the Author's servers.
 2. **Calendars.** Calendar sync (e.g. a Google calendar on an account added to the Device) is performed by Android and
    the calendar providers' apps, under their terms. The App does not connect to their servers.
 3. **Searching for a place.** When you type a place name for the weather, the App looks it up in the Open-Meteo
@@ -82,19 +88,40 @@ To work, the App stores the following on your Device, in its private storage:
    Device or Installation. Open-Meteo processes this data under its own terms, published on its website. Until you
    search for or choose a place, the App does not connect to the weather service; once you remove the place
    ("Remove town"), it stops connecting to it. In demo mode it never connects to it (point 3(7)).
-5. **Links.** Items you open in other apps (e.g. an event opened in the calendar app, a page opened in a browser) are
+5. **eModul (TECH) – optional.** This feature is off until you add it yourself ("Add eModul integration" in the App
+   menu); before the first connection the App shows a notice that you must confirm.
+   - *What is sent.* The App connects directly from the Device to the `emodul.eu` service (HTTPS) and sends, in the
+     `Authorization` header, your API key generated in your eModul account (the key contains your eModul user name and
+     account identifier). It sends read-only requests only: it downloads the list of your modules (controllers), their
+     current data and menus, and the text dictionary. It changes nothing in your controllers or your eModul account.
+   - *When.* Only after you add the integration and only while the Device has Internet access: controller data about
+     every 60 seconds while the App's dashboard is open on screen, controller menus about every 15 minutes, the module
+     list about every 6 hours and the text dictionary once a day. The App does not otherwise connect to the service. In
+     demo mode it never connects to it (point 3(7)).
+   - *Where it is stored.* The API key is encrypted with a key from the Android Keystore and stored only on the Device;
+     the downloaded responses (cache) are kept in the App's private storage (point 3). "Remove integration" deletes the
+     key, the stored eModul data and the choice of data shown, and the App stops connecting to the service.
+   - *The Author receives nothing.* The data and the key go only to the eModul service – not to the Author or any
+     server of the Author. The eModul service also receives the Device's IP address and standard technical connection
+     data.
+   - *Separate controller.* The eModul service is run by TECH STEROWNIKI sp. z o.o. sp. k. (ul. Biała Droga 31, 34-122
+     Wieprz, Poland, KRS 0000594881), which is a separate data controller of your data and processes it under its own
+     terms (point 8). To use this feature you need your own eModul account.
+6. **Links.** Items you open in other apps (e.g. an event opened in the calendar app, a page opened in a browser) are
    subject to the terms of that app or service (point 8).
 
 ## 5. Permissions
 
 | Permission | Purpose | Notes |
 |---|---|---|
-| Internet and network state | connecting to the Controller on the Local Network, downloading weather, detecting network loss or changes | granted at installation |
+| Internet and network state | connecting to the Controller on the Local Network, downloading weather, reading data from the eModul service (after you add the integration), detecting network loss or changes | granted at installation |
 | Read calendar | showing events on the calendar tile; read-only | requested only when you tap "Show my calendar"; without it the calendar tile does not show your events |
 | Access to devices on the local network (if your Android version requires it) | connecting to the Controller | the current version of the App does not request this permission; if it ever needs it, only demo mode will work without it |
+| Bluetooth ("Nearby devices"; on Android 11 and older also location) – only once room thermometer support is turned on | receiving the radio broadcasts of room thermometers | used only locally to read the thermometers; the App does not derive your position from them, does not connect to them and does not send this data off the Device |
 
 You can change permissions at any time in system settings (Settings → Apps → Domik → Permissions). The App does not
-request access to location, contacts, photos, camera or microphone and does not send notifications.
+request access to contacts, photos, camera or microphone, requests location only on Android 11 and older for thermometer
+support (row above), and shows a notification only as the permanent entry of the running thermometer service.
 
 The "Domik as the home screen" option (wall-mounted tablet mode) is not a permission: once you enable it and choose Domik
 as the home screen in system settings, Android itself opens the App after the Device restarts.
@@ -158,9 +185,15 @@ on your Device.
   website of their own and uses no cookies, analytics or tracking tools of their own.
 - **Open-Meteo** – provider of weather data and place search (point 4(3)–(4)), operating under its own terms:
   <https://open-meteo.com>.
+- **TECH STEROWNIKI sp. z o.o. sp. k.** (ul. Biała Droga 31, 34-122 Wieprz, Poland, KRS 0000594881) – operator of the
+  eModul service (<https://emodul.eu>), to which the App connects only after you add the eModul integration (point 4(5)).
+  It is a separate controller of your data (including the API key and the data of your controllers) and operates under
+  its own terms: privacy policy <https://emodul.eu/policy/emodul/en>, terms of service
+  <https://emodul.eu/terms-of-service/emodul/pl> (Polish). The Author is not affiliated with TECH Sterowniki or the
+  eModul service.
 - **Google** – Android and the sync of Google calendars on the Device (point 4(2)) are subject to Google's terms;
   Google is a separate data controller: <https://policies.google.com/privacy>. The App sends Google no data.
-- **Controller Manufacturer** – the App sends it no data. The Controller and the Controller Manufacturer's services
+- **Controller Manufacturer (Deimic)** – the App sends it no data. The Controller and the Controller Manufacturer's services
   (e.g. its app or cloud), if you use them, operate under the manufacturer's own terms, independently of the App.
 
 ## 9. Children

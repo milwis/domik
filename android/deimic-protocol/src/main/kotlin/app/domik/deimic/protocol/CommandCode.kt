@@ -24,7 +24,15 @@ value class CommandCode(val raw: UInt) {
         val SHUTTER_UP = CommandCode(0x8Du)
         /** Shutter: run down; payload `[output_nr]`. Sent while the shutter is moving it stops it instead. */
         val SHUTTER_DOWN = CommandCode(0x8Eu)
+        /** Event: an analog input (temperature sensor) value changed, payload `[input_nr][f32 LE °C]`; calibrated value. */
         val ANALOG_VALUE_CHANGED = CommandCode(0x130u)
+        /** `commandInputsAnalogCalibratiGet`: empty request to a module; the answer carries N x 18 B [InputCalibration]. */
+        val INPUT_CALIBRATION_GET = CommandCode(0x131u)
+        /**
+         * `commandInputsAnalogCalibratiSet`: `[input_nr]` + 18 B [InputCalibration]; the controller confirms with the
+         * same payload in a 0x132 frame (after the usual 0x1E0 acknowledgement).
+         */
+        val INPUT_CALIBRATION_SET = CommandCode(0x132u)
         val OUTPUT_OFF = CommandCode(0x103u)
         val OUTPUT_ON = CommandCode(0x104u)
         /** Event: an output went OFF. */

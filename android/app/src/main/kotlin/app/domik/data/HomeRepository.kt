@@ -37,6 +37,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 import kotlin.time.Duration
+import kotlin.math.abs
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /** Czasy i limity [HomeRepository] (testy skracają je lub wydłużają). */
@@ -51,6 +53,8 @@ data class HomeRepositoryConfig(
     val refreshDebounce: Duration = 1.seconds,
     /** Najkrótszy odstęp między dwoma odświeżeniami stref. */
     val refreshMinGap: Duration = 5.seconds,
+    /** Jak długo po pierwszym raporcie temperatury zbierać raporty pozostałych czujników (odczyt 0x72 przy synchronizacji). */
+    val temperatureCollectWindow: Duration = 300.milliseconds,
     /** Odstęp między próbami pełnej synchronizacji po połączeniu, gdy któraś część się nie udała. */
     val syncRetryDelay: Duration = 5.seconds,
     val maxSyncAttempts: Int = 5,
@@ -68,7 +72,9 @@ data class HomeRepositoryConfig(
  *   i odczyt wszystkich stref (0x6B). Potem żywe aktualizacje: zdarzenia wyjść 0x109/0x108, stan strefy 0x6B.
  * - **Temperatury**: raport 0x72/0x130 nie niesie numeru strefy (zależność strefa ↔ czujnik nie jest potwierdzona),
  *   więc służy tylko jako sygnał do odświeżenia stref przez 0x6B (z odstępem [HomeRepositoryConfig.refreshMinGap]);
- *   dodatkowo odświeżenie co [HomeRepositoryConfig.periodicRefresh].
+ *   dodatkowo odświeżenie co [HomeRepositoryConfig.periodicRefresh]. Wartości wejść analogowych (0x130 = temperatura po
+ *   kalibracji, numer wejścia, nie strefy) trafiają do [HomeState.analogInputs]; przy synchronizacji idzie jeszcze jeden
+ *   odczyt temperatur (0x72).
  * - **Polecenia** ([toggleOutput], [adjustSetpoint], [stepProfile]): kafelek od razu pokazuje stan docelowy
  *   („oczekiwanie”); po odpowiedzi sterownika stan jest potwierdzony albo wraca do poprzedniego, a [events] niesie
  *   komunikat o błędzie. Temperatura zadana idzie przez [SetpointDebouncer] (jedno polecenie na serię dotknięć).
@@ -100,6 +106,9 @@ class HomeRepository(
     private val setpointDebouncer = SetpointDebouncer(scope, settings.setpointQuietPeriod, ::sendSetpoint)
     private val lock = Any()
     private var started = false
+
+    @Volatile
+    private var readingTemperatures = false
 
     /** Rusza: wczytuje konfigurację z pamięci podręcznej i łączy się ze sterownikiem. Kolejne wywołania nic nie robią. */
     fun start() {
@@ -282,8 +291,24 @@ class HomeRepository(
                 val key = ShutterKey(message.module.toInt(), message.outputNr.toInt())
                 _state.update { it.copy(shutters = it.shutters + (key to message.direction)) }
             }
-            is AnalogValueChanged, is TemperatureReport -> refreshRequests.trySend(Unit)
+            is AnalogValueChanged -> {
+                putAnalogInput(InputKey(message.module.toInt(), message.input.toInt()), message.value)
+                if (!readingTemperatures) refreshRequests.trySend(Unit)
+            }
+            is TemperatureReport -> if (!readingTemperatures) refreshRequests.trySend(Unit)
             else -> Unit
+        }
+    }
+
+    /** Zapisuje wartość wejścia tylko przy zmianie o [HomeState.ANALOG_INPUT_STEP]; NaN (czujnik odłączony) usuwa wpis. */
+    private fun putAnalogInput(key: InputKey, value: Float) {
+        _state.update { s ->
+            val old = s.analogInputs[key]
+            when {
+                !value.isFinite() -> if (old == null) s else s.copy(analogInputs = s.analogInputs - key)
+                old != null && abs(value - old) < HomeState.ANALOG_INPUT_STEP - EPSILON -> s
+                else -> s.copy(analogInputs = s.analogInputs + (key to value))
+            }
         }
     }
 
@@ -331,6 +356,7 @@ class HomeRepository(
             if (!readZone(zone.module, zone.outputNr)) zonesRead = false
         }
         _state.update { it.copy(synced = snapshotRead) }
+        readTemperatures()
         return configResult != ConfigResult.RETRY && snapshotRead && zonesRead
     }
 
@@ -424,6 +450,28 @@ class HomeRepository(
             false
         }
 
+    /**
+     * Odczyt temperatur (0x72, tylko odczyt, pusty ładunek): każdy czujnik odpowiada raportem 0x72 i zdarzeniem 0x130,
+     * które [onMessage] zapisuje w [HomeState.analogInputs]. Najlepszym wysiłkiem – niepowodzenie nie wymusza ponowienia
+     * synchronizacji (wartości i tak przyjdą ze zdarzeniami).
+     */
+    private suspend fun readTemperatures() {
+        // Odpowiedzi na ten odczyt nie są „zmianą”, która wymagałaby odświeżenia stref (przed chwilą je odczytano).
+        readingTemperatures = true
+        try {
+            connection.request(
+                Request.temperatureReadout(connection.serial), setOf(CommandCode.TEMPERATURE_REPORT), settings.readTimeout,
+                collectWindow = settings.temperatureCollectWindow,
+            )
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // brak odpowiedzi: nic się nie stało, odczyt powtórzy się przy następnej synchronizacji
+        } finally {
+            readingTemperatures = false
+        }
+    }
+
     private suspend fun refreshLoop() {
         for (request in refreshRequests) {
             if (!_state.value.synced) continue // zaraz po połączeniu synchronizacja i tak czyta wszystko
@@ -442,6 +490,7 @@ class HomeRepository(
     private fun zoneName(key: ZoneKey): String = _state.value.config?.heatingZone(key.module, key.outputNr)?.name.orEmpty()
 
     internal companion object {
+        private const val EPSILON = 1e-4f
         private val PROFILE_ORDER = listOf(HeatingProfile.Off, HeatingProfile.Eco, HeatingProfile.Comfort, HeatingProfile.Maximum)
 
         /** Następny / poprzedni profil w kolejności kafelka (zawijanie na końcach; nieznany → Wył.). */

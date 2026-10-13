@@ -38,7 +38,7 @@ class TermsLinksTest {
 
     @Test
     fun `tekst zawiera date wersji regulaminu i zadnego niepodstawionego tokenu`() {
-        val expected = mapOf("values" to "10 października 2026", "values-en" to "10 October 2026")
+        val expected = mapOf("values" to "13 października 2026", "values-en" to "13 October 2026")
         for (dir in locales) {
             val body = termsBody(dir)
             assertTrue(body.contains(expected.getValue(dir)), dir)

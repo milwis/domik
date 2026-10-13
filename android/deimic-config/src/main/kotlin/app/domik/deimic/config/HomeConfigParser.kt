@@ -23,6 +23,13 @@ import app.domik.deimic.config.sqlite.SqliteValue
  *   no skip, room or duplicate issues. When the row has a valid `id_device`, name and `output_relay` it is also kept
  *   as an [Output] of kind [OutputKind.UNKNOWN] (diagnostics only), otherwise it is left out.
  *
+ * The optional table `inputs (id, id_device, input_nr, id_level, id_room, input_type, name)` becomes [AnalogInput]s
+ * (all types are kept; [AnalogInput.isTemperature] tells the temperature ones). A database without the table, or
+ * with one lacking these columns, simply yields no inputs - never an error. A row is skipped (issue in table
+ * `inputs`) when `id_device` (> 0), `input_nr` (0..255) or `input_type` is NULL / of the wrong type / out of range, or
+ * `id_room` / `id_level` have the wrong type; a NULL or empty name gets the [ConfigTexts] fallback. No room, level
+ * or duplicate checks are made for inputs.
+ *
  * Addresses are compared only within one kind of address: relay outputs, heating zones, shutters and temperature
  * sensors are separate spaces, so a sensor numbered 0 never duplicates a shutter numbered 0 or a relay 0.
  *
@@ -170,10 +177,34 @@ class HomeConfigParser(private val texts: ConfigTexts = ConfigTexts.Polish) {
             }
         }
 
+        val inputs = readInputs(database, issues)
+
         val modules = (
             outputs.map { it.module } + zones.map { it.module } + shutters.map { it.module } + sensors.map { it.module }
             ).distinct().sorted()
-        return HomeConfig(levels, rooms, modules, outputs, zones, issues, sensors, shutters)
+        return HomeConfig(levels, rooms, modules, outputs, zones, issues, sensors, shutters, inputs)
+    }
+
+    /** Rows of the optional `inputs` table; none when the table or one of its columns is missing. */
+    private fun readInputs(database: SqliteDatabase, issues: MutableList<ConfigIssue>): List<AnalogInput> {
+        if (!database.hasTable(INPUTS)) return emptyList()
+        val present = database.columns(INPUTS).mapTo(HashSet()) { it.lowercase() }
+        if (INPUT_COLUMNS.any { it.lowercase() !in present }) return emptyList()
+        val inputs = ArrayList<AnalogInput>()
+        for (row in database.rows(INPUTS)) {
+            try {
+                val module = row.integer("id_device", required = true, min = 1)!!
+                val inputNr = row.integer("input_nr", required = true, min = 0, max = MAX_INPUT)!!
+                val type = row.integer("input_type", required = true)!!
+                val roomId = row.integer("id_room", required = false)
+                val levelId = row.integer("id_level", required = false)
+                val name = row.optionalName() ?: texts.analogInputName(inputNr)
+                inputs += AnalogInput(row.rowId, module, inputNr, roomId, levelId, type, name)
+            } catch (skip: SkipRow) {
+                issues += skip.issue(INPUTS, row)
+            }
+        }
+        return inputs
     }
 
     /** Heating zone row (`output_type` 123); throws [SkipRow] for an unusable value. */
@@ -326,6 +357,8 @@ class HomeConfigParser(private val texts: ConfigTexts = ConfigTexts.Polish) {
         const val LEVELS = "template_levels"
         const val ROOMS = "template_rooms"
         const val OUTPUTS = "outputs"
+        const val INPUTS = "inputs"
+        const val MAX_INPUT = 255
         const val MAX_RELAY = 127
         const val MAX_ZONE = 31
         const val MAX_SHUTTER = 63
@@ -333,6 +366,8 @@ class HomeConfigParser(private val texts: ConfigTexts = ConfigTexts.Polish) {
 
         /** Doubles below this magnitude convert to Long exactly. */
         const val WHOLE_NUMBER_LIMIT = 9.0e18
+
+        val INPUT_COLUMNS = listOf("id_device", "input_nr", "id_room", "id_level", "input_type", "Name")
 
         val REQUIRED_COLUMNS: Map<String, List<String>> = linkedMapOf(
             LEVELS to listOf("id", "Name"),

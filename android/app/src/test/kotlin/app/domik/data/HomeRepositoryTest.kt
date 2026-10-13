@@ -561,6 +561,8 @@ class HomeRepositoryTest {
     @Test
     fun aTemperatureReportRefreshesTheZones() = runTest {
         val rig = rig()
+        advanceTimeBy(1.seconds) // koniec odczytu temperatur z synchronizacji (jego raporty nie odświeżają stref)
+        runCurrent()
         val key = zone(1, 1)
         val before = rig.state.zones.getValue(key).currentTemperature
 

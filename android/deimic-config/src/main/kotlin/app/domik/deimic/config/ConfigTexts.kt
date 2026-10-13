@@ -25,6 +25,9 @@ interface ConfigTexts {
     /** [outputNr] is the shutter's `output_nr`. Has a default (the Polish text) so that older implementations keep compiling. */
     fun shutterName(outputNr: Int): String = "Roleta $outputNr"
 
+    /** [inputNr] is the input's `input_nr`. Has a default (the Polish text) so that older implementations keep compiling. */
+    fun analogInputName(inputNr: Int): String = "Wejście $inputNr"
+
     object Polish : ConfigTexts {
         override fun levelName(id: Int): String = "Poziom $id"
 
@@ -37,5 +40,7 @@ interface ConfigTexts {
         override fun temperatureSensorName(number: Int): String = "Czujnik $number"
 
         override fun shutterName(outputNr: Int): String = "Roleta $outputNr"
+
+        override fun analogInputName(inputNr: Int): String = "Wejście $inputNr"
     }
 }

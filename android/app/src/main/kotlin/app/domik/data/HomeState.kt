@@ -15,6 +15,12 @@ data class OutputKey(val module: Int, val relay: Int)
 /** Adres rolety: moduł (`id_device`) i numer rolety (`output_nr`) – nie `output_relay`, którym sterowniki adresują światła. */
 data class ShutterKey(val module: Int, val outputNr: Int)
 
+/**
+ * Adres wejścia analogowego (czujnika temperatury): moduł (`id_device`) i numer wejścia (`input_nr`). To NIE jest numer
+ * strefy – strefę z wejściem łączy pomieszczenie ([app.domik.deimic.config.HomeConfig.temperatureInputsFor]).
+ */
+data class InputKey(val module: Int, val inputNr: Int)
+
 /** Przycisk rolety na kafelku: w górę, stop, w dół. */
 enum class ShutterButton { UP, STOP, DOWN }
 
@@ -52,6 +58,9 @@ sealed interface ConfigStatus {
  *   nieznany** – sterownik z firmware 2017 nie pozwala zapytać o stan rolety, więc po starcie aplikacji żadna roleta
  *   go nie ma, dopóki ktoś jej nie ruszy
  * @property pendingShutters polecenie rolety w toku: wciśnięty przycisk (czeka na zdarzenie ze sterownika)
+ * @property analogInputs ostatnia wartość [°C, po kalibracji] każdego wejścia analogowego, o którym sterownik
+ *   powiedział (zdarzenie 0x130, odczyt 0x72 przy synchronizacji); brak wpisu = nie wiadomo (albo czujnik zgłosił NaN).
+ *   Zmienia się tylko, gdy wartość różni się o co najmniej [ANALOG_INPUT_STEP], więc UI nie przerysowuje się szumem.
  */
 data class HomeState(
     val config: HomeConfig? = null,
@@ -64,7 +73,13 @@ data class HomeState(
     val pendingSetpoints: Map<ZoneKey, PendingSetpoint> = emptyMap(),
     val shutters: Map<ShutterKey, ShutterDirection> = emptyMap(),
     val pendingShutters: Map<ShutterKey, ShutterButton> = emptyMap(),
-)
+    val analogInputs: Map<InputKey, Float> = emptyMap(),
+) {
+    companion object {
+        /** Najmniejsza zmiana wartości wejścia analogowego (°C), którą stan zapisuje. */
+        const val ANALOG_INPUT_STEP: Float = 0.01f
+    }
+}
 
 /** Zdarzenia jednorazowe dla UI (komunikat na chwilę), nie stan. [subject] to nazwa urządzenia z konfiguracji. */
 sealed interface HomeEvent {

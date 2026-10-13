@@ -66,6 +66,17 @@ class HeatingZoneDialogModelTest {
     }
 
     @Test
+    fun `model okna pokazuje temperature termometru, gdy strefa ma swiezy odczyt`() {
+        val model = checkNotNull(zoneDialogModel(comfort, id, thermometerTemp = 22.4f))
+        assertEquals(22.4f, model.tile.currentTemp)
+        assertTrue(model.tile.fromThermometer)
+        assertEquals(22.0f, model.tile.setpoint)
+        val without = checkNotNull(zoneDialogModel(comfort, id))
+        assertEquals(21.5f, without.tile.currentTemp)
+        assertFalse(without.tile.fromThermometer)
+    }
+
+    @Test
     fun `strefy spoza konfiguracji i brak konfiguracji to null`() {
         assertNull(zoneDialogModel(comfort, TileId.Zone(9, 9)))
         assertNull(zoneDialogModel(state(config = null), id))

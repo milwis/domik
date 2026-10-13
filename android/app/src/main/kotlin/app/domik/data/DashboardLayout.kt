@@ -57,8 +57,10 @@ data class TileSize(val cols: Int, val rows: Int) {
  * [presets] to rozmiary, po których przełącza przycisk „rozmiar” (alternatywa dla przeciągania rogu, także dla
  * czytników ekranu), [defaultSize] – rozmiar nowego kafelka. Nowy rodzaj = nowy wpis tutaj + nowy podtyp [TileId].
  *
- * Roleta ([SHUTTER]) ma tylko 2×1: trzy przyciski ↑ ■ ↓ po co najmniej 48 dp nie mieszczą się na kwadracie 1×1,
- * a wyższa karta nic nie dodaje (decyzja użytkownika 2026-10-10). Ogrzewanie: 2×1 i 2×2; przełączniki: 1×1 i 2×1.
+ * Rozmiary (decyzja użytkownika 2026-10-13): strefy ogrzewania i rolety – 1×1, 2×1 i 2×2 (przycisk „rozmiar” cyklicznie
+ * S → M → L → S); przełączniki (światła, gniazdka) – tylko 1×1. Kalendarz i pogoda – dowolny rozmiar w zakresie.
+ * Roleta 1×1 nie mieści przycisków ↑ ■ ↓ – dotknięcie otwiera okno z przyciskami. Kafelki eModul (tylko odczyt) –
+ * też 1×1, 2×1 i 2×2.
  */
 enum class TileKind(
     private val fixedSizes: List<TileSize>?,
@@ -69,9 +71,10 @@ enum class TileKind(
 ) {
     WEATHER(null, TileSize.S, maxRows = 2, TileSize.M, listOf(TileSize.S, TileSize.M, TileSize.L, TileSize.XL)),
     AGENDA(null, TileSize.L, maxRows = 8, TileSize.XL, listOf(TileSize.L, TileSize.XL, TileSize(2, 4), TileSize(4, 4))),
-    ZONE(listOf(TileSize.M, TileSize.L), TileSize.M, maxRows = 2, TileSize.L, listOf(TileSize.M, TileSize.L)),
-    SWITCH(listOf(TileSize.S, TileSize.M), TileSize.S, maxRows = 1, TileSize.S, listOf(TileSize.S, TileSize.M)),
-    SHUTTER(listOf(TileSize.M), TileSize.M, maxRows = 1, TileSize.M, listOf(TileSize.M)),
+    ZONE(listOf(TileSize.S, TileSize.M, TileSize.L), TileSize.S, maxRows = 2, TileSize.L, listOf(TileSize.S, TileSize.M, TileSize.L)),
+    SWITCH(listOf(TileSize.S), TileSize.S, maxRows = 1, TileSize.S, listOf(TileSize.S)),
+    SHUTTER(listOf(TileSize.S, TileSize.M, TileSize.L), TileSize.S, maxRows = 2, TileSize.M, listOf(TileSize.S, TileSize.M, TileSize.L)),
+    EMODUL(listOf(TileSize.S, TileSize.M, TileSize.L), TileSize.S, maxRows = 2, TileSize.M, listOf(TileSize.S, TileSize.M, TileSize.L)),
     ;
 
     /** Czy rozmiar jest dowolny (w zakresie), a nie z listy. */
@@ -164,6 +167,27 @@ sealed interface TileId {
         override val kind: TileKind get() = TileKind.SHUTTER
     }
 
+    /** Wspólny typ kafelków eModul: [slot] to numer modułu z ustawień (`EmodulSettings`), nie `udid`. */
+    sealed interface EmodulBase : TileId {
+        val slot: Int
+
+        /** Numer kafelka lub strefy w module (do tytułu zastępczego). */
+        val number: Int
+        override val kind: TileKind get() = TileKind.EMODUL
+    }
+
+    /** Kafelek modułu eModul: numer slotu i `id` kafelka z API (`e:1:1006`). */
+    data class Emodul(override val slot: Int, val tile: Int) : EmodulBase {
+        override val code: String get() = "e:$slot:$tile"
+        override val number: Int get() = tile
+    }
+
+    /** Strefa sterownika strefowego eModul: slot i `id` strefy (`ez:2:101`). */
+    data class EmodulZone(override val slot: Int, val zoneId: Int) : EmodulBase {
+        override val code: String get() = "ez:$slot:$zoneId"
+        override val number: Int get() = zoneId
+    }
+
     companion object {
         fun decode(code: String): TileId? {
             val parts = code.split(':')
@@ -173,6 +197,8 @@ sealed interface TileId {
                 "z" -> pair(parts)?.let { (module, number) -> Zone(module, number) }
                 "s" -> pair(parts)?.let { (module, number) -> Switch(module, number) }
                 "r" -> pair(parts)?.let { (module, number) -> Shutter(module, number) }
+                "e" -> pair(parts)?.takeIf { it.first >= 1 }?.let { (slot, tile) -> Emodul(slot, tile) }
+                "ez" -> pair(parts)?.takeIf { it.first >= 1 }?.let { (slot, zone) -> EmodulZone(slot, zone) }
                 else -> null
             }
         }
@@ -185,6 +211,23 @@ sealed interface TileId {
         }
     }
 }
+
+/**
+ * Kafelek eModul **wybrany przez użytkownika** do pokazania na pulpicie: [id] ([TileId.Emodul] albo
+ * [TileId.EmodulZone]) i rozmiar, z jakim trafia na koniec pulpitu ([defaultSize], S/M/L).
+ */
+data class EmodulTileSeed(val id: TileId.EmodulBase, val defaultSize: TileSize) {
+    init {
+        require(TileKind.EMODUL.allows(defaultSize)) { "size $defaultSize is not allowed for eModul tiles" }
+    }
+}
+
+/**
+ * Co wiadomo o kafelkach eModul do uzgodnienia układu: dla każdego włączonego slotu lista wybranych kafelków
+ * ([EmodulTileSeed], wybór użytkownika jest źródłem prawdy) albo `null` = dane slotu jeszcze nieznane (zapisane
+ * kafelki zostają bez zmian). Slot nieobecny w mapie = brak integracji / moduł wyłączony – jego kafelki znikają z układu.
+ */
+data class EmodulCatalog(val slots: Map<Int, List<EmodulTileSeed>?>)
 
 /** Czy wyjście ma kafelek-przełącznik na pulpicie (typy 1, 7, 8). RGB ma osobny kafelek (później); rolety to osobny model. */
 val Output.isSwitch: Boolean
@@ -316,7 +359,7 @@ data class DashboardLayout(val tiles: List<TileEntry>, val hidden: List<TileEntr
          * Dalej zawsze strefy (2×2), po nich przełączniki (1×1), a na końcu rolety (2×1 – szerokie karty ↑ ■ ↓);
          * wyjścia alarmowe są ukryte ([alarmTileIds]).
          */
-        fun default(config: HomeConfig?, columns: Int = SIDE_COLUMN_MIN_COLUMNS): DashboardLayout {
+        fun default(config: HomeConfig?, columns: Int = SIDE_COLUMN_MIN_COLUMNS, emodul: EmodulCatalog? = null): DashboardLayout {
             val head = when {
                 columns >= SIDE_COLUMN_MIN_COLUMNS ->
                     listOf(TileEntry(TileId.Weather, TileSize.M), TileEntry(TileId.Agenda, AGENDA_SIDE_COLUMN))
@@ -330,15 +373,25 @@ data class DashboardLayout(val tiles: List<TileEntry>, val hidden: List<TileEntr
             // Wyjścia alarmowe (icon_id 124) nie trafiają same na pulpit – ukryte, do dodania przyciskiem „Dodaj”.
             val alarmIds = alarmTileIds(config)
             val (alarm, regular) = configTiles(config).partition { it in alarmIds }
-            return DashboardLayout((head + regular.map(::entry)).distinctBy { it.id }, alarm.map(::entry))
+            val emodulVisible = emodulNewTiles(emodul, known = emptySet())
+            return DashboardLayout((head + regular.map(::entry)).distinctBy { it.id } + emodulVisible, alarm.map(::entry))
         }
+
+        /**
+         * Kafelki eModul do dopisania do układu: wszystkie wybrane ([EmodulCatalog.slots]), których nie ma w [known] –
+         * każdy widoczny, na końcu pulpitu, z rozmiarem domyślnym. Sloty rosnąco.
+         */
+        private fun emodulNewTiles(catalog: EmodulCatalog?, known: Set<TileId>): List<TileEntry> =
+            catalog?.slots.orEmpty().toSortedMap().values.flatMap { seeds ->
+                seeds.orEmpty().filter { it.id !in known }.map { TileEntry(it.id, it.defaultSize) }
+            }
 
         /**
          * Odczyt zapisu z [encode] albo migracja starego zapisu (lista kolejności bez rozmiarów).
          * Brak zapisu, uszkodzony zapis albo zapis z nowszej wersji aplikacji = `null` (wtedy układ domyślny).
          * Elementy z nieznanym id (np. rodzaj kafelka z nowszej wersji) są pomijane, nieczytelny rozmiar zastępowany
          * domyślnym, a niedozwolony dla rodzaju kafelka – najbliższym dozwolonym ([TileKind.coerce]; np. dawna
-         * „kolumna” kalendarza `c` = 2×4, roleta L = 2×1).
+         * „kolumna” kalendarza `c` = 2×4, przełącznik 2×1 = 1×1).
          */
         fun decode(text: String?): DashboardLayout? = load(text)?.layout
 
@@ -387,19 +440,35 @@ data class DashboardLayout(val tiles: List<TileEntry>, val hidden: List<TileEntr
          * @param migrateAlarms zapis jest sprzed ukrywania wyjść alarmowych ([StoredLayout.alarmMigrationPending]):
          *   widoczne wyjścia alarmowe są przenoszone do ukrytych (zachowują rozmiar). Tylko dla takiego zapisu –
          *   zapis od wersji 3 jest wiarygodny (alarm na pulpicie = wybór użytkownika).
+         * @param emodul wybrane kafelki eModul ([EmodulCatalog]): `null` (model bez stanu, np. ładowanie) – wpisy eModul
+         *   zostają bez zmian; slot nieobecny w katalogu – jego wpisy znikają; slot z `null` – zostają; slot z listą –
+         *   zostają tylko kafelki z listy (odznaczony kafelek znika z układu, także ukryty), a wybrane, których w
+         *   układzie nie ma, są dopisywane jako widoczne na koniec pulpitu. Ukrycie kafelka w edycji pulpitu nie
+         *   zmienia wyboru: ukryty wpis zostaje ukryty.
          */
         fun reconcile(
             saved: DashboardLayout?,
             config: HomeConfig?,
             columns: Int = SIDE_COLUMN_MIN_COLUMNS,
             migrateAlarms: Boolean = false,
+            emodul: EmodulCatalog? = null,
         ): DashboardLayout {
-            if (saved == null) return default(config, columns)
+            if (saved == null) return default(config, columns, emodul)
             if (config == null) return saved
             val existing = (listOf(TileId.Weather, TileId.Agenda) + configTiles(config)).toSet()
             val alarmIds = alarmTileIds(config)
-            var tiles = saved.tiles.filter { it.id in existing }
-            var hidden = saved.hidden.filter { it.id in existing }
+            var tiles = saved.tiles.filter { it.id in existing || it.id.isEmodul() }
+            var hidden = saved.hidden.filter { it.id in existing || it.id.isEmodul() }
+            if (emodul != null) {
+                val allowed = emodul.slots.mapValues { (_, seeds) -> seeds?.map { it.id }?.toSet() }
+                fun keep(entry: TileEntry): Boolean {
+                    val id = entry.id as? TileId.EmodulBase ?: return true
+                    if (id.slot !in allowed) return false
+                    return allowed.getValue(id.slot)?.let { id in it } ?: true
+                }
+                tiles = tiles.filter(::keep)
+                hidden = hidden.filter(::keep)
+            }
             if (migrateAlarms) {
                 val (alarm, regular) = tiles.partition { it.id in alarmIds }
                 tiles = regular
@@ -409,7 +478,10 @@ data class DashboardLayout(val tiles: List<TileEntry>, val hidden: List<TileEntr
             val (newAlarm, newRegular) = (listOf(TileId.Weather, TileId.Agenda) + configTiles(config))
                 .filter { it !in known }
                 .partition { it in alarmIds } // nowe wyjście alarmowe trafia do ukrytych, nie na pulpit
-            return DashboardLayout(tiles + newRegular.map(::entry), hidden + newAlarm.map(::entry))
+            val emodulVisible = emodulNewTiles(emodul, known)
+            return DashboardLayout(tiles + newRegular.map(::entry) + emodulVisible, hidden + newAlarm.map(::entry))
         }
+
+        private fun TileId.isEmodul(): Boolean = this is TileId.EmodulBase
     }
 }

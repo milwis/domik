@@ -24,6 +24,8 @@ data class BaseTokens(
     val heating: Int,
     val cool: Int,
     val error: Int,
+    /** Pasek ostrzeżenia (np. nieaktualne dane eModul) – bursztyn, łagodniejszy niż [error]. */
+    val warning: Int,
 ) {
     /** Karta wyłączonego kafelka złożona na dolnym (ciemniejszym w jasnym motywie) końcu tła. */
     val cardOffOnBackground: Int get() = compositeOver(cardOff, backgroundBottom)
@@ -54,6 +56,7 @@ object DomikTokens {
         heating = rgb(0xF08A3C),
         cool = rgb(0x4C8DF6),
         error = rgb(0xD73B44),
+        warning = rgb(0xF5B83D),
     )
 
     val Dark = BaseTokens(
@@ -69,6 +72,7 @@ object DomikTokens {
         heating = rgb(0xFFA45C),
         cool = rgb(0x6FA5FF),
         error = rgb(0xFF6B70),
+        warning = rgb(0xF5B83D),
     )
 
     fun of(dark: Boolean): BaseTokens = if (dark) Dark else Light

@@ -72,6 +72,15 @@ import app.domik.data.HomeEvent
 import app.domik.data.HomeRepository
 import app.domik.data.TileId
 import app.domik.deimic.client.ConnectionState
+import app.domik.deimic.client.commands.ZoneKey
+import app.domik.integrations.thermo.ThermoUiState
+import app.domik.ui.thermo.ThermoActions
+import app.domik.ui.thermo.ThermoZoneSection
+import app.domik.ui.thermo.ThermoZoneSectionView
+import app.domik.ui.thermo.freshThermometerTemps
+import app.domik.ui.thermo.rememberWallClock
+import app.domik.ui.thermo.thermoZoneSection
+import kotlinx.coroutines.flow.MutableStateFlow
 import app.domik.ui.components.DISABLED_ALPHA
 import app.domik.ui.components.DeviceIcon
 import app.domik.ui.components.DeviceIconGlow
@@ -109,14 +118,31 @@ private class LastKnownZone {
  * Okno strefy [zone]. Pokazuje stan na żywo z [repository] (także zmiany z innych źródeł: sterownik, drugi tablet)
  * i wysyła polecenia tymi samymi wywołaniami co duży kafelek ([HomeRepository.adjustSetpoint], [HomeRepository.setProfile]).
  *
+ * Gdy strefa ma przypisany termometr pokojowy ([thermo]), okno pokazuje jego odczyt jako temperaturę aktualną
+ * i sekcję „Termometr w pokoju” (kalibracja, status, przywracanie kalibracji instalatora).
+ *
  * Gdy strefa zniknie z konfiguracji albo padnie połączenie, okno zostaje z ostatnim znanym stanem, kontrolki są
  * nieaktywne, a komunikat mówi dlaczego. Zamykanie: przycisk „Zamknij”, dotknięcie poza oknem, „Wstecz”.
  */
 @Composable
-fun HeatingZoneDialog(repository: HomeRepository, zone: TileId.Zone, onDismiss: () -> Unit) {
+fun HeatingZoneDialog(
+    repository: HomeRepository,
+    zone: TileId.Zone,
+    onDismiss: () -> Unit,
+    thermo: ThermoActions? = null,
+) {
     val home by repository.state.collectAsStateWithLifecycle()
     val connection by repository.connectionState.collectAsStateWithLifecycle()
-    val model = remember(home, zone) { zoneDialogModel(home, zone) }
+    val zoneKey = remember(zone) { ZoneKey(zone.module, zone.outputNr) }
+    val thermoFlow = remember(thermo) { thermo?.state ?: MutableStateFlow(ThermoUiState.INACTIVE) }
+    val thermoState by thermoFlow.collectAsStateWithLifecycle()
+    val wallClock by rememberWallClock()
+    val thermoZone = thermoState.zones.firstOrNull { it.zone == zoneKey }
+    val thermometerTemp = freshThermometerTemps(thermoState)[zoneKey]
+    val thermoSection = remember(thermoState, thermoZone, wallClock) {
+        thermoZone?.let { thermoZoneSection(thermoState, it, nowMillis = wallClock) }
+    }
+    val model = remember(home, zone, thermometerTemp) { zoneDialogModel(home, zone, thermometerTemp) }
     val lastKnown = remember { LastKnownZone() }
     if (model != null) lastKnown.model = model
 
@@ -157,6 +183,10 @@ fun HeatingZoneDialog(repository: HomeRepository, zone: TileId.Zone, onDismiss: 
                 repository.setProfile(zone.module, zone.outputNr, profile.toProtocolProfile())
             },
             onClose = onDismiss,
+            thermo = thermoSection,
+            onRestoreBaseline = { thermo?.restoreBaseline?.invoke(zoneKey) },
+            onAcknowledgeChange = { thermo?.acknowledgeChange?.invoke(zoneKey) },
+            onResumeCalibration = { thermo?.resumeCalibration?.invoke(zoneKey) },
         )
     }
     val title = stringResource(R.string.heating_dialog_title, ui.tile?.name ?: stringResource(R.string.heating_dialog_default_name))
@@ -243,6 +273,10 @@ internal fun HeatingZonePanel(
     onIncrease: () -> Unit,
     onSelectProfile: (HeatingProfile) -> Unit,
     onClose: () -> Unit,
+    thermo: ThermoZoneSection? = null,
+    onRestoreBaseline: () -> Unit = {},
+    onAcknowledgeChange: () -> Unit = {},
+    onResumeCalibration: () -> Unit = {},
 ) {
     val tile = ui.tile
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(20.dp)) {
@@ -251,6 +285,14 @@ internal fun HeatingZonePanel(
         SetpointControls(tile, ui.controls, controlSize, onDecrease, onIncrease)
         if (tile != null) {
             ProfileSection(tile, ui.controls, chipHeight, onSelectProfile)
+        }
+        if (thermo != null) {
+            ThermoZoneSectionView(
+                thermo,
+                onRestoreBaseline = onRestoreBaseline,
+                onAcknowledge = onAcknowledgeChange,
+                onResume = onResumeCalibration,
+            )
         }
         StatusLine(ui.status, failure)
         Button(
@@ -316,7 +358,7 @@ private fun CurrentTemperature(tile: HeatingTileState?) {
     val current = formatTemperature(tile?.currentTemp)
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = stringResource(R.string.heating_dialog_current),
+            text = stringResource(if (tile?.fromThermometer == true) R.string.heating_dialog_current_thermometer else R.string.heating_dialog_current),
             style = MaterialTheme.typography.bodyLarge,
             color = colors.textSecondary,
             modifier = Modifier.weight(1f),

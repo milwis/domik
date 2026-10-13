@@ -26,12 +26,12 @@ data class ZoneDialogModel(
     val hasReading: Boolean get() = tile.setpoint != null
 }
 
-/** Bieżący stan strefy [id] ze stanu domu; `null`, gdy strefy nie ma w konfiguracji (albo konfiguracji jeszcze nie ma). */
-internal fun zoneDialogModel(state: HomeState, id: TileId.Zone): ZoneDialogModel? {
+/** Bieżący stan strefy [id] ze stanu domu ([thermometerTemp] – świeży odczyt termometru strefy, jeśli jest); `null`, gdy strefy nie ma w konfiguracji (albo konfiguracji jeszcze nie ma). */
+internal fun zoneDialogModel(state: HomeState, id: TileId.Zone, thermometerTemp: Float? = null): ZoneDialogModel? {
     val config = state.config ?: return null
     val zone = config.heatingZone(id.module, id.outputNr) ?: return null
     return ZoneDialogModel(
-        tile = zoneState(zone, state, config),
+        tile = zoneState(zone, state, config, thermometerTemp),
         savingSetpoint = ZoneKey(id.module, id.outputNr) in state.pendingSetpoints,
     )
 }

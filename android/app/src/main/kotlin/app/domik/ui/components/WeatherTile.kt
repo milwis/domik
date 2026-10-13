@@ -1,7 +1,9 @@
 package app.domik.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -20,12 +23,15 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -34,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import app.domik.R
 import app.domik.integrations.weather.WeatherOption
 import app.domik.integrations.weather.WeatherOptions
+import app.domik.ui.theme.DomikShapes
 import app.domik.ui.theme.DomikTheme
 
 /**
@@ -47,13 +54,18 @@ import app.domik.ui.theme.DomikTheme
  *    ułożone od góry: nagłówek, godziny, dni (bez rozpychania do dołu); gdy brakuje wysokości – układ kompaktowy
  *    (nagłówek w jednej linii, drobniejsze paski);
  *  - duży: bieżąca pogoda z lewej, z prawej pasek godzin nad paskiem dni (albo oba paski pod nią na całą szerokość).
- * Dane nieaktualne są oznaczone godziną ostatniej aktualizacji. Bezstanowy, bez interakcji.
+ * Dane nieaktualne są oznaczone godziną ostatniej aktualizacji. Bezstanowy; jedyna interakcja to dyskretna notka
+ * „Dane: Open-Meteo” w prawym dolnym rogu (wymóg licencji CC BY 4.0 – atrybucja przy miejscu pokazania danych):
+ * z [onAttributionClick] jest klikalna (otwiera stronę dostawcy), bez niego to zwykły tekst (tryb edycji pulpitu).
+ * Notka mieści się w dolnym marginesie kafelka; gdy margines jest za mały (najmniejsze kafelki), planer dostaje
+ * odpowiednio niższe wnętrze, więc zawartość nigdy na nią nie nachodzi.
  */
 @Composable
 fun WeatherTile(
     state: WeatherTileState,
     modifier: Modifier = Modifier,
     options: WeatherOptions = WeatherOptions.DEFAULT,
+    onAttributionClick: (() -> Unit)? = null,
 ) {
     val details = WeatherLayout.availableDetails(state, options)
     val texts = weatherTexts(state, options, details)
@@ -61,7 +73,9 @@ fun WeatherTile(
     BoxWithConstraints(modifier) {
         val padding = TileDensity.forHeight(maxHeight).padding
         val width = maxWidth - padding * 2
-        val height = maxHeight - padding * 2
+        // Notka siedzi w dolnym marginesie; ile jej brakuje do wysokości linii, tyle odejmujemy od wnętrza.
+        val reserve = (attributionExtent() - padding).coerceAtLeast(0.dp)
+        val height = (maxHeight - padding * 2 - reserve).coerceAtLeast(0.dp)
         val plan = WeatherLayout.plan(
             WeatherLayoutInput(
                 width = width.value,
@@ -84,15 +98,80 @@ fun WeatherTile(
             contentPadding = PaddingValues(padding),
         ) { tile ->
             val ctx = WeatherContext(state, texts, options, plan, tile, width, height)
-            when (plan.kind) {
-                WeatherLayoutKind.Mini -> MiniContent(ctx)
-                WeatherLayoutKind.Row -> if (plan.hero) RowHeroContent(ctx) else RowContent(ctx)
-                WeatherLayoutKind.Stacked -> StackedContent(ctx)
-                WeatherLayoutKind.Split -> SplitContent(ctx)
+            Box(Modifier.fillMaxWidth().height(height)) {
+                when (plan.kind) {
+                    WeatherLayoutKind.Mini -> MiniContent(ctx)
+                    WeatherLayoutKind.Row -> if (plan.hero) RowHeroContent(ctx) else RowContent(ctx)
+                    WeatherLayoutKind.Stacked -> StackedContent(ctx)
+                    WeatherLayoutKind.Split -> SplitContent(ctx)
+                }
             }
         }
+        // Rodzeństwo karty (nie jej potomek), żeby nie było scalane w jeden element dostępności z opisem kafelka.
+        Attribution(padding, onAttributionClick, Modifier.align(Alignment.BottomEnd))
     }
 }
+
+/** Dolny odstęp tekstu notki od krawędzi kafelka. */
+private val ATTRIBUTION_BOTTOM = 3.dp
+
+/** Poziomy zapas pola dotyku wokół tekstu notki. */
+private val ATTRIBUTION_SIDE_PADDING = 8.dp
+
+/** Wysokość klikalnego pola notki (sięga od krawędzi kafelka w górę; sama zawartość kafelka nie jest interaktywna). */
+private val ATTRIBUTION_TOUCH_HEIGHT = 28.dp
+
+/** Dyskretny styl notki: drobny, ale nie mniejszy niż 11 sp (czytelność na ścianie). */
+@Composable
+private fun attributionStyle(): TextStyle =
+    MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp, lineHeight = 14.sp)
+
+/** Ile miejsca od dolnej krawędzi kafelka zajmuje tekst notki (odstęp + linia w bieżącej skali czcionki). */
+@Composable
+private fun attributionExtent(): Dp {
+    val density = LocalDensity.current
+    return ATTRIBUTION_BOTTOM + with(density) { attributionStyle().lineHeight.toDp() }
+}
+
+/**
+ * Notka „Dane: Open-Meteo” w prawym dolnym rogu kafelka. Z [onClick] klikalna (podkreślona; pole dotyku sięga do
+ * krawędzi kafelka), bez – zwykły tekst. [padding] to margines wnętrza kafelka: do jego prawego brzegu wyrównujemy tekst.
+ */
+@Composable
+private fun Attribution(padding: Dp, onClick: (() -> Unit)?, modifier: Modifier) {
+    val text = stringResource(R.string.weather_attribution_tile)
+    val style = attributionStyle()
+    val color = DomikTheme.colors.textSecondary
+    val clickable = if (onClick != null) {
+        Modifier.clip(DomikShapes.tile).clickable(
+            onClickLabel = stringResource(R.string.about_open_in_browser),
+            role = Role.Button,
+            onClick = onClick,
+        )
+    } else {
+        Modifier
+    }
+    Box(
+        modifier
+            // Tekst wyrównany do prawego brzegu wnętrza kafelka (pole dotyku wystaje o poziomy zapas w margines),
+            // a pole sięga dolnej krawędzi kafelka.
+            .padding(end = (padding - ATTRIBUTION_SIDE_PADDING).coerceAtLeast(0.dp))
+            .then(clickable)
+            .height(ATTRIBUTION_TOUCH_HEIGHT)
+            .padding(horizontal = ATTRIBUTION_SIDE_PADDING)
+            .padding(bottom = ATTRIBUTION_BOTTOM),
+        contentAlignment = Alignment.BottomEnd,
+    ) {
+        Text(
+            text = text,
+            style = style,
+            color = color,
+            maxLines = 1,
+            textDecoration = if (onClick != null) TextDecoration.Underline else null,
+        )
+    }
+}
+
 
 /** Gotowe teksty kafelka (z zasobów, w bieżącym języku), żeby ich nie składać w każdym wariancie osobno. */
 @Immutable

@@ -449,7 +449,7 @@ class FakeControllerTest {
         val reports = rig.messages.filterIsInstance<TemperatureReport>()
         assertTrue(reports.isNotEmpty())
         assertTrue(reports.none { it.roomId.toInt() == 5 }, "the outdoor sensor never changes")
-        assertTrue(checkNotNull(rig.controller.temperature(1, 0)) > 21.4f)
+        assertTrue(checkNotNull(rig.controller.temperature(1, 4)) > 21.4f)
         // Every report is followed by the analog value event, like the real controller sends them.
         assertEquals(reports.size, rig.messages.count { it is app.domik.deimic.protocol.AnalogValueChanged })
     }
@@ -457,16 +457,16 @@ class FakeControllerTest {
     @Test
     fun theBackgroundSimulationStartsWithTheFirstConnectionAndKeepsRunning() = runTest {
         val rig = demoRig(simulation = DemoSimulation())
-        val before = checkNotNull(rig.controller.temperature(1, 0))
+        val before = checkNotNull(rig.controller.temperature(1, 4))
         advanceTimeBy(5.minutes)
         runCurrent()
-        val after = checkNotNull(rig.controller.temperature(1, 0))
+        val after = checkNotNull(rig.controller.temperature(1, 4))
         assertTrue(after > before, "$before -> $after")
         assertTrue(rig.messages.any { it is TemperatureReport })
         rig.controller.stop()
-        val stopped = rig.controller.temperature(1, 0)
+        val stopped = rig.controller.temperature(1, 4)
         advanceTimeBy(5.minutes)
-        assertEquals(stopped, rig.controller.temperature(1, 0))
+        assertEquals(stopped, rig.controller.temperature(1, 4))
     }
 
     @Test
@@ -491,7 +491,9 @@ class FakeControllerTest {
         assertEquals(HeaterFlag.Idle, first.heaters?.get(1))
         assertEquals(HeaterFlag.Heating, first.heaters?.get(2))
         assertEquals(HeaterFlag.NoZone, first.heaters?.get(3))
-        assertEquals(21.4f, first.temperatures?.get(0))
+        // The zones' sensors sit on inputs 4, 0, 3 (module 1) - not on the zone numbers.
+        assertEquals(21.4f, first.temperatures?.get(4))
+        assertEquals(19.2f, first.temperatures?.get(0))
         val second = checkNotNull(snapshot.module(2u))
         assertEquals(HeaterFlag.Idle, second.heaters?.get(0))
         assertEquals(11.5f, second.temperatures?.get(1))

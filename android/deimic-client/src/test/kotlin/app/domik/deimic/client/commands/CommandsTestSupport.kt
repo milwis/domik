@@ -16,6 +16,7 @@ import app.domik.deimic.protocol.Bytes
 import app.domik.deimic.protocol.CommandCode
 import app.domik.deimic.protocol.Frame
 import app.domik.deimic.protocol.HeatingProfile
+import app.domik.deimic.protocol.InputCalibration
 import app.domik.deimic.protocol.ShutterDirection
 import app.domik.deimic.protocol.StateField
 import app.domik.deimic.protocol.StateFormat
@@ -115,6 +116,18 @@ class FakeDevice {
     /** Accept (acknowledge) writes but do not change anything. */
     var applyWrites = true
 
+    /** Calibration records of the analog inputs (input 0 first), as 0x131 returns them. */
+    val calibrations = MutableList(12) { InputCalibration.INACTIVE }
+
+    /** Send the 0x132 confirmation (echo of the payload) after a calibration write. */
+    var sendCalibrationEcho = true
+
+    /** The 0x132 confirmation carries this payload instead of the echo. */
+    var calibrationEchoOverride: Bytes? = null
+
+    /** 0x131 / 0x132 responses carry this address instead of the request's (another module answering). */
+    var calibrationAddressOverride: UInt? = null
+
     fun zone(module: Int, outputNr: Int): Zone = zones.getOrPut(module to outputNr) { Zone() }
 
     fun handle(transport: InMemoryTransport, frame: Frame) {
@@ -163,6 +176,27 @@ class FakeDevice {
                 if (applyWrites) shutters[module to nr] = after
                 if (sendShutterEvents) transport.deliver(shutterEvent(module, nr, if (applyWrites) after else before))
             }
+            CommandCode.INPUT_CALIBRATION_SET -> {
+                val input = frame.payload[0].toInt()
+                if (applyWrites && input < calibrations.size) calibrations[input] = InputCalibration.decode(ByteReader(frame.payload), 1)
+                if (sendCalibrationEcho) {
+                    transport.deliver(
+                        controllerFrame(
+                            CommandCode.INPUT_CALIBRATION_SET,
+                            calibrationEchoOverride ?: frame.payload,
+                            address = calibrationAddressOverride ?: frame.address,
+                        ),
+                    )
+                }
+            }
+            CommandCode.INPUT_CALIBRATION_GET -> {
+                if (answerReads) {
+                    val table = calibrations.fold(Bytes.EMPTY) { acc, record -> acc + record.encode() }
+                    transport.deliver(
+                        controllerFrame(CommandCode.INPUT_CALIBRATION_GET, table, address = calibrationAddressOverride ?: frame.address),
+                    )
+                }
+            }
             CommandCode.HEATER_STATE -> {
                 val nr = frame.payload[0].toInt()
                 if (answerReads) transport.deliver(heaterStateFrame(module, nr, zone(module, nr)))
@@ -185,7 +219,7 @@ class FakeDevice {
         get() = received.filter {
             it.command in setOf(
                 CommandCode.OUTPUT_ON, CommandCode.OUTPUT_OFF, CommandCode.SET_SETPOINT, CommandCode.SET_PROFILE,
-                CommandCode.SHUTTER_UP, CommandCode.SHUTTER_DOWN, CommandCode.SHUTTER_STOP,
+                CommandCode.SHUTTER_UP, CommandCode.SHUTTER_DOWN, CommandCode.SHUTTER_STOP, CommandCode.INPUT_CALIBRATION_SET,
             )
         }
 }

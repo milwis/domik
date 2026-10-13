@@ -1,4 +1,5 @@
 import java.util.Properties
+import javax.inject.Inject
 
 // AGP 9: wbudowana obsługa Kotlina – bez wtyczki org.jetbrains.kotlin.android.
 plugins {
@@ -16,6 +17,46 @@ val localProperties = loadProperties("local.properties")
 // Opcjonalny podpis release – android/keystore.properties (poza gitem). Brak pliku = release niepodpisany.
 val keystoreProperties = loadProperties("keystore.properties")
 
+// Pełne teksty prawne w aplikacji (offline): przy buildzie kopiujemy 4 dokumenty z katalogu legal/ (jedyne źródło
+// prawdy, żadnych duplikatów w repozytorium) do wygenerowanego katalogu assets (assets/legal/…). Makiety ekranów
+// (legal/ekrany-aplikacji.md, legal/en/app-screens.md) NIE są kopiowane. Lista musi się zgadzać z LegalDocument
+// (pilnuje tego LegalDocumentsTest).
+abstract class CopyLegalAssets @Inject constructor(private val fileSystem: FileSystemOperations) : DefaultTask() {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val legalDir: DirectoryProperty
+
+    @get:Input
+    abstract val files: ListProperty<String>
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun copy() {
+        val source = legalDir.get().asFile
+        val missing = files.get().filterNot { source.resolve(it).isFile }
+        if (missing.isNotEmpty()) throw GradleException("Brak dokumentów prawnych w ${source.path}: $missing")
+        fileSystem.sync {
+            from(source) { include(files.get()) }
+            into(outputDir.get().dir("legal"))
+        }
+    }
+}
+
+val copyLegalAssets = tasks.register<CopyLegalAssets>("copyLegalAssets") {
+    // android/ jest korzeniem projektu Gradle, legal/ leży obok (w repozytorium publicznym tak samo).
+    legalDir.set(rootProject.layout.projectDirectory.dir("../legal"))
+    files.set(listOf("regulamin.md", "polityka-prywatnosci.md", "en/terms.md", "en/privacy-policy.md"))
+    outputDir.set(layout.buildDirectory.dir("generated/legalAssets"))
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyLegalAssets, CopyLegalAssets::outputDir)
+    }
+}
+
 android {
     namespace = "app.domik"
     compileSdk = 37
@@ -27,8 +68,8 @@ android {
         // targetSdk 37 (Android 17) wymusza uprawnienie runtime ACCESS_LOCAL_NETWORK dla połączeń TCP w LAN –
         // na razie zostajemy na 36, dopóki aplikacja nie obsługuje tego uprawnienia.
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
     }
 
     signingConfigs {
@@ -76,6 +117,7 @@ dependencies {
     implementation(project(":deimic-client"))
     implementation(project(":deimic-config"))
     implementation(project(":demo"))
+    implementation(project(":thermo"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
