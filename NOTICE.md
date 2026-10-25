@@ -46,6 +46,14 @@ tych bibliotek (głównie AndroidX, również na licencji Apache-2.0).
 | AndroidX Lifecycle (`lifecycle-viewmodel-compose`, `lifecycle-runtime-compose`) – Google | Apache-2.0 |
 | Jetpack Compose (`compose-bom`, `ui`, `ui-graphics`, `ui-tooling-preview`) – Google | Apache-2.0 |
 | Material 3 dla Compose (`androidx.compose.material3:material3`) – Google | Apache-2.0 |
+| Conscrypt (`org.conscrypt:conscrypt-android`) – Google; dołączony stos TLS, używany wyłącznie do połączenia ze sterownikiem | Apache-2.0 (zawiera BoringSSL, patrz niżej) |
+
+Conscrypt zawiera w bibliotece natywnej (`libconscrypt_jni.so`) kod **BoringSSL** (Google; licencja Apache-2.0, w tym
+fiat-crypto – Apache-2.0), opisany w repozytoriach <https://github.com/google/conscrypt> i
+<https://boringssl.googlesource.com/boringssl>. Pełne noty licencyjne (pliki `NOTICE` i `LICENSE` Conscrypt 2.8.0 oraz
+`LICENSE` BoringSSL, bez zmian) znajdują się w `android/app/src/main/res/raw/notice_conscrypt.txt` i są dostępne w aplikacji
+(„O aplikacji” → Licencje open source → Conscrypt). Conscrypt obejmuje też krótkie noty trzecich stron: BSD-3-Clause
+(The Chromium Authors – tablica `cert_verify_proc_blocklist`) oraz domenę publiczną NIST (dane testowe, nie trafiają do APK).
 
 Do aplikacji nie są dołączane żadne biblioteki reklamowe, analityczne ani śledzące, a pliki czcionek nie są
 dołączane – używana jest czcionka systemowa. Odczyt bazy konfiguracji sterownika (SQLite) i odczyt odpowiedzi JSON

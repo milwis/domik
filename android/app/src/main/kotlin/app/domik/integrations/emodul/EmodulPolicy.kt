@@ -23,7 +23,8 @@ sealed interface EmodulFailure {
 /**
  * Zasady odświeżania, ponawiania i „nieaktualności” danych eModul (czyste funkcje, czas przekazywany jawnie).
  *
- *  - lista modułów: co [MODULES_INTERVAL_MILLIS] (6 h),
+ *  - lista modułów: co [MODULES_INTERVAL_MILLIS] (6 h); gdy któryś moduł jest offline – co
+ *    [MODULES_OFFLINE_INTERVAL_MILLIS] (5 min), żeby powrót modułu był widoczny bez czekania 6 h,
  *  - moduł: co [MODULE_INTERVAL_MILLIS] (60 s) przy otwartym pulpicie; po powrocie na pierwszy plan, jeśli dane
  *    starsze niż [RESUME_MAX_AGE_MILLIS] (30 s),
  *  - menu MU/MI: co [MENU_INTERVAL_MILLIS] (15 min),
@@ -33,6 +34,7 @@ sealed interface EmodulFailure {
  */
 object EmodulPolicy {
     const val MODULES_INTERVAL_MILLIS = 6L * 60L * 60_000L
+    const val MODULES_OFFLINE_INTERVAL_MILLIS = 5L * 60_000L
     const val MODULE_INTERVAL_MILLIS = 60_000L
     const val MENU_INTERVAL_MILLIS = 15L * 60_000L
     const val I18N_INTERVAL_MILLIS = 24L * 60L * 60_000L
@@ -113,6 +115,10 @@ object EmodulPolicy {
         else -> backoffMillis(consecutiveFailures.coerceAtLeast(1))
     }
 
+    /** Interwał odświeżania listy modułów: krótszy, gdy któryś moduł jest offline ([anyOffline]). */
+    fun modulesInterval(anyOffline: Boolean): Long =
+        if (anyOffline) MODULES_OFFLINE_INTERVAL_MILLIS else MODULES_INTERVAL_MILLIS
+
     /**
      * Czy dane są nieaktualne: stan sterownika ([lastUpdate], `tilesLastUpdate`) starszy niż [STALE_AFTER_MILLIS]
      * albo ostatni udany odczyt ([fetchedAtMillis]) starszy niż [STALE_AFTER_MILLIS]. Brak obu = nieaktualne.
@@ -127,15 +133,18 @@ object EmodulPolicy {
      *  - [EmodulStaleness.CloudUnreachable] – ostatni udany odczyt z chmury ([fetchedAtMillis]) starszy niż
      *    [STALE_AFTER_MILLIS] albo go nie było (dane z pliku): to tablet bez internetu / serwer niedostępny;
      *  - [EmodulStaleness.ControllerSilent] – chmura odpowiada, ale stan sterownika ([lastUpdate], `tilesLastUpdate`)
-     *    jest starszy niż [STALE_AFTER_MILLIS] albo moduł jest offline ([online] = false);
-     *  - [EmodulStaleness.Fresh] w pozostałych przypadkach (brak [lastUpdate] u modułu online = świeże).
+     *    jest starszy niż [STALE_AFTER_MILLIS] albo moduł jest offline ([online] = false) i nie ma [lastUpdate];
+     *  - [EmodulStaleness.Fresh] w pozostałych przypadkach (brak [lastUpdate] u modułu online = świeże). Świeży
+     *    [lastUpdate] ma pierwszeństwo przed [online] = false: status z listy modułów odświeżany jest rzadko i po
+     *    przerwie w łączności bywa nieaktualny, a świeży `tilesLastUpdate` dowodzi, że sterownik nadaje.
      */
     fun staleness(lastUpdate: Instant?, fetchedAtMillis: Long?, online: Boolean, nowMillis: Long): EmodulStaleness {
         if (fetchedAtMillis == null || age(fetchedAtMillis, nowMillis) > STALE_AFTER_MILLIS) {
             return EmodulStaleness.CloudUnreachable(fetchedAtMillis?.let(Instant::ofEpochMilli))
         }
         val controllerOld = lastUpdate != null && age(lastUpdate.toEpochMilli(), nowMillis) > STALE_AFTER_MILLIS
-        return if (controllerOld || !online) EmodulStaleness.ControllerSilent(lastUpdate) else EmodulStaleness.Fresh
+        val offline = !online && lastUpdate == null
+        return if (controllerOld || offline) EmodulStaleness.ControllerSilent(lastUpdate) else EmodulStaleness.Fresh
     }
 }
 

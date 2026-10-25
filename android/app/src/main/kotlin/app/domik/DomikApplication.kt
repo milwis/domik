@@ -2,9 +2,11 @@ package app.domik
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import app.domik.data.AesGcmCipher
 import app.domik.data.AppEnvironment
 import app.domik.data.AppSettings
+import app.domik.data.diagnosticsHeader
 import app.domik.deimic.config.FileConfigCache
 import app.domik.integrations.calendar.ContentResolverCalendarSource
 import app.domik.integrations.emodul.EmodulCloudApi
@@ -17,6 +19,7 @@ import app.domik.integrations.weather.FileWeatherCache
 import app.domik.integrations.weather.OpenMeteoSource
 import app.domik.platform.AndroidBleThermometerScanner
 import app.domik.platform.AndroidKeystoreKeySource
+import app.domik.platform.readAppVersion
 import app.domik.platform.SharedPreferencesKeyValueStore
 import java.io.File
 
@@ -51,6 +54,10 @@ class DomikApplication : Application() {
             emodulStore = EmodulStore(File(filesDir, "emodul")),
             emodulLanguage = { getString(R.string.emodul_language) },
             emodulFallbacks = EmodulFallbacks { kind, number -> getString(fallbackResource(kind), number) },
+            // Nagłówek raportu z testu połączenia (do wklejenia na forum): wersja aplikacji, Android, model urządzenia.
+            diagnosticsHeader = {
+                diagnosticsHeader(readAppVersion(this), Build.VERSION.RELEASE, Build.VERSION.SDK_INT, Build.MANUFACTURER, Build.MODEL)
+            },
         )
     }
 

@@ -24,10 +24,10 @@ class OpenSourceLicensesTest {
     }
 
     @Test
-    fun `atrybucja Open-Meteo prowadzi do serwisu a tylko ikony maja dolaczona informacje o licencji`() {
+    fun `atrybucja Open-Meteo prowadzi do serwisu a tylko Conscrypt i ikony maja dolaczona informacje o licencji`() {
         val weather = items.single { it.component == OpenSourceComponent.OpenMeteo }
         assertEquals(ProjectLinks.OPEN_METEO, weather.link)
-        assertEquals(listOf(OpenSourceComponent.MaterialIcons), items.filter { it.hasNoticeText }.map { it.component })
+        assertEquals(listOf(OpenSourceComponent.Conscrypt, OpenSourceComponent.MaterialIcons), items.filter { it.hasNoticeText }.map { it.component })
         assertNull(items.single { it.component == OpenSourceComponent.Kotlin }.link)
     }
 
@@ -45,6 +45,17 @@ class OpenSourceLicensesTest {
         assertTrue(text.contains("END OF TERMS AND CONDITIONS"))
     }
 
+    @Test
+    fun `plik z informacja o licencji Conscrypt zawiera noty Conscrypt BoringSSL i pelny tekst Apache-2_0`() {
+        val text = moduleFile("src/main/res/raw/notice_conscrypt.txt").readText()
+        assertTrue(text.contains("Conscrypt"))
+        assertTrue(text.contains("BoringSSL"))
+        assertTrue(text.contains("Copyright 2016 The Android Open Source Project"))
+        assertTrue(text.contains("Version 2.0, January 2004"))
+        assertTrue(text.contains("END OF TERMS AND CONDITIONS"))
+        assertTrue(text.contains("fiat-crypto"))
+    }
+
     /** Biblioteki z katalogu wersji, które nie trafiają do APK (testy, narzędzia debug). */
     private val notShipped = setOf("androidx-compose-ui-tooling", "kotlinx-coroutines-test", "junit-bom", "junit-jupiter", "junit-platform-launcher")
 
@@ -57,6 +68,7 @@ class OpenSourceLicensesTest {
         "androidx.compose.ui" to OpenSourceComponent.JetpackCompose,
         "androidx.compose.material3" to OpenSourceComponent.Material3,
         "org.jetbrains.kotlinx" to OpenSourceComponent.KotlinxCoroutines,
+        "org.conscrypt" to OpenSourceComponent.Conscrypt,
     )
 
     @Test

@@ -701,14 +701,34 @@ class EmodulModelTest {
     }
 
     @Test
-    fun `modul offline daje ControllerSilent`() = runTest {
+    fun `modul offline z nieswiezymi danymi daje ControllerSilent`() = runTest {
         val api = FakeApi().apply { modulesJson = EmodulFixtures.modulesJson.replace("\"active\"", "\"inactive\"") }
         val model = newModel(api)
         settings.acceptNotice()
         save(model)
-
         assertFalse(ready(model).modules.single().info.online)
+
+        now += 16 * 60_000L
+        model.refreshDue()
         assertTrue(model.attention(setOf(1)) is EmodulAttention.ControllerSilent)
+    }
+
+    @Test
+    fun `nieaktualny status offline nie daje paska przy swiezych danych i znika po odswiezeniu listy co 5 minut`() = runTest {
+        // Lista modułów pobrana w trakcie przerwy („inactive”), a sterownik już nadaje świeże tilesLastUpdate.
+        val api = FakeApi().apply { modulesJson = EmodulFixtures.modulesJson.replace("\"active\"", "\"inactive\"") }
+        val model = newModel(api)
+        settings.acceptNotice()
+        save(model)
+        assertFalse(ready(model).modules.single().info.online)
+        assertEquals(EmodulAttention.None, model.attention(setOf(1)))
+
+        api.modulesJson = EmodulFixtures.modulesJson
+        api.calls.clear()
+        now += 5 * 60_000L + 1
+        model.refreshDue()
+        assertEquals(1, api.count("modules"))
+        assertTrue(ready(model).modules.single().info.online)
     }
 
     @Test

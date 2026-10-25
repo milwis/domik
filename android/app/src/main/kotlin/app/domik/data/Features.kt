@@ -15,9 +15,11 @@ object Features {
     /**
      * Rzeczywisty zapis kalibracji czujników (0x132) przez moduł termometrów Xiaomi (`notes/THERMOSTATS.md` §3).
      *
-     * Dopóki `false`, tryb rzeczywisty jest zablokowany: korekta działa wyłącznie w trybie próbnym (decyzje tylko
-     * w dzienniku – pomiar fazy 1). Wyjątek: sesja demo, gdzie zapis trafia do symulatora. Zmiana na `true` dopiero
-     * za zgodą właściciela, po pomiarze częstości kalibracji.
+     * Wyłączone w wydaniu 0.2.1 do czasu zmiany regulaminu (§ 4 ust. 3 i § 12 ust. 1: „nie zmienia zapisanej
+     * konfiguracji sterownika") – decyzja właściciela 2026-10-25. Wcześniej włączone za zgodą właściciela
+     * (2026-10-14, po fazie 1 pomiaru częstości). Wartość `false` blokuje tryb rzeczywisty: korekta działa wyłącznie
+     * w trybie próbnym (decyzje tylko w dzienniku); wyjątek: sesja demo, gdzie zapis trafia do symulatora.
+     * Wartość `true` + wyłączenie trybu próbnego przez użytkownika = realne zapisy.
      */
     const val SENSOR_CALIBRATION_WRITES: Boolean = false
 }

@@ -25,8 +25,11 @@ class NoticeTextTest {
     }
 
     @Test
-    fun `uklad pliku z informacja o licencji nie zmienia ani jednego slowa`() {
-        val raw = moduleFile("src/main/res/raw/notice_material_icons.txt").readText()
+    fun `uklad plikow z informacja o licencji nie zmienia ani jednego slowa`() {
+        for (name in listOf("notice_material_icons", "notice_conscrypt")) checkLayout(moduleFile("src/main/res/raw/$name.txt").readText())
+    }
+
+    private fun checkLayout(raw: String) {
         val reflowed = reflowNoticeText(raw)
         fun words(text: String) = text.split(Regex("\\s+")).filter { it.isNotEmpty() && !it.all { c -> c == '=' } }
         assertEquals(words(raw), words(reflowed))

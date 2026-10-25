@@ -41,10 +41,29 @@ a Domik pokaże jego odczyt obok temperatury zadanej i porówna go z czujnikiem 
 | Model (na pudełku / naklejce) | Nazwa handlowa | Uwagi |
 |---|---|---|
 | **MJWSD06MMC** | Xiaomi Smart Temperature and Humidity Monitor 3 **Mini** | Sprawdzony z Domikiem (HW V1.3, fabryczne oprogramowanie 2.1.1_0009). Wszystkie kroki 1–14. |
+| **MJWSD05MMC** | Xiaomi Monitor 3 (dwa przyciski, BHR9041GL) | Sprawdzony z Domikiem, 6 sztuk. **Nie wymaga Xiaomi Home ani kluczy** – wgrywasz według skróconej procedury z ramki poniżej (pomijasz kroki 3, 4, 5 i 8). |
 
-Inne modele obsługiwane przez pvvx (np. LYWSD03MMC, MJWSD05MMC) też zadziałają z Domikiem, ale procedura wgrania różni się
+Inne modele obsługiwane przez pvvx (np. LYWSD03MMC) też zadziałają z Domikiem, ale procedura wgrania różni się
 szczegółami – korzystaj wtedy z [README pvvx](https://github.com/pvvx/ATC_MiThermometer#flashing-or-updating-the-firmware-ota)
 i wróć tu od kroku 7.
+
+> ### MJWSD05MMC – skrócona procedura (bez Xiaomi Home)
+>
+> Termometru **MJWSD05MMC nie trzeba dodawać do aplikacji Xiaomi Home** ani odczytywać jego kluczy (kroki 3, 4, 5 i 8
+> tej instrukcji dotyczą tylko Mini MJWSD06MMC). Wystarczy:
+>
+> 1. Wyjmij plastikowy pasek spod klapki baterii (krok 1) i otwórz w Chrome stronę flashera (krok 2).
+> 2. Kliknij **Connect**, wybierz termometr (`MJWSD05MMC`) i **Połącz**.
+> 3. Kliknij **Do Activation** i poczekaj, aż w logu pojawi się informacja o zakończeniu.
+> 4. Kliknij propozycję strony **Custom Firmware** w wersji **5.9** (od 6.0 Domik jeszcze nie czyta formatu)
+>    → **Start Flashing**. Nie ruszaj komputera ani termometru przez 1–2 minuty.
+> 5. Po restarcie połącz się ponownie z nowo widocznym urządzeniem i ustaw format reklam **PVVX (Custom)** według
+>    [kroku 7](#7-ustawienia-termometru-ważne).
+>
+> **Jeśli łączenie albo aktywacja nie działa:** naciśnij na termometrze **przycisk łączenia Bluetooth** (przycisk „Connect”)
+> na moment **tuż przed** kliknięciem **Połącz** i spróbuj ponownie.
+>
+> Nie przytrzymuj przycisku długo – długie przytrzymanie resetuje termometr.
 
 **Komputer albo telefon z przeglądarką Google Chrome** (albo Edge / Opera) i Bluetooth:
 - Mac lub komputer z Windows – najwygodniej;
@@ -113,6 +132,8 @@ Ten krok niczego nie zmienia w termometrze – tylko odczytuje, z czym mamy do c
 ---
 
 ## 3. Dodanie termometrów do aplikacji Xiaomi Home
+
+> **Dotyczy tylko Mini (MJWSD06MMC).** MJWSD05MMC pomiń kroki 3–5 i 8 – patrz ramka w [kroku 0](#0-czego-potrzebujesz).
 
 > **Masz kilka termometrów? Dodaj w tym kroku od razu wszystkie, jeden po drugim.** Wtedy program z kroku 4 uruchamiasz
 > tylko raz i wypisze klucze wszystkich termometrów naraz. Dalej (kroki 5–7) wgrywasz je już po kolei, jeden po drugim.
@@ -272,6 +293,8 @@ Po wgraniu termometr nadaje w formacie **BTHome**. Domik czyta format **PVVX (Cu
 
 ## 8. Usunięcie z Xiaomi Home
 
+> **Dotyczy tylko Mini (MJWSD06MMC)** – MJWSD05MMC nie był w Xiaomi Home, więc nie ma czego usuwać.
+
 Termometr z oprogramowaniem pvvx nie działa już z aplikacją Xiaomi Home. Usuń go tam: otwórz Xiaomi Home → stuknij
 termometr → menu (⋯) → **Usuń urządzenie**. Konto Xiaomi i aplikacja nie są dalej potrzebne (chyba że przygotowujesz
 kolejne termometry – patrz krok 11).
@@ -315,6 +338,9 @@ Na tablecie, na którym działa Domik (ten, który wisi na ścianie i jest poł�
 
 ## 11. Kolejne termometry
 
+> **MJWSD05MMC:** każdy termometr wgrywasz osobno według ramki w [kroku 0](#0-czego-potrzebujesz) – bez kluczy i bez Xiaomi Home.
+> Poniższe dotyczy Mini (MJWSD06MMC).
+
 Każdy termometr ma **własne klucze** (TOKEN i BLE KEY). Najprościej:
 
 1. W kroku 3 dodaj do Xiaomi Home **wszystkie** termometry (każdy z nazwą pokoju i karteczką).
@@ -333,6 +359,7 @@ do katalogu `token_extractor` i wykonać ostatnie polecenie, jeśli go nie usun�
 | Objaw | Co zrobić |
 |---|---|
 | Na liście w oknie **Connect** nie ma termometru | Zamknij Chrome całkowicie i otwórz ponownie. Zatrzymaj Xiaomi Home na telefonie i wyłącz w nim Bluetooth. Wyczyść pole „BLE device name prefix filter(s)”. Wyjmij baterię na 10 s i włóż z powrotem (to tylko restart – nie kasuje kluczy ani ustawień). |
+| MJWSD05MMC: łączenie lub **Do Activation** nie działa | Naciśnij na termometrze **przycisk łączenia Bluetooth** na moment tuż przed kliknięciem **Połącz** (albo przed ponowną próbą aktywacji). Nie przytrzymuj go długo. |
 | Łączenie trwa długo albo się nie udaje | Kliknij **Disconnect**, potem **Reconnect**. Połóż termometr tuż obok komputera. Pomaga też użycie innego urządzenia – np. Chrome na telefonie z Androidem (patrz niżej). |
 | **„not registered”** po kliknięciu Login | Klucze nie pasują do termometru. Przy kilku termometrach najpierw sprawdź, czy to nie klucze innego z listy (spróbuj kolejnych). W przeciwnym razie najczęściej to skutek przytrzymania przycisku (reset) albo usunięcia z Xiaomi Home. Usuń termometr z Xiaomi Home, dodaj go ponownie (krok 3) i odczytaj **nowe** klucze (krok 4). |
 | Strona ostrzega o długości klucza | Token i Bind Key są zamienione miejscami albo skopiowane ze spacją. Token = 24 znaki, Bind Key = 32 znaki. |

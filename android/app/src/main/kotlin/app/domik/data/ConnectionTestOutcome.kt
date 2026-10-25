@@ -66,7 +66,7 @@ fun interface ConnectionTestRunner {
     companion object {
         /** Prawdziwy test: TLS → ping → wersja oprogramowania → suma kontrolna konfiguracji (same odczyty). */
         val Default: ConnectionTestRunner = ConnectionTestRunner { input ->
-            ConnectionTester().run(ControllerEndpoint(input.host, input.port), input.serial)
+            ConnectionTester(ControllerTls.transportFactory).run(ControllerEndpoint(input.host, input.port), input.serial)
         }
     }
 }

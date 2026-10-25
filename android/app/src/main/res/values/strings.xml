@@ -249,6 +249,8 @@
     <string name="connection_test_no_response">Połączono, ale sterownik nie odpowiada na polecenia. Najczęściej oznacza to błędny numer seryjny.</string>
     <string name="connection_test_lost">Połączenie zostało zerwane w trakcie testu. Spróbuj ponownie.</string>
     <string name="connection_test_other">Test nie powiódł się z nieznanego powodu.</string>
+    <string name="connection_diagnostics_copy">Kopiuj diagnostykę</string>
+    <string name="connection_diagnostics_copied">Skopiowano – wklej w wiadomości</string>
     <string name="connection_save">Zapisz i połącz</string>
     <string name="connection_cancel">Anuluj</string>
     <string name="connection_forget">Usuń zapisany sterownik</string>
@@ -468,6 +470,7 @@
     <string name="oss_name_kotlin">Kotlin (biblioteka standardowa)</string>
     <string name="oss_name_coroutines" translatable="false">kotlinx.coroutines</string>
     <string name="oss_name_androidx" translatable="false">AndroidX</string>
+    <string name="oss_name_conscrypt" translatable="false">Conscrypt (BoringSSL)</string>
     <string name="oss_name_compose" translatable="false">Jetpack Compose</string>
     <string name="oss_name_material3">Material 3 dla Compose</string>
     <string name="oss_name_icons">Ikony: Material Icons</string>
@@ -476,6 +479,7 @@
     <string name="license_name_apache2" translatable="false">Apache-2.0</string>
     <string name="license_name_cc_by_4" translatable="false">CC BY 4.0</string>
     <string name="about_notice_show">Pokaż informację o licencji ikon i pełny tekst Apache-2.0</string>
+    <string name="about_notice_show_conscrypt">Pokaż noty licencyjne Conscrypt i BoringSSL oraz pełny tekst Apache-2.0</string>
     <string name="about_notice_hide">Ukryj informację o licencji</string>
     <string name="about_notice_unavailable">Nie udało się wczytać informacji o licencji.</string>
     <string name="about_apache_title">Licencja Apache-2.0 – skrót</string>

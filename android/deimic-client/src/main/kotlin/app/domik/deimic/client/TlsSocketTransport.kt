@@ -8,6 +8,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.security.Provider
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import kotlin.time.Duration
@@ -21,6 +22,9 @@ import kotlin.time.Duration.Companion.seconds
  * not enabled (no endpoint identification algorithm is set on the socket).
  *
  * Blocking socket calls run on [ioDispatcher]; [close] unblocks a pending connect / read.
+ *
+ * A failed [connect] throws a [ConnectionException] carrying [TlsDiagnostics] (provider, phase, error chain,
+ * certificate fingerprints, protocols); a successful one exposes them in [info].
  */
 class TlsSocketTransport(
     private val endpoint: ControllerEndpoint,
@@ -41,7 +45,28 @@ class TlsSocketTransport(
          */
         val requiredCipherSuites: List<String> = CipherSuitePolicy.CONTROLLER_SUITES,
         val readBufferSize: Int = 16 * 1024,
+        /**
+         * TLS implementation to create the `SSLContext` with (`SSLContext.getInstance("TLS", provider)`); null = the
+         * platform's default one. It is only passed to this transport and never installed process-wide, so other
+         * TLS users in the same process are unaffected.
+         */
+        val provider: Provider? = null,
+        /** Free-text remark about the provider choice, shown in [TlsDiagnostics] (e.g. why a fallback was used). */
+        val providerNote: String? = null,
     )
+
+    /** What is known about the connection attempt so far; read only to build [TlsDiagnostics]. */
+    private class Attempt(val pinnedSha1: String) {
+        @Volatile var provider: String = "unknown"
+        @Volatile var phase: TlsPhase = TlsPhase.TCP_CONNECT
+        @Volatile var trustManager: PinnedCertificateTrustManager? = null
+        @Volatile var enabledProtocols: List<String> = emptyList()
+        @Volatile var supportedProtocols: List<String> = emptyList()
+        @Volatile var suiteSupported: Boolean? = null
+        @Volatile var suiteEnabled: Boolean? = null
+    }
+
+    private val attempt = Attempt(runCatching { CertificatePinning.normalize(options.pinnedSha1) }.getOrDefault(options.pinnedSha1))
 
     private val lock = Any()
     private var rawSocket: Socket? = null
@@ -62,16 +87,47 @@ class TlsSocketTransport(
         } catch (error: Throwable) {
             val closedByCaller = closed
             close()
+            val diagnostics = diagnosticsOf(error)
             if (closedByCaller && error !is ConnectionException) {
-                throw ConnectionException(ConnectionErrors.classify(error), "connection closed while connecting", error)
+                throw ConnectionException(
+                    ConnectionErrors.classify(error), "connection closed while connecting", error, diagnostics,
+                )
             }
-            throw ConnectionErrors.wrap(error)
+            val wrapped = ConnectionErrors.wrap(error)
+            if (wrapped.diagnostics != null) throw wrapped
+            throw ConnectionException(wrapped.problem, wrapped.message.orEmpty(), wrapped.cause, diagnostics)
         }
     }
 
+    private fun diagnosticsOf(error: Throwable?): TlsDiagnostics {
+        val presented = attempt.trustManager?.lastPresentedSha1
+        val pinMismatch = generateSequence(error) { it.cause?.takeIf { cause -> cause !== it } }
+            .take(16).any { it is CertificatePinMismatchException }
+        val phase = if (error != null && pinMismatch) TlsPhase.CERTIFICATE_CHECK else attempt.phase
+        return TlsDiagnostics(
+            provider = attempt.provider,
+            providerNote = options.providerNote,
+            phase = phase,
+            errorChain = error?.let { TlsDiagnostics.errorChain(it) }.orEmpty(),
+            presentedSha1 = presented,
+            expectedSha1 = attempt.pinnedSha1,
+            enabledProtocols = attempt.enabledProtocols,
+            supportedProtocols = attempt.supportedProtocols,
+            controllerSuiteSupported = attempt.suiteSupported,
+            controllerSuiteEnabled = attempt.suiteEnabled,
+        )
+    }
+
+    @Suppress("DEPRECATION") // Provider.getVersionStr() needs API 34 on Android; getVersion() exists everywhere.
+    private fun describe(provider: Provider): String = "${provider.name} ${provider.version}"
+
     private fun openBlocking() {
         val trustManager = PinnedCertificateTrustManager(options.pinnedSha1)
-        val context = SSLContext.getInstance("TLS").apply { init(null, arrayOf(trustManager), null) }
+        attempt.trustManager = trustManager
+        attempt.provider = options.provider?.let(::describe) ?: "platform default"
+        val context = (options.provider?.let { SSLContext.getInstance("TLS", it) } ?: SSLContext.getInstance("TLS"))
+            .apply { init(null, arrayOf(trustManager), null) }
+        attempt.provider = describe(context.provider)
 
         val plain = Socket()
         synchronized(lock) {
@@ -82,11 +138,13 @@ class TlsSocketTransport(
         plain.keepAlive = true
         plain.connect(InetSocketAddress(endpoint.host, endpoint.port), options.connectTimeout.inWholeMillisecondsInt())
 
+        attempt.phase = TlsPhase.TLS_HANDSHAKE
         val socket = context.socketFactory.createSocket(plain, endpoint.host, endpoint.port, true) as SSLSocket
         synchronized(lock) {
             if (closed) throw ConnectionException(ConnectionProblem.OTHER, "transport closed")
             tlsSocket = socket
         }
+        attempt.supportedProtocols = socket.supportedProtocols.toList()
         val protocols = options.protocols.filter { it in socket.supportedProtocols }
         if (protocols.isEmpty()) {
             throw ConnectionException(ConnectionProblem.TLS_FAILED, "none of ${options.protocols} is supported")
@@ -95,8 +153,12 @@ class TlsSocketTransport(
         socket.enabledCipherSuites = CipherSuitePolicy.withRequired(
             socket.enabledCipherSuites, socket.supportedCipherSuites, options.requiredCipherSuites,
         )
+        attempt.enabledProtocols = socket.enabledProtocols.toList()
+        attempt.suiteSupported = CipherSuitePolicy.CONTROLLER_SUITE in socket.supportedCipherSuites
+        attempt.suiteEnabled = CipherSuitePolicy.CONTROLLER_SUITE in socket.enabledCipherSuites
         socket.soTimeout = options.handshakeTimeout.inWholeMillisecondsInt()
         socket.startHandshake()
+        attempt.phase = TlsPhase.ESTABLISHED
         // Liveness is supervised by the connection (keepalive + watchdog); reads block until data or close.
         socket.soTimeout = 0
 
@@ -107,6 +169,11 @@ class TlsSocketTransport(
             protocol = session.protocol,
             cipherSuite = session.cipherSuite,
             certificateSha1 = CertificatePinning.sha1Hex(leaf.encoded),
+            diagnostics = diagnosticsOf(null).copy(
+                negotiatedProtocol = session.protocol,
+                negotiatedCipherSuite = session.cipherSuite,
+                presentedSha1 = CertificatePinning.sha1Hex(leaf.encoded),
+            ),
         )
         input = socket.inputStream
         output = socket.outputStream

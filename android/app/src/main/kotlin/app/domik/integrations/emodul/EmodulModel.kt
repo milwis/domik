@@ -414,8 +414,9 @@ class EmodulModel(
             return call()
         }
         try {
-            // 1. Lista modułów (przy starcie, po zmianie klucza, co 6 h).
-            if (EmodulPolicy.needsRefresh(modulesAt, clock(), EmodulPolicy.MODULES_INTERVAL_MILLIS)) {
+            // 1. Lista modułów (przy starcie, po zmianie klucza, co 6 h; co 5 min, gdy któryś moduł jest offline).
+            val (listedAt, listInterval) = synchronized(lock) { modulesAt to modulesInterval() }
+            if (EmodulPolicy.needsRefresh(listedAt, clock(), listInterval)) {
                 val raw = request { activeApi.modules(activeKey) }
                 val list = EmodulParser.parseModules(raw)
                 applyModules(epochAtStart, list, raw)
@@ -524,7 +525,7 @@ class EmodulModel(
         settled = true
         publish()
         val now = clock()
-        var next = EmodulPolicy.delayUntilDue(modulesAt, now, EmodulPolicy.MODULES_INTERVAL_MILLIS)
+        var next = EmodulPolicy.delayUntilDue(modulesAt, now, modulesInterval())
         for (entry in registry) {
             if (!entry.enabled || !isPresent(entry)) continue
             next = minOf(next, EmodulPolicy.delayUntilDue(slotData[entry.slot]?.snapshotAt, now, EmodulPolicy.MODULE_INTERVAL_MILLIS))
@@ -795,6 +796,9 @@ class EmodulModel(
         lastError = null
         settled = false
     }
+
+    /** Interwał odświeżania listy modułów (krótszy, gdy któryś znany moduł jest offline). Wołać pod [lock]. */
+    private fun modulesInterval(): Long = EmodulPolicy.modulesInterval(infos?.values?.any { !it.online } == true)
 
     /** Integracja istnieje: jest klucz, a w trybie demo – zapisany kreator. Wołać pod [lock]. */
     private fun configured(): Boolean = if (demo) demoConfigured else key != null

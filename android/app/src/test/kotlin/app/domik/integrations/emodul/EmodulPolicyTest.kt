@@ -133,10 +133,23 @@ class EmodulPolicyTest {
     }
 
     @Test
-    fun `modul offline to cisza sterownika nawet ze swiezym tilesLastUpdate`() {
-        val fresh = Instant.ofEpochMilli(now - minute)
-        assertEquals(EmodulStaleness.ControllerSilent(fresh), EmodulPolicy.staleness(fresh, now - minute, false, now))
+    fun `modul offline bez tilesLastUpdate albo ze starym to cisza sterownika`() {
+        val old = Instant.ofEpochMilli(now - 15 * minute - 1)
         assertEquals(EmodulStaleness.ControllerSilent(null), EmodulPolicy.staleness(null, now - minute, false, now))
+        assertEquals(EmodulStaleness.ControllerSilent(old), EmodulPolicy.staleness(old, now - minute, false, now))
+    }
+
+    @Test
+    fun `swiezy tilesLastUpdate ma pierwszenstwo przed nieaktualnym statusem offline z listy modulow`() {
+        // Lista modułów pobrana w trakcie przerwy („inactive”), a sterownik już nadaje – bez paska „brak komunikacji od teraz”.
+        val fresh = Instant.ofEpochMilli(now - minute)
+        assertEquals(EmodulStaleness.Fresh, EmodulPolicy.staleness(fresh, now - minute, false, now))
+    }
+
+    @Test
+    fun `lista modulow odswiezana co 5 minut gdy modul jest offline`() {
+        assertEquals(EmodulPolicy.MODULES_INTERVAL_MILLIS, EmodulPolicy.modulesInterval(anyOffline = false))
+        assertEquals(5 * minute, EmodulPolicy.modulesInterval(anyOffline = true))
     }
 
     @Test

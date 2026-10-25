@@ -185,7 +185,7 @@ class Connection(
             if (end.reachedReady) failures = 0
             val permanent = end.error.problem == ConnectionProblem.CERTIFICATE_MISMATCH
             if (permanent || failures >= config.maxReconnectAttempts) {
-                _state.value = ConnectionState.Failed(end.error.problem, end.error.message)
+                _state.value = ConnectionState.Failed(end.error.problem, end.error.message, end.error.diagnostics)
                 return
             }
             failures++
@@ -288,7 +288,10 @@ class Connection(
             transport.connect()
         } catch (error: Throwable) {
             if (timedOut && error !is CancellationException) {
-                throw ConnectionException(ConnectionProblem.TIMEOUT, "connecting took longer than ${config.connectTimeout}", error)
+                throw ConnectionException(
+                    ConnectionProblem.TIMEOUT, "connecting took longer than ${config.connectTimeout}", error,
+                    (error as? ConnectionException)?.diagnostics,
+                )
             }
             throw error
         } finally {

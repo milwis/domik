@@ -10,7 +10,7 @@ dodasz integrację – po odczyt danych sterowników TECH z serwisu eModul (patr
 > Deimic i **nie zastępuje oficjalnej aplikacji** – szczegóły w sekcji
 > [Zastrzeżenia](../README.md#zastrzeżenia) w pliku README.
 
-> Wersja **0.2.0**. Ograniczenia: patrz [na końcu](#ograniczenia-wersji-020).
+> Wersja **0.2.1**. Ograniczenia: patrz [na końcu](#ograniczenia-wersji-021).
 
 ---
 
@@ -37,7 +37,7 @@ Aplikacja nie jest w Google Play – instaluje się plik APK. Krótszy opis krok
 i odcisku podpisu – w [README](../README.md#instalacja-apk).
 
 **Sposób A – plik APK na tablecie**
-1. Pobierz plik `domik-0.2.0.apk` na tablet (z [GitHub Releases](https://github.com/milwis/domik/releases/latest)
+1. Pobierz plik `domik-0.2.1.apk` na tablet (z [GitHub Releases](https://github.com/milwis/domik/releases/latest)
    – razem z plikiem `SHA256SUMS`, albo przez kabel / dysk).
 2. Otwórz go w aplikacji **Moje pliki**. Android poprosi o zgodę na instalowanie aplikacji z tego źródła:
    **Ustawienia → Zezwól z tego źródła** (włącz), wróć i stuknij **Zainstaluj**.
@@ -49,16 +49,16 @@ i odcisku podpisu – w [README](../README.md#instalacja-apk).
 1. Na tablecie włącz *Opcje programisty* (patrz §4.1, krok 2) i w nich **Debugowanie USB**.
 2. Podłącz tablet, zaakceptuj na nim komputer, a na komputerze:
    ```bash
-   adb install -r domik-0.2.0.apk
+   adb install -r domik-0.2.1.apk
    ```
 
 **Aktualizacja z wersji 0.1.0**
-- Zainstaluj `domik-0.2.0.apk` **bezpośrednio nad starą wersją**, tym samym sposobem co pierwszą instalację
+- Zainstaluj `domik-0.2.1.apk` **bezpośrednio nad starą wersją**, tym samym sposobem co pierwszą instalację
   (bez odinstalowywania). Wszystkie wydania z GitHub Releases są podpisane tym samym kluczem, więc Android traktuje to
   jak zwykłą aktualizację i **zachowuje dane**: zapisany sterownik (adres, numer seryjny), układ pulpitu, wygląd, miejscowość pogody.
 - Dane zostają tylko wtedy, gdy podpis się zgadza. Plik zbudowany samodzielnie albo wersja testowa *debug* ma inny
   podpis – Android odmówi aktualizacji i trzeba taką wersję odinstalować (ustawienia wpiszesz wtedy od nowa).
-- Po pierwszym uruchomieniu 0.2.0 Domik pokaże **regulamin w wersji 1.1** – trzeba go **zaakceptować jeszcze raz**
+- Przy aktualizacji z 0.1.0 Domik po pierwszym uruchomieniu pokaże **regulamin w wersji 1.1** – trzeba go **zaakceptować jeszcze raz**
   (nowa wersja opisuje opcjonalną integrację z eModul i obsługę termometrów). Bez akceptacji aplikacja nie ruszy.
 
 ---
@@ -66,7 +66,7 @@ i odcisku podpisu – w [README](../README.md#instalacja-apk).
 ## 3. Pierwsze uruchomienie Domika
 
 1. Przeczytaj i zaakceptuj **regulamin** (przy zmianie regulaminu w nowej wersji aplikacja zapyta ponownie – tak jest po
-   aktualizacji z 0.1.0 do 0.2.0, regulamin ma teraz wersję 1.1).
+   aktualizacji z 0.1.0, regulamin ma teraz wersję 1.1).
 2. Wybierz **Połącz ze swoim sterownikiem** (albo **Wypróbuj tryb demo** – fikcyjny dom, bez sterownika).
 3. Wpisz:
    - **Adres** – IP sterownika,
@@ -76,6 +76,9 @@ i odcisku podpisu – w [README](../README.md#instalacja-apk).
    - *nic nie nasłuchuje / brak odpowiedzi* – zły adres, tablet w innej sieci (np. sieć gości), sterownik wyłączony;
    - *inny certyfikat* – to nie jest sterownik Deimic 1. generacji albo zły adres;
    - *sterownik nie odpowiada na komendy* – najczęściej zły numer seryjny.
+   - *problem z szyfrowanym połączeniem (TLS)* – po nieudanym teście pojawia się przycisk **Kopiuj diagnostykę**: kopiuje do
+     schowka techniczne szczegóły połączenia (bez numeru seryjnego), które możesz dołączyć do zgłoszenia problemu. Przed
+     wklejeniem sprawdź treść – może zawierać adres IP sterownika.
 5. **Zapisz**. Domik pobierze konfigurację domu ze sterownika (kilka sekund) i pokaże pulpit.
 
 Numer seryjny jest przechowywany tylko na tym tablecie, zaszyfrowany kluczem w sprzętowym magazynie kluczy Androida.
@@ -109,7 +112,7 @@ Menu ☰ → **Wygląd**: motyw jasny / ciemny / systemowy / **wg godzin** (np. 
 
 ### Termometry pokojowe (opcjonalnie, tryb próbny)
 Bezprzewodowe termometry Xiaomi z oprogramowaniem pvvx – jak je przygotować i przypisać do stref: **[TERMOMETRY.md](TERMOMETRY.md)**.
-W wersji 0.2.0 Domik pracuje z nimi w **trybie próbnym**: odbiera odczyty przez Bluetooth, pokazuje je obok temperatury
+W wersji 0.2.1 Domik pracuje z nimi w **trybie próbnym**: odbiera odczyty przez Bluetooth, pokazuje je obok temperatury
 zadanej i porównuje z czujnikiem Deimic, ale **niczego nie zapisuje do sterownika** (kalibracja czujnika jest wyłączona).
 Obsługa termometrów jest wyłączona, dopóki jej nie włączysz (menu ☰ → **Termometry pokojowe**).
 
@@ -281,7 +284,7 @@ Testy: `./gradlew test :app:testDebugUnitTest`.
 
 ---
 
-## Ograniczenia wersji 0.2.0
+## Ograniczenia wersji 0.2.1
 - **eModul** jest tylko do odczytu (bez zmiany nastaw sterownika TECH), wymaga konta eModul i internetu, a zakres danych
   zależy od typu sterownika – działanie sprawdzono na jednym sterowniku TECH. Nieznane typy kafelków mogą mieć nazwy
   zastępcze.
@@ -302,7 +305,7 @@ Testy: `./gradlew test :app:testDebugUnitTest`.
   wersjami One UI.
 - Plik APK jest podpisany kluczem autora; odcisk SHA-256 certyfikatu podpisu to `71:0C:AB:67:52:6A:DE:DB:C3:03:3F:44:00:EC:4C:EF:01:E0:C7:A9:C8:0C:2A:B4:54:F8:74:F2:97:9D:C9:59` (jak go
   sprawdzić – [README](../README.md#weryfikacja-pobranego-pliku)). Wszystkie wersje są podpisane tym samym kluczem,
-  więc aktualizacja nad poprzednią wersją (także 0.1.0 → 0.2.0) zachowuje ustawienia. Wcześniejsze wersje testowe podpisane kluczem
+  więc aktualizacja nad poprzednią wersją (także 0.1.0 → 0.2.1) zachowuje ustawienia. Wcześniejsze wersje testowe podpisane kluczem
   debug trzeba raz odinstalować (ustawienia wpisujesz wtedy ponownie).
 - Domik jest nieoficjalną aplikacją, niezwiązaną z producentem sterowników Deimic, i nie zastępuje oficjalnej
   aplikacji. Używasz jej na własną odpowiedzialność, bez gwarancji – patrz
