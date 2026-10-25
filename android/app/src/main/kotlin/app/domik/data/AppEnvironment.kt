@@ -48,6 +48,8 @@ import kotlinx.coroutines.Dispatchers
  * @property wallClock czas ścienny w ms (termometry, dziennik kalibracji); testy podstawiają czas wirtualny
  * @property thermoWritesEnabled zapisy kalibracji poza demo dozwolone ([Features.SENSOR_CALIBRATION_WRITES]; inna
  *   wartość wyłącznie w testach)
+ * @property diagnosticsHeader wiersze nagłówka raportu z testu połączenia (wersja aplikacji, Android, model urządzenia;
+ *   w aplikacji z `Build`, domyślnie puste – testy)
  * @property leaveRestoreTimeoutMillis ile najdłużej czekać na przywrócenie kalibracji instalatora przed zmianą /
  *   zapomnieniem sterownika
  */
@@ -76,4 +78,5 @@ class AppEnvironment(
     val wallClock: () -> Long = System::currentTimeMillis,
     val thermoWritesEnabled: Boolean = Features.SENSOR_CALIBRATION_WRITES,
     val leaveRestoreTimeoutMillis: Long = 30_000L,
+    val diagnosticsHeader: () -> List<String> = { emptyList() },
 )

@@ -87,7 +87,7 @@ object Sessions {
     /**
      * Sesja z prawdziwym sterownikiem pod adresem z [profile] (TLS z przypięciem certyfikatu).
      *
-     * @param transportFactory inny transport niż TLS po gnieździe – wyłącznie dla testów
+     * @param transportFactory inny transport niż TLS po gnieździe ([ControllerTls]) – wyłącznie dla testów
      */
     fun controller(
         scope: CoroutineScope,
@@ -100,11 +100,9 @@ object Sessions {
         transportFactory: FrameTransportFactory? = null,
     ): HomeSession {
         val sessionScope = childScope(scope)
-        val connection = if (transportFactory == null) {
-            Connection(profile.endpoint, serial, sessionScope, config = connectionConfig)
-        } else {
-            Connection(profile.endpoint, serial, sessionScope, transportFactory, connectionConfig)
-        }
+        val connection = Connection(
+            profile.endpoint, serial, sessionScope, transportFactory ?: ControllerTls.transportFactory, connectionConfig,
+        )
         val commands = DeviceCommands(connection, experimentalProfileSwitching = Features.PROFILE_SWITCHING)
         val repository = HomeRepository(
             sessionScope,

@@ -68,8 +68,8 @@ android {
         // targetSdk 37 (Android 17) wymusza uprawnienie runtime ACCESS_LOCAL_NETWORK dla połączeń TCP w LAN –
         // na razie zostajemy na 36, dopóki aplikacja nie obsługuje tego uprawnienia.
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.2.1"
     }
 
     signingConfigs {
@@ -123,6 +123,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.conscrypt.android)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(platform(libs.junit.bom))

@@ -336,18 +336,27 @@ class ThermoUiModelTest {
         DiscoveredThermometer(mac, name, rssi, 21.0f, 45f, 90, 5_000L, 5_000L, assigned)
 
     @Test
-    fun `wykryte termometry - najsilniejszy sygnal pierwszy, z nazwa przypisanej strefy`() {
+    fun `wykryte termometry - przypisane alfabetycznie po strefie, potem nieprzypisane, niezaleznie od sygnalu`() {
+        val zoneZ = ZoneKey(1, 7)
+        val zoneL = ZoneKey(1, 8)
+        val names = mapOf(key to "Pokój 3", zoneZ to "Żółta", zoneL to "Łazienka")
         val rows = discoveredRows(
-            state(discovered = listOf(found("02:00:00:00:00:01", -80, name = "ATC_1"), found("02:00:00:00:00:02", -50, assigned = key))),
-            zoneNames = { if (it == key) "Pokój 3" else null },
+            state(
+                discovered = listOf(
+                    found("02:00:00:00:00:01", -40, name = "ATC_1"),
+                    found("02:00:00:00:00:02", -90, assigned = zoneZ),
+                    found("02:00:00:00:00:03", -30, assigned = key),
+                    found("02:00:00:00:00:04", -60, assigned = zoneL),
+                ),
+            ),
+            zoneNames = { names[it] },
             locale = pl,
         )
-        assertEquals(listOf("02:00:00:00:00:02", "02:00:00:00:00:01"), rows.map { it.mac })
-        assertEquals("Pokój 3", rows[0].assignedZoneName)
-        assertNull(rows[1].assignedZoneName)
-        assertEquals("ATC_1", rows[1].title)
-        val signal = rows[1].values.first { it.label == R.string.thermo_row_signal }
-        assertEquals(ResText.plain("${minus}80${nb}dBm"), signal.value)
+        assertEquals(listOf("02:00:00:00:00:04", "02:00:00:00:00:03", "02:00:00:00:00:02", "02:00:00:00:00:01"), rows.map { it.mac })
+        assertEquals(listOf("Łazienka", "Pokój 3", "Żółta", null), rows.map { it.assignedZoneName })
+        assertEquals("ATC_1", rows[3].title)
+        val signal = rows[3].values.first { it.label == R.string.thermo_row_signal }
+        assertEquals(ResText.plain("${minus}40${nb}dBm"), signal.value)
     }
 
     private val config = HomeConfig(

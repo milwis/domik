@@ -243,6 +243,8 @@
     <string name="connection_test_no_response">Connected, but the controller does not answer commands. This usually means a wrong serial number.</string>
     <string name="connection_test_lost">The connection was lost during the test. Try again.</string>
     <string name="connection_test_other">The test failed for an unknown reason.</string>
+    <string name="connection_diagnostics_copy">Copy diagnostics</string>
+    <string name="connection_diagnostics_copied">Copied – paste it into your message</string>
     <string name="connection_save">Save and connect</string>
     <string name="connection_cancel">Cancel</string>
     <string name="connection_forget">Remove saved controller</string>
@@ -463,6 +465,7 @@
     <string name="oss_name_material3">Material 3 for Compose</string>
     <string name="oss_name_icons">Icons: Material Icons</string>
     <string name="about_notice_show">Show the icons licence notice and the full Apache-2.0 text</string>
+    <string name="about_notice_show_conscrypt">Show the Conscrypt and BoringSSL licence notices and the full Apache-2.0 text</string>
     <string name="about_notice_hide">Hide the licence notice</string>
     <string name="about_notice_unavailable">Couldn\'t load the licence notice.</string>
     <string name="about_apache_title">Apache-2.0 licence – summary</string>

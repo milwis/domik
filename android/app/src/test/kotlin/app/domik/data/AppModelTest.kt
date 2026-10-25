@@ -60,6 +60,7 @@ class AppModelTest {
         firmwareVersion = "wersja",
     )
     private var testGate: CompletableDeferred<Unit>? = null
+    private var testFailure: Exception? = null
 
     // Przykładowy numer seryjny wyłącznie do testów (nie należy do żadnego prawdziwego sterownika).
     private val serialText = "0A1B2C3D"
@@ -73,6 +74,7 @@ class AppModelTest {
             connectionTestRunner = { input ->
                 testedInputs += input
                 testGate?.await()
+                testFailure?.let { throw it }
                 testReport
             },
             controllerTransport = OfflineTransportFactory,
@@ -80,6 +82,7 @@ class AppModelTest {
             ioDispatcher = dispatcher,
             demoNetwork = DemoNetwork.Instant,
             demoSimulation = DemoSimulation.Manual,
+            diagnosticsHeader = { listOf("Domik test", "Android 8.0 (SDK 26)") },
         )
         return AppModel(env, backgroundScope).also { runCurrent() }
     }
@@ -270,6 +273,31 @@ class AppModelTest {
 
         val done = model.form.value.test as ConnectionTestState.Done
         assertEquals(ConnectionTestOutcome.Failure(ConnectionTestFailure.CERTIFICATE_MISMATCH), done.outcome)
+        // Raport do skopiowania: nagłówek z urządzenia i kroki testu, bez numeru seryjnego.
+        assertTrue(done.diagnostics.startsWith("Domik test\nAndroid 8.0 (SDK 26)\nTLS: FAILED (CERTIFICATE_MISMATCH)"), done.diagnostics)
+        assertFalse(done.diagnostics.contains(serialText))
+    }
+
+    @Test
+    fun `nieoczekiwany wyjatek w tescie daje powod OTHER i raport z lancuchem wyjatkow`() = runTest {
+        accepted()
+        val model = model()
+        model.acceptTerms()
+        model.openConnectionSettings()
+        model.editHost("192.168.1.50")
+        model.editSerial(serialText)
+        testFailure = IllegalStateException("zepsute", RuntimeException("przyczyna"))
+
+        model.testConnection()
+        runCurrent()
+
+        val done = model.form.value.test as ConnectionTestState.Done
+        assertEquals(ConnectionTestOutcome.Failure(ConnectionTestFailure.OTHER), done.outcome)
+        assertEquals(
+            "Domik test\nAndroid 8.0 (SDK 26)\n" +
+                "Unexpected error: java.lang.IllegalStateException: zepsute\n  caused by: java.lang.RuntimeException: przyczyna",
+            done.diagnostics,
+        )
     }
 
     @Test

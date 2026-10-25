@@ -1,7 +1,9 @@
 package app.domik.ui.settings
 
 import androidx.activity.compose.BackHandler
+import android.content.ClipData
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -17,10 +19,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -37,6 +43,7 @@ import app.domik.data.ConnectionTestOutcome
 import app.domik.data.ConnectionTestState
 import app.domik.ui.components.ScreenColumn
 import app.domik.ui.theme.DomikTheme
+import kotlinx.coroutines.launch
 
 /** Formularz połączenia ze sterownikiem: adres, port, numer seryjny, test połączenia i zapis. */
 @Composable
@@ -210,12 +217,33 @@ private fun TestResult(test: ConnectionTestState) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = colors.accent,
                 )
-                is ConnectionTestOutcome.Failure -> Text(
-                    text = stringResource(outcome.reason.messageRes()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.error,
-                )
+                is ConnectionTestOutcome.Failure -> Column {
+                    Text(
+                        text = stringResource(outcome.reason.messageRes()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.error,
+                    )
+                    if (test.diagnostics.isNotEmpty()) CopyDiagnosticsButton(test.diagnostics)
+                }
             }
         }
+    }
+}
+
+/** „Kopiuj diagnostykę”: raport techniczny (bez numeru seryjnego) do schowka, żeby dało się go wkleić na forum. */
+@Composable
+private fun CopyDiagnosticsButton(diagnostics: String) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    var copied by remember(diagnostics) { mutableStateOf(false) }
+    TextButton(
+        onClick = {
+            scope.launch {
+                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Domik", diagnostics)))
+                copied = true
+            }
+        },
+    ) {
+        Text(stringResource(if (copied) R.string.connection_diagnostics_copied else R.string.connection_diagnostics_copy))
     }
 }

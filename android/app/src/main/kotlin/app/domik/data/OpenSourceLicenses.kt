@@ -13,6 +13,7 @@ enum class OpenSourceComponent {
     AndroidX,
     JetpackCompose,
     Material3,
+    Conscrypt,
     MaterialIcons,
     OpenMeteo,
 }
@@ -22,7 +23,7 @@ enum class OpenSourceComponent {
  *
  * @property link strona składnika, jeśli ma być klikalna (null = tylko tekst)
  * @property hasNoticeText składnik ma dołączoną informację o licencji (res/raw/notice_material_icons.txt),
- *   którą ekran pokazuje po stuknięciu
+ *   którą ekran pokazuje po stuknięciu (Conscrypt/BoringSSL: notice_conscrypt.txt)
  */
 data class OpenSourceItem(
     val component: OpenSourceComponent,
@@ -43,6 +44,7 @@ object OpenSourceLicenses {
         OpenSourceItem(OpenSourceComponent.AndroidX, LicenseKind.Apache2),
         OpenSourceItem(OpenSourceComponent.JetpackCompose, LicenseKind.Apache2),
         OpenSourceItem(OpenSourceComponent.Material3, LicenseKind.Apache2),
+        OpenSourceItem(OpenSourceComponent.Conscrypt, LicenseKind.Apache2, hasNoticeText = true),
         OpenSourceItem(OpenSourceComponent.MaterialIcons, LicenseKind.Apache2, hasNoticeText = true),
         OpenSourceItem(OpenSourceComponent.OpenMeteo, LicenseKind.CcBy4, link = ProjectLinks.OPEN_METEO),
     )

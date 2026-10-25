@@ -24,6 +24,7 @@ import app.domik.thermo.CalibrationIdleDetail
 import app.domik.thermo.CalibrationIdleReason
 import app.domik.thermo.CalibrationReason
 import app.domik.ui.dashboard.placeLabel
+import java.text.Collator
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -413,18 +414,31 @@ data class DiscoveredRow(
     val assignedZoneName: String?,
 )
 
-/** Wykryte termometry, najsilniejszy sygnał pierwszy. [zoneNames] – nazwy stref z przypisań (klucz = strefa). */
+/**
+ * Wykryte termometry w stałej kolejności (nie zależnej od ostatnio odebranej reklamy ani sygnału): najpierw przypisane,
+ * alfabetycznie po nazwie strefy, potem nieprzypisane wg nazwy urządzenia i adresu MAC.
+ * [zoneNames] – nazwy stref z przypisań (klucz = strefa).
+ */
 fun discoveredRows(
     state: ThermoUiState,
     zoneNames: (ZoneKey) -> String?,
     nowMillis: Long = state.updatedAt,
     locale: Locale = Locale.getDefault(),
-): List<DiscoveredRow> = state.discovered.sortedByDescending { it.rssi }.map { found ->
-    DiscoveredRow(
-        mac = found.mac,
-        title = found.name.orEmpty(),
-        values = discoveredValues(found, state.updatedAt, nowMillis, locale),
-        assignedZoneName = found.assignedTo?.let(zoneNames),
+): List<DiscoveredRow> {
+    val collator = Collator.getInstance(locale)
+    val rows = state.discovered.map { found ->
+        DiscoveredRow(
+            mac = found.mac,
+            title = found.name.orEmpty(),
+            values = discoveredValues(found, state.updatedAt, nowMillis, locale),
+            assignedZoneName = found.assignedTo?.let(zoneNames),
+        )
+    }
+    return rows.sortedWith(
+        compareBy<DiscoveredRow> { it.assignedZoneName == null }
+            .thenComparator { a, b -> collator.compare(a.assignedZoneName.orEmpty(), b.assignedZoneName.orEmpty()) }
+            .thenComparator { a, b -> collator.compare(a.title, b.title) }
+            .thenBy { it.mac },
     )
 }
 

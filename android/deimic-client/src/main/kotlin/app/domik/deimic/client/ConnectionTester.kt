@@ -56,6 +56,20 @@ data class ConnectionTestReport(
 }
 
 /**
+ * Plain-text report of a connection test for pasting into a bug report: [header] lines (app / device facts supplied
+ * by the caller), then every step with its status, problem and technical detail. Contains no serial number.
+ */
+fun ConnectionTestReport.formatDiagnostics(header: List<String> = emptyList()): String = buildString {
+    header.forEach { appendLine(it) }
+    for (result in steps) {
+        append(result.step.name).append(": ").append(result.status.name)
+        result.problem?.let { append(" (").append(it.name).append(')') }
+        appendLine()
+        result.detail?.lines()?.filter { it.isNotBlank() }?.forEach { append("  ").appendLine(it) }
+    }
+}.trimEnd()
+
+/**
  * "Test connection" for onboarding / settings: TLS → ping → firmware version → configuration checksum.
  * Stops at the first failed step (the remaining steps are [StepStatus.SKIPPED]). Never retries and never
  * sends anything that changes the controller's state.
@@ -83,12 +97,12 @@ class ConnectionTester(
                     val info = connection.transportInfo.value
                     results += StepResult(
                         ConnectionTestStep.TLS, StepStatus.PASSED,
-                        detail = info?.let { "${it.protocol} ${it.cipherSuite}" },
+                        detail = info?.let { it.diagnostics?.formatBrief() ?: "${it.protocol} ${it.cipherSuite}" },
                     )
                 }
                 else -> results += StepResult(
                     ConnectionTestStep.TLS, StepStatus.FAILED,
-                    problem = reached.problemOrOther(), detail = (reached as? ConnectionState.Failed)?.detail,
+                    problem = reached.problemOrOther(), detail = (reached as? ConnectionState.Failed)?.tlsDetail(),
                 )
             }
 
@@ -141,6 +155,9 @@ class ConnectionTester(
             )
             else -> throw ConnectionException(ConnectionProblem.OTHER, "unexpected response ${frame.command}")
         }
+
+    /** The error message, or the full TLS report (which includes the error chain) when the attempt has one. */
+    private fun ConnectionState.Failed.tlsDetail(): String? = diagnostics?.format() ?: detail
 
     private fun ConnectionState.isTerminal(): Boolean =
         this is ConnectionState.Failed || this is ConnectionState.WaitingToReconnect

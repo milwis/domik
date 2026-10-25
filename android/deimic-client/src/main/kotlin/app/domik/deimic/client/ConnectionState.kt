@@ -23,7 +23,12 @@ sealed interface ConnectionState {
     ) : ConnectionState
 
     /** Gave up (attempts exhausted or a permanent problem such as a certificate mismatch). */
-    data class Failed(val problem: ConnectionProblem, val detail: String? = null) : ConnectionState
+    data class Failed(
+        val problem: ConnectionProblem,
+        val detail: String? = null,
+        /** TLS facts of the failed attempt, if it failed while connecting. */
+        val diagnostics: TlsDiagnostics? = null,
+    ) : ConnectionState
 }
 
 /** Timing and retry policy of a [Connection]. Defaults follow the controller protocol. */

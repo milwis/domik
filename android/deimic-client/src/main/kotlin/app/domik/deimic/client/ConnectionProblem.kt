@@ -46,11 +46,15 @@ enum class ConnectionProblem {
     OTHER,
 }
 
-/** Connection-level failure with its [problem] classification. Messages never contain the serial number. */
+/**
+ * Connection-level failure with its [problem] classification. Messages never contain the serial number.
+ * [diagnostics] is set when the failure happened while opening a TLS connection.
+ */
 open class ConnectionException(
     val problem: ConnectionProblem,
     message: String,
     cause: Throwable? = null,
+    val diagnostics: TlsDiagnostics? = null,
 ) : IOException(message, cause)
 
 /** No response with one of the expected commands arrived within the request timeout. */

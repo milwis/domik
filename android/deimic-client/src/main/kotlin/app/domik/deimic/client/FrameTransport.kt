@@ -34,4 +34,6 @@ data class TransportInfo(
     val cipherSuite: String,
     /** SHA-1 of the server certificate (lowercase hex) – equal to the pinned fingerprint once connected. */
     val certificateSha1: String,
+    /** Provider, protocols etc. of the TLS stack that made the connection; null for non-TLS transports. */
+    val diagnostics: TlsDiagnostics? = null,
 )

@@ -2,6 +2,7 @@ package app.domik.ui.menu
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.annotation.RawRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -267,20 +268,21 @@ private fun OpenSourceRow(item: OpenSourceItem, open: (String) -> Unit) {
     }
     Column {
         InfoRow(title = stringResource(item.component.nameRes()), details = details, url = item.link, open = open)
-        if (item.hasNoticeText) NoticeText()
+        if (item.hasNoticeText) NoticeText(item.component)
     }
 }
 
-/** Przycisk rozwijający informację o licencji dołączoną do aplikacji (res/raw/notice_material_icons.txt). */
+/** Przycisk rozwijający informację o licencji dołączoną do aplikacji (res/raw/notice_*.txt). */
 @Composable
-private fun NoticeText() {
+private fun NoticeText(component: OpenSourceComponent) {
     val context = LocalContext.current
     var expanded by rememberSaveable { mutableStateOf(false) }
     TextButton(onClick = { expanded = !expanded }) {
-        Text(stringResource(if (expanded) R.string.about_notice_hide else R.string.about_notice_show))
+        Text(stringResource(if (expanded) R.string.about_notice_hide else component.noticeShowRes()))
     }
     if (expanded) {
-        val text = remember(context) { readNoticeText(context) }
+        val rawRes = component.noticeRawRes()
+        val text = remember(context, rawRes) { readNoticeText(context, rawRes) }
         Text(
             text = text ?: stringResource(R.string.about_notice_unavailable),
             style = MaterialTheme.typography.bodySmall,
@@ -290,12 +292,25 @@ private fun NoticeText() {
 }
 
 /** Treść pliku z informacją o licencji ułożona do czytania ([reflowNoticeText]); null, gdy nie da się go odczytać. */
-private fun readNoticeText(context: Context): String? = try {
-    context.resources.openRawResource(R.raw.notice_material_icons).bufferedReader(Charsets.UTF_8).use { reflowNoticeText(it.readText()) }
+private fun readNoticeText(context: Context, @RawRes rawRes: Int): String? = try {
+    context.resources.openRawResource(rawRes).bufferedReader(Charsets.UTF_8).use { reflowNoticeText(it.readText()) }
 } catch (_: IOException) {
     null
 } catch (_: Resources.NotFoundException) {
     null
+}
+
+/** Plik z dołączoną informacją o licencji składnika (tylko dla składników z `hasNoticeText`). */
+@RawRes
+private fun OpenSourceComponent.noticeRawRes(): Int = when (this) {
+    OpenSourceComponent.Conscrypt -> R.raw.notice_conscrypt
+    else -> R.raw.notice_material_icons
+}
+
+@StringRes
+private fun OpenSourceComponent.noticeShowRes(): Int = when (this) {
+    OpenSourceComponent.Conscrypt -> R.string.about_notice_show_conscrypt
+    else -> R.string.about_notice_show
 }
 
 @StringRes
@@ -305,6 +320,7 @@ private fun OpenSourceComponent.nameRes(): Int = when (this) {
     OpenSourceComponent.AndroidX -> R.string.oss_name_androidx
     OpenSourceComponent.JetpackCompose -> R.string.oss_name_compose
     OpenSourceComponent.Material3 -> R.string.oss_name_material3
+    OpenSourceComponent.Conscrypt -> R.string.oss_name_conscrypt
     OpenSourceComponent.MaterialIcons -> R.string.oss_name_icons
     OpenSourceComponent.OpenMeteo -> R.string.menu_weather_attribution
 }
@@ -316,6 +332,7 @@ private fun OpenSourceComponent.authorRes(): Int? = when (this) {
     OpenSourceComponent.AndroidX,
     OpenSourceComponent.JetpackCompose,
     OpenSourceComponent.Material3,
+    OpenSourceComponent.Conscrypt,
     OpenSourceComponent.MaterialIcons,
     -> R.string.oss_author_google
     OpenSourceComponent.OpenMeteo -> null

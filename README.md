@@ -11,7 +11,7 @@ Domik **nie powstaje pod jednego producenta**. To system do sterowania różnymi
 inteligentnego domu. **Deimic 1. generacji jest pierwszym obsługiwanym systemem**, a kolejne będą dodawane jako
 osobne moduły – w miarę jak autor uzyska dostęp do danego sterownika.
 
-[**⬇️ Pobierz wersję 0.2.0 (APK)**](https://github.com/milwis/domik/releases/download/v0.2.0/domik-0.2.0.apk) ·
+[**⬇️ Pobierz wersję 0.2.1 (APK)**](https://github.com/milwis/domik/releases/download/v0.2.1/domik-0.2.1.apk) ·
 [**📲 Jak zainstalować**](#instalacja-apk) ·
 [**📖 Instrukcja konfiguracji tabletu**](android/INSTRUKCJA.md)
 
@@ -52,7 +52,7 @@ osobne moduły – w miarę jak autor uzyska dostęp do danego sterownika.
 | 📅 **Kalendarz** | Prawdziwe wydarzenia z kalendarzy zapisanych na tablecie (np. konto Google dodane w systemie) – tylko odczyt, za Twoją zgodą. Harmonogram dzień po dniu, sam przesuwa się z upływem czasu i podświetla to, co trwa *teraz*. |
 | 🌤️ **Pogoda** | Bieżąca pogoda (ikona, temperatura, opis) i prognoza dla miejscowości wybranej w menu: pasek najbliższych godzin (do 48 h) i kolejnych dni (do 14), z szansą opadów. W oknie „Co pokazywać na kafelku” dołożysz temperaturę odczuwalną, wiatr z porywami, wilgotność, indeks UV, wschód i zachód słońca oraz sumę opadów – kafelek pokazuje tyle, ile zmieści jego rozmiar. Dane z [Open-Meteo](https://open-meteo.com), bez konta i bez dostępu do lokalizacji tabletu. |
 | ♨️ **Sterowniki TECH (eModul)** *(opcjonalnie)* | Dane kotła i zaworów z serwisu eModul firmy TECH Sterowniki – **tylko odczyt**, Domik niczego nie zmienia w sterowniku TECH. Integrację dodajesz sam w menu ☰ → **Integracje** → **Dodaj integrację eModul**: kreator prosi o klucz API (eModul → **Ustawienia → Konto →** na samym dole **„Generuj klucz API”**), a potem pokazuje listę danych z **polami wyboru** – zaznaczasz tylko to, co ma być na pulpicie (temperatury, stan, paliwo, alarmy…). Każdy kafelek podpisuje się **„Odczyt HH:mm”**, a gdy dane są starsze niż 15 minut, kafelek się przygasza i pojawia się pasek ostrzeżenia (kłopot po stronie pieca, serwera eModul albo odrzucony klucz). Rozmiary kafelków: 1×1, 2×1, 2×2. Wymaga konta eModul i internetu; w trybie demo działa na przykładowym kotle, bez sieci. |
-| 🌡️ **Termometry pokojowe Xiaomi** *(opcjonalnie, tryb próbny)* | Bezprzewodowe termometry Xiaomi z oprogramowaniem [pvvx](https://github.com/pvvx/ATC_MiThermometer) (odbiór przez Bluetooth na tablecie) stawiasz tam, gdzie temperatura naprawdę się liczy, i przypisujesz do strefy ogrzewania. Domik pokazuje odczyt obok temperatury zadanej i **porównuje go z czujnikiem Deimic**: gdy różnica przekracza 0,5 °C, wyliczy poprawkę **kalibracji czujnika Deimic** (komenda 0x132). **Uwaga: w wersji 0.2.0 to wyłącznie tryb próbny** – Domik niczego nie zapisuje do sterownika, tylko pokazuje i zapisuje w dzienniku, co by zrobił. Zapis kalibracji jest wyłączony na stałe w tej wersji i zostanie włączony dopiero po dłuższym teście. Przygotowanie termometrów (wgranie oprogramowania) robisz na własną odpowiedzialność – [instrukcja krok po kroku](android/TERMOMETRY.md). |
+| 🌡️ **Termometry pokojowe Xiaomi** *(opcjonalnie, tryb próbny)* | Bezprzewodowe termometry Xiaomi z oprogramowaniem [pvvx](https://github.com/pvvx/ATC_MiThermometer) (odbiór przez Bluetooth na tablecie) stawiasz tam, gdzie temperatura naprawdę się liczy, i przypisujesz do strefy ogrzewania. Domik pokazuje odczyt obok temperatury zadanej i **porównuje go z czujnikiem Deimic**: gdy różnica przekracza 0,5 °C, wyliczy poprawkę **kalibracji czujnika Deimic** (komenda 0x132). **Uwaga: w wersji 0.2.1 to wyłącznie tryb próbny** – Domik niczego nie zapisuje do sterownika, tylko pokazuje i zapisuje w dzienniku, co by zrobił. Zapis kalibracji jest wyłączony na stałe w tej wersji i zostanie włączony dopiero po dłuższym teście. Przygotowanie termometrów (wgranie oprogramowania) robisz na własną odpowiedzialność – [instrukcja krok po kroku](android/TERMOMETRY.md). |
 | ✏️ **Własny układ pulpitu** | Tryb edycji (ikona ołówka): przeciąganie kafelków, zmiana rozmiaru (przeciągnięcie rogu; rozmiary dobrane do rodzaju kafelka: światła i gniazdka 1×1, ogrzewanie, rolety i eModul 1×1 / 2×1 / 2×2, pogoda i kalendarz dowolnie), ukrywanie i dodawanie, wybór ikony światła, powrót do układu domyślnego. |
 | 🏡 **Twój dom, bez wpisywania** | Pomieszczenia, piętra, światła, rolety i strefy grzewcze Domik pobiera z konfiguracji sterownika – niczego nie trzeba przepisywać. |
 | 🖥️ **Tablet ścienny** | Ekran zawsze włączony na ładowarce, pełny ekran bez pasków systemowych, Domik jako ekran główny (start po restarcie tabletu), przypięcie aplikacji. |
@@ -75,7 +75,7 @@ osobne moduły – w miarę jak autor uzyska dostęp do danego sterownika.
   </tr>
   <tr>
     <td><img src="docs/screenshots/termometry.png" alt="Termometry pokojowe"><br><sub><b>Termometry pokojowe</b> – wykryte termometry Xiaomi (temperatura, bateria, sygnał) i przypisanie do strefy ogrzewania. Tryb próbny.</sub></td>
-    <td><img src="docs/screenshots/kalibracja.png" alt="Kalibracja czujnika – porównanie"><br><sub><b>Kalibracja czujnika (tryb próbny)</b> – kalibracja instalatora, obecna i planowana, czyli to, co Domik by zmienił. W wersji 0.2.0 nic nie jest zapisywane do sterownika.</sub></td>
+    <td><img src="docs/screenshots/kalibracja.png" alt="Kalibracja czujnika – porównanie"><br><sub><b>Kalibracja czujnika (tryb próbny)</b> – kalibracja instalatora, obecna i planowana, czyli to, co Domik by zmienił. W wersji 0.2.1 nic nie jest zapisywane do sterownika.</sub></td>
   </tr>
   <tr>
     <td><img src="docs/screenshots/pogoda.png" alt="Duży kafelek pogody"><br><sub><b>Pogoda</b> – bieżąca pogoda oraz prognoza godzinowa i dzienna z szansą opadów. Kafelek pokazuje tyle, ile zmieści jego rozmiar (tu 4×2).</sub></td>
@@ -140,13 +140,13 @@ Domik nie jest w Google Play – instaluje się go z pliku APK, **bez budowania 
 Poniżej krok po kroku (nazwy ustawień różnią się nieco między producentami; opis dotyczy Samsunga z One UI).
 
 1. **Pobierz pliki** ze strony [Releases](https://github.com/milwis/domik/releases/latest):
-   **`domik-0.2.0.apk`** oraz (zalecane) **`SHA256SUMS`**. Możesz pobrać je prosto na tablet przeglądarką
+   **`domik-0.2.1.apk`** oraz (zalecane) **`SHA256SUMS`**. Możesz pobrać je prosto na tablet przeglądarką
    albo na komputer i przenieść na tablet kablem lub dyskiem.
 2. **Zezwól na instalację z nieznanych źródeł** dla aplikacji, z której otworzysz plik (przeglądarka albo
    **Moje pliki**): **Ustawienia → Aplikacje → Specjalny dostęp → Instalowanie nieznanych aplikacji** → wybierz
    przeglądarkę / Moje pliki → **Zezwalaj z tego źródła**. Android często sam przeniesie Cię do tego ustawienia,
    gdy stuknięcie pliku zostanie zablokowane.
-3. **Stuknij pobrany plik `domik-0.2.0.apk`** i wybierz **Zainstaluj**.
+3. **Stuknij pobrany plik `domik-0.2.1.apk`** i wybierz **Zainstaluj**.
 4. **Ostrzeżenie Google Play Protect** (np. „Zablokowano aplikację” / „Nieznany twórca”): stuknij
    **Więcej szczegółów → Zainstaluj mimo to**. Ostrzeżenie pojawia się dlatego, że aplikacji nie ma w Google Play
    i jest podpisana kluczem autora – nie oznacza samo w sobie, że plik jest groźny (patrz niżej, jak sprawdzić
@@ -161,7 +161,7 @@ Poniżej krok po kroku (nazwy ustawień różnią się nieco między producentam
 podłącz tablet do komputera i wykonaj:
 
 ```bash
-adb install -r domik-0.2.0.apk
+adb install -r domik-0.2.1.apk
 ```
 
 ### Weryfikacja pobranego pliku
@@ -169,37 +169,37 @@ adb install -r domik-0.2.0.apk
 Plik APK pobieraj **wyłącznie** ze strony [Releases](https://github.com/milwis/domik/releases/latest) tego repozytorium.
 Dobrze jest sprawdzić jego sumę kontrolną – to wystarczy, żeby mieć pewność, że plik nie został zmieniony.
 
-- **macOS / Linux** – w folderze, w którym leżą oba pliki (`domik-0.2.0.apk` i `SHA256SUMS`):
+- **macOS / Linux** – w folderze, w którym leżą oba pliki (`domik-0.2.1.apk` i `SHA256SUMS`):
 
   ```bash
   shasum -a 256 -c SHA256SUMS
   ```
 
-  Wynik powinien brzmieć `domik-0.2.0.apk: OK`.
+  Wynik powinien brzmieć `domik-0.2.1.apk: OK`.
 - **Windows** (PowerShell lub Wiersz polecenia):
 
   ```bat
-  certutil -hashfile domik-0.2.0.apk SHA256
+  certutil -hashfile domik-0.2.1.apk SHA256
   ```
 
   Wypisana suma musi być taka sama jak w pliku `SHA256SUMS` i jak niżej.
 
 | | |
 |---|---|
-| Suma SHA-256 pliku `domik-0.2.0.apk` | `15a2820cd8094d14dcd170dd4ae7e95bcdeaaafff22f5357c0c8291784fc5b07` |
+| Suma SHA-256 pliku `domik-0.2.1.apk` | `f4b8422348671e2fe38487b48138b9f4fce6a654f9d63b2f7a68bd2fc019b4f9` |
 | Odcisk (SHA-256) certyfikatu podpisu aplikacji | `71:0C:AB:67:52:6A:DE:DB:C3:03:3F:44:00:EC:4C:EF:01:E0:C7:A9:C8:0C:2A:B4:54:F8:74:F2:97:9D:C9:59` |
 
 Odcisk certyfikatu podpisu sprawdzisz na komputerze z zainstalowanym Android SDK
-(`apksigner verify --print-certs domik-0.2.0.apk`) albo JDK
-(`keytool -printcert -jarfile domik-0.2.0.apk`) – wypisane cyfry muszą zgadzać się z tabelą
+(`apksigner verify --print-certs domik-0.2.1.apk`) albo JDK
+(`keytool -printcert -jarfile domik-0.2.1.apk`) – wypisane cyfry muszą zgadzać się z tabelą
 (wielkość liter i dwukropki nie mają znaczenia).
 
 ### Aktualizacje
 
 Wszystkie wydania są podpisane **jednym, stałym kluczem**, więc nową wersję instaluje się **bezpośrednio nad
-poprzednią** (tym samym sposobem, co pierwszą) – ustawienia zostają. Dotyczy to także aktualizacji z **0.1.0 do 0.2.0**:
-zainstaluj nowy plik APK nad starym. Po pierwszym uruchomieniu 0.2.0 trzeba **jeszcze raz zaakceptować regulamin**
-(nowa wersja 1.1 opisuje opcjonalną integrację z eModul i termometry); dane i ustawienia zostają. Wcześniejsze wersje
+poprzednią** (tym samym sposobem, co pierwszą) – ustawienia zostają. Dotyczy to także aktualizacji z **0.1.0 lub 0.2.0 do 0.2.1**:
+zainstaluj nowy plik APK nad starym. Przy aktualizacji z 0.1.0 trzeba po pierwszym uruchomieniu **jeszcze raz zaakceptować regulamin**
+(wersja 1.1 opisuje opcjonalną integrację z eModul i termometry); z 0.2.0 regulamin zostaje bez zmian. Dane i ustawienia zostają. Wcześniejsze wersje
 testowe, podpisane kluczem *debug*, mają inny podpis: trzeba je **raz odinstalować**, a ustawienia wpisać ponownie.
 
 ### Wymagania
@@ -214,10 +214,21 @@ Xiaomi z wgranym oprogramowaniem pvvx; obie rzeczy są opcjonalne.
 
 ## Stan projektu
 
-**0.2.0 – wersja testowa.** Sprawdzona tylko na jednym sterowniku Deimic, jednym sterowniku TECH i jednym tablecie
+**0.2.1 – wersja testowa.** Sprawdzona tylko na jednym sterowniku Deimic, jednym sterowniku TECH i jednym tablecie
 autora – u Ciebie (inne oprogramowanie sterownika, inna konfiguracja instalacji, inny tablet) może zachowywać się
 inaczej. Nowe w 0.2.0: integracja eModul (tylko odczyt), termometry pokojowe w trybie próbnym, ujednolicone rozmiary
 kafelków, regulamin i polityka prywatności 1.1.
+
+**Nowe w 0.2.1:**
+
+- **Dołączony stos TLS (Conscrypt)** używany tylko do połączenia ze sterownikiem – dla spójnego działania na różnych
+  wersjach Androida i różnych tabletach. Aplikacja jest przez to większa (ok. 20 MB). Noty licencyjne Conscrypt i BoringSSL:
+  menu ☰ → O aplikacji → Licencje open source oraz [`NOTICE.md`](NOTICE.md).
+- **Diagnostyka TLS w teście połączenia:** po nieudanym teście Domik pokazuje szczegóły problemu z połączeniem, a przycisk
+  **Kopiuj diagnostykę** kopiuje je do schowka, żeby łatwo dołączyć je do zgłoszenia (diagnostyka nie zawiera numeru
+  seryjnego; sprawdź jednak treść przed wklejeniem).
+- Termometry: instrukcja wgrania oprogramowania dla modelu MJWSD05MMC; stała kolejność wykrytych termometrów.
+- eModul: pasek „brak komunikacji” znika po powrocie łączności modułu.
 
 Gotowe:
 
@@ -238,7 +249,7 @@ Gotowe:
   ([polityka prywatności](legal/polityka-prywatnosci.md), § 4 ust. 5)
 - [x] **Termometry pokojowe Xiaomi (pvvx) – tryb próbny:** odbiór przez Bluetooth, przypisanie do strefy, odczyt obok
   temperatury zadanej, porównanie z czujnikiem Deimic i dziennik tego, co kalibracja czujnika Deimic by zmieniła.
-  **Zapis kalibracji do sterownika jest w 0.2.0 wyłączony** – ta część nie została jeszcze włączona w wydaniu
+  **Zapis kalibracji do sterownika jest w 0.2.1 wyłączony** – ta część nie została jeszcze włączona w wydaniu
   ([instrukcja termometrów](android/TERMOMETRY.md))
 - [x] Ujednolicone rozmiary kafelków (światła i gniazdka 1×1; ogrzewanie, rolety, eModul 1×1 / 2×1 / 2×2)
 - [x] Tryb demo, motywy i palety, ustawienia z zaszyfrowanym numerem seryjnym
@@ -261,7 +272,7 @@ W dalszej przyszłości (pomysły):
 
 - [ ] **Kolejne sterowniki i systemy smart home** – nowe moduły obsługi, rozwijane w miarę dostępu autora do
   danego sprzętu (Deimic 1. generacji jest pierwszy, Gree jest następny w kolejce)
-- [ ] **Sterowanie głosem** przez Gemini – w wersji 0.2.0 jeszcze go nie ma
+- [ ] **Sterowanie głosem** przez Gemini – w wersji 0.2.1 jeszcze go nie ma
 - [ ] **Nastawy sterowników TECH** – zmiana temperatur zadanych (CO, CWU, zawory) przez eModul; na razie poza zakresem,
   integracja eModul jest tylko do odczytu *(wymagałaby osobnej decyzji i zmiany polityki prywatności)*
 
@@ -296,7 +307,7 @@ Przeczytaj, zanim zainstalujesz.
   oprogramowania do sterownika i nie zmienia konfiguracji instalacji (nazw, wyjść, harmonogramów) – odczytuje ją
   i wysyła polecenia sterujące: włącz/wyłącz, rolety oraz temperaturę zadaną i profil ogrzewania (te dwie ostatnie
   zmieniają ustawienia zapisane w sterowniku – tak jak przy zmianie ich na ścianie lub w innej aplikacji). Warunki
-  gwarancji sterownika określa jego gwarant; sprawdź je samodzielnie. W wersji 0.2.0 Domik **nie zapisuje** do
+  gwarancji sterownika określa jego gwarant; sprawdź je samodzielnie. W wersji 0.2.1 Domik **nie zapisuje** do
   sterownika kalibracji czujników – ta funkcja termometrów działa tylko w trybie próbnym (zapis jest wyłączony).
   Integracja eModul jest tylko do odczytu.
 - **Brak zbierania danych.** Autor nie zbiera żadnych danych i aplikacja nie ma telemetrii, analityki, reklam ani kont.
@@ -326,7 +337,7 @@ Kotlin + Jetpack Compose, modułowa architektura. Obsługa sterownika Deimic mie
 | `deimic-protocol` | ramka protokołu V1, dekoder strumieniowy, parsery komunikatów |
 | `deimic-client` | połączenie TLS z przypiętym certyfikatem, keepalive, ponawianie, komendy z potwierdzeniem |
 | `deimic-config` | pobieranie i odczyt bazy konfiguracji sterownika (własny czytnik SQLite) |
-| `thermo` | termometry pokojowe: logika porównania z czujnikiem Deimic i kalibracji (zapis wyłączony w 0.2.0) |
+| `thermo` | termometry pokojowe: logika porównania z czujnikiem Deimic i kalibracji (zapis wyłączony w 0.2.1) |
 | `automation` | auto-wyłączanie wyjść po czasie (silnik; jeszcze niepodłączony do aplikacji) |
 | `demo` | symulowany sterownik dla trybu demo i testów |
 | `app` | aplikacja Android: pulpit, kafelki, ustawienia, integracje (eModul, termometry Bluetooth) |
@@ -361,7 +372,7 @@ chosen town's coordinates rounded to 2 decimal places; no device location) and, 
 optional **read-only** eModul integration (your API key is sent to emodul.eu, which is run by TECH Sterowniki, a separate
 controller of your data). **New in 0.2.0:** eModul integration with a setup wizard and a checkbox list of what to show,
 tile sizes 1×1 / 2×1 / 2×2, and Xiaomi (pvvx) room thermometers received over Bluetooth, comparing them with the Deimic
-sensor. The thermometer calibration feature is a **trial mode only** in 0.2.0 – nothing is written to the controller.
+sensor. The thermometer calibration feature is a **trial mode only** in 0.2.1 – nothing is written to the controller. **New in 0.2.1:** a bundled TLS stack (Conscrypt, used only for the controller connection) for consistent behaviour across Android versions and tablets, and TLS diagnostics with a “Copy diagnostics” button after a failed connection test.
 Terms and privacy policy are version 1.1 (re-acceptance required once after updating from 0.1.0; data is kept). Most
 screenshots above come from the demo mode.
 
@@ -376,7 +387,7 @@ screenshots above come from the demo mode.
 
 **Install (3 steps, no building required) / update from 0.1.0 (install over the old version, same signing key):**
 
-1. Download `domik-0.2.0.apk` (and `SHA256SUMS`) from [Releases](https://github.com/milwis/domik/releases/latest) and
+1. Download `domik-0.2.1.apk` (and `SHA256SUMS`) from [Releases](https://github.com/milwis/domik/releases/latest) and
    verify the checksum (`shasum -a 256 -c SHA256SUMS`; fingerprints are listed in the
    [verification section](#weryfikacja-pobranego-pliku)).
 2. On the tablet allow installing unknown apps for your browser / file manager (Settings → Apps → Special access →

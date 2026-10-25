@@ -1,5 +1,7 @@
 package app.domik.data
 
+import app.domik.deimic.client.TlsDiagnostics
+import app.domik.deimic.client.formatDiagnostics
 import app.domik.deimic.config.HomeConfig
 import app.domik.deimic.client.commands.ZoneKey
 import app.domik.integrations.calendar.CalendarModel
@@ -35,7 +37,8 @@ sealed interface ConnectionTestState {
 
     data object Running : ConnectionTestState
 
-    data class Done(val outcome: ConnectionTestOutcome) : ConnectionTestState
+    /** [diagnostics]: pełny raport techniczny do skopiowania (bez numeru seryjnego); pusty, gdy nie ma czego pokazać. */
+    data class Done(val outcome: ConnectionTestOutcome, val diagnostics: String = "") : ConnectionTestState
 }
 
 /**
@@ -225,14 +228,17 @@ class AppModel(private val env: AppEnvironment, private val scope: CoroutineScop
         testJob?.cancel()
         _form.update { it.copy(test = ConnectionTestState.Running) }
         testJob = scope.launch {
-            val outcome = try {
-                env.connectionTestRunner.run(input).toOutcome()
+            val header = env.diagnosticsHeader()
+            val done = try {
+                val report = env.connectionTestRunner.run(input)
+                ConnectionTestState.Done(report.toOutcome(), report.formatDiagnostics(header))
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
-                ConnectionTestOutcome.Failure(ConnectionTestFailure.OTHER)
+            } catch (error: Exception) {
+                val unexpected = TlsDiagnostics.errorChain(error).joinToString("\n  caused by: ", prefix = "Unexpected error: ")
+                ConnectionTestState.Done(ConnectionTestOutcome.Failure(ConnectionTestFailure.OTHER), (header + unexpected).joinToString("\n"))
             }
-            _form.update { it.copy(test = ConnectionTestState.Done(outcome)) }
+            _form.update { it.copy(test = done) }
         }
     }
 
